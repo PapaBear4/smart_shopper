@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'objectbox.dart'; // Import the ObjectBox helper class
 import 'service_locator.dart'; // Import the GetIt setup file
+import 'routing/app_router.dart'; // Import the router config
 
 Future<void> main() async {
   // IMPORTANT: Ensure Flutter bindings are initialized before using plugins.
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 1. Create the ObjectBox instance (as before)
+  // OBJECTBOX SETUP
   final objectboxInstance = await ObjectBox.create();
-
-  // 2. Call the setup function and pass the ObjectBox instance to register it
   setupLocator(objectboxInstance);
 
-  // 3. Now run the app
+  // RUN THE APP
   runApp(const MyApp());
 }
 
@@ -24,13 +23,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Later, we'll wrap this with BlocProvider, RepositoryProvider etc.
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Shopping List App',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         useMaterial3: true, // Optional: Use Material 3 design
+        brightness: Brightness.light,
       ),
-      home: const ExampleHomeScreen(),
+      routerConfig: appRouter,
     );
   }
 }
@@ -45,7 +45,8 @@ class ExampleHomeScreen extends StatelessWidget {
     final objectbox = getIt<ObjectBox>();
 
     // Now you can use the objectbox instance, e.g., access its boxes
-    int listCount = objectbox.shoppingListBox.count(); // Example: Get count of lists
+    int listCount =
+        objectbox.shoppingListBox.count(); // Example: Get count of lists
 
     return Scaffold(
       appBar: AppBar(title: const Text('Shopping List (GetIt)')),

@@ -1,5 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'objectbox.dart'; // Your ObjectBox helper class
+import 'repositories/shopping_list_repository.dart'; // Import repository
+import 'features/shopping_lists/cubit/shopping_list_cubit.dart'; // Import cubit
 
 // Create a global instance of GetIt
 final getIt = GetIt.instance;
@@ -10,16 +12,19 @@ void setupLocator(ObjectBox objectboxInstance) {
   // This means GetIt will always return this same instance when requested.
   getIt.registerSingleton<ObjectBox>(objectboxInstance);
 
-  // --- Placeholder for future registrations ---
-  // Later, we'll register our Repositories and BLoCs here. For example:
-  //
-  // 1. Repositories (handle data operations, use ObjectBox)
-  // getIt.registerLazySingleton<ShoppingRepository>(() => ShoppingRepository(getIt<ObjectBox>()));
-  // getIt.registerLazySingleton<StoreRepository>(() => StoreRepository(getIt<ObjectBox>()));
-  //
-  // 2. BLoCs (handle logic, use Repositories)
-  // getIt.registerFactory<ShoppingListBloc>(() => ShoppingListBloc(repository: getIt<ShoppingRepository>()));
-  // getIt.registerFactory<StoreBloc>(() => StoreBloc(repository: getIt<StoreRepository>()));
+  // --- Register Repositories ---
+  // Use registerLazySingleton for repositories: create only when first needed
+  getIt.registerLazySingleton<IShoppingListRepository>(
+      () => ShoppingListRepository(getIt<ObjectBox>()), // Pass ObjectBox instance
+  );
+  // Register other repositories here (e.g., StoreRepository, ItemRepository)
+
+  // --- Register Cubits/Blocs ---
+  // Use registerFactory for Cubits/Blocs: create a new instance every time
+  getIt.registerFactory<ShoppingListCubit>(
+      () => ShoppingListCubit(repository: getIt<IShoppingListRepository>()), // Pass Repository instance
+  );
+  // Register other Cubits/Blocs here
   //
   // 'registerLazySingleton' creates the instance only when first requested.
   // 'registerFactory' creates a new instance every time it's requested.

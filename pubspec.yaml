@@ -9,13 +9,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_bloc: ^8.1.5        # State Management (BLoC Pattern)
+  flutter_bloc: ^9.1.0        # State Management (BLoC Pattern)
   equatable: ^2.0.5         # Value equality for BLoC states/events
   objectbox: ^4.0.3         # ObjectBox core database library
   objectbox_flutter_libs: ^4.0.3 # ObjectBox native libraries (runtime dependency)
   path_provider: ^2.1.3     # Find filesystem paths (used by ObjectBox)
   path: ^1.9.0              # Path manipulation (used with path_provider)
-  get_it: ^7.7.0            # Service Locator for Dependency Injection
+  get_it: ^8.0.3            # Service Locator for Dependency Injection
   go_router: ^14.1.0        # Declarative Routing/Navigation
   url_launcher: ^6.3.0      # Launch URLs (websites, phone calls)
   cupertino_icons: ^1.0.6
