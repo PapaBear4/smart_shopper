@@ -31,8 +31,15 @@ class ShoppingListRepository implements IShoppingListRepository {
 
   @override
   Future<int> addList(ShoppingList list) async {
-    // put() returns the ID of the added object
-    return _listBox.put(list);
+    print("Repository: addList called for '${list.name}'"); // <-- ADD THIS
+    try {
+      final id = _listBox.put(list);
+      print("Repository: ObjectBox put successful, ID: $id"); // <-- ADD THIS
+      return id;
+    } catch (e) {
+      print("Repository: ERROR calling put: $e"); // <-- ADD THIS
+      rethrow; // Re-throw the error so the Cubit can catch it
+    }
   }
 
   @override
