@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import '../models/models.dart';
 import '../objectbox.dart';
 import '../objectbox.g.dart'; // Required for generated query conditions like ShoppingItem_.shoppingList
@@ -68,15 +69,19 @@ class ShoppingItemRepository implements IShoppingItemRepository {
     });
   }
 
-  @override
+@override
   Future<int> addItem(ShoppingItem item, int listId) async {
-    // Important: Establish the ToOne relationship BEFORE putting the item.
+    log("addItem method started for item name: ${item.name}", name: 'ShoppingItemRepository'); // <<< Use log
     item.shoppingList.targetId = listId;
-    // Note: Handling ToMany<GroceryStore> associations would happen before put()
-    // if the item object has stores linked to it already.
-    return _itemBox.put(item);
+    try {
+      final id = _itemBox.put(item);
+      log("_itemBox.put completed. Returned ID: $id", name: 'ShoppingItemRepository'); // <<< Use log
+      return id;
+    } catch (e, s) { // Capture stack trace (s)
+      log("ERROR calling put", name: 'ShoppingItemRepository', error: e, stackTrace: s); // <<< Use log
+      rethrow;
+    }
   }
-
   @override
   Future<void> updateItem(ShoppingItem item) async {
     // Put handles both inserts and updates based on the ID.

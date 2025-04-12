@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import '../../../models/models.dart';          // Models barrel file
@@ -22,10 +23,12 @@ class StoreCubit extends Cubit<StoreState> {
     _storeSubscription?.cancel(); // Cancel any previous subscription
     _storeSubscription = _repository.getStoresStream().listen( // [cite: previous turn's repository code]
       (stores) {
-        emit(StoreLoaded(stores)); // Emit loaded state with the latest list
+              log("Listener: Received ${stores.length} stores from stream. Emitting Loaded state.", name: 'ShoppingItemCubit'); // <<< Use log (Adjusted message for stores)
+emit(StoreLoaded(stores)); // Emit loaded state with the latest list
       },
-      onError: (error) {
-        emit(StoreError("Failed to load stores: $error"));
+      onError: (error,s) {
+              log("Listener: ERROR", name: 'ShoppingItemCubit', error: error, stackTrace: s); // <<< Use log
+emit(StoreError("Failed to load stores: $error"));
       },
     );
   }
