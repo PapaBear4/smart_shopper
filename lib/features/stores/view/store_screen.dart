@@ -237,7 +237,7 @@ class StoreView extends StatelessWidget {
                   if (isEditing) {
                      // EDIT MODE: Update existing store, preserving the ID
                      final updatedStore = GroceryStore(
-                        id: store!.id, // Keep original ID
+                        id: store.id, // Keep original ID
                         name: name,
                         address: address.isNotEmpty ? address : null, // Use null for empty optional fields
                         website: website.isNotEmpty ? website : null,

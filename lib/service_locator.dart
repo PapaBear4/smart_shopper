@@ -88,7 +88,7 @@ void setupLocator(ObjectBox objectboxInstance) {
     final repo = getIt<IShoppingListRepository>();
     if (repo is ShoppingListRepository) {
       log(
-        'GetIt: ShoppingListRepository initialized with box count: ${(repo as ShoppingListRepository).getCount()}',
+        'GetIt: ShoppingListRepository initialized with box count: ${(repo).getCount()}',
         name: 'service_locator',
       );
     }

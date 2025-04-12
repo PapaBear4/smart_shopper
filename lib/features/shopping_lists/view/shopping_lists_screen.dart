@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../models/models.dart';
-import '../../../repositories/shopping_list_repository.dart'; 
 import '../../../service_locator.dart'; 
 import '../cubit/shopping_list_cubit.dart';
 import 'dart:developer';
@@ -261,7 +260,7 @@ class ShoppingListsView extends StatelessWidget {
                   
                   if (isEditing) {
                     // EDIT MODE - Update existing list name
-                    cubit.renameList(list!.id, listName);
+                    cubit.renameList(list.id, listName);
                   } else {
                     // CREATE MODE - Add new list
                     cubit.addList(listName);
