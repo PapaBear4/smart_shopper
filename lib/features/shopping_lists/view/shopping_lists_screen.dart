@@ -1,28 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart'; // Import Bloc package
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../models/models.dart'; // Models barrel file
-import '../cubit/shopping_list_cubit.dart'; // The Cubit for this feature
-import 'dart:developer'; // Import for logging
+import '../../../models/models.dart';
+import '../../../repositories/shopping_list_repository.dart'; // Add this import
+import '../../../service_locator.dart'; // Add this import
+import '../cubit/shopping_list_cubit.dart';
+import 'dart:developer';
 
 class ShoppingListsScreen extends StatelessWidget {
   const ShoppingListsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // BlocProvider is now handled by the router.
-    // Scaffold is now the top-level widget returned by build.
+    // Add BlocProvider at the screen level
+    return BlocProvider(
+      create: (context) => ShoppingListCubit(
+        repository: getIt<IShoppingListRepository>(),
+      ),
+      child: const ShoppingListsView(),
+    );
+  }
+}
+
+// Extract the view content to a separate StatelessWidget
+class ShoppingListsView extends StatelessWidget {
+  const ShoppingListsView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Shopping Lists'),
         actions: [
           IconButton(
-            icon: const Icon(
-              Icons.storefront,
-            ), // Or Icons.settings, Icons.store
+            icon: const Icon(Icons.storefront),
             tooltip: 'Manage Stores',
             onPressed: () {
-              // Use context directly to navigate
               context.push('/stores');
             },
           ),
@@ -30,15 +43,15 @@ class ShoppingListsScreen extends StatelessWidget {
       ),
       // Use BlocBuilder to react to state changes from the Cubit
       body: BlocBuilder<ShoppingListCubit, ShoppingListState>(
-        builder: (context, state) { // Use the context from the build method
+        builder: (context, state) {
           // ---- Loading State ----
           if (state is ShoppingListLoading || state is ShoppingListInitial) {
-            log('State: Loading or Initial', name: 'ShoppingListsScreen'); // Example log
+            log('State: Loading or Initial', name: 'ShoppingListsScreen');
             return const Center(child: CircularProgressIndicator());
           }
           // ---- Loaded State ----
           else if (state is ShoppingListLoaded) {
-            log('State: Loaded with ${state.lists.length} lists', name: 'ShoppingListsScreen'); // Example log
+            log('State: Loaded with ${state.lists.length} lists', name: 'ShoppingListsScreen');
             // Handle empty list case
             if (state.lists.isEmpty) {
               return const Center(
@@ -52,22 +65,20 @@ class ShoppingListsScreen extends StatelessWidget {
             // Display the list using ListView.builder
             return ListView.builder(
               itemCount: state.lists.length,
-              itemBuilder: (listContext, index) { // listContext is fine here
+              itemBuilder: (listContext, index) {
                 final list = state.lists[index];
                 return Dismissible(
-                  key: ValueKey(list.id), // Unique key for Dismissible
-                  direction: DismissDirection.endToStart, // Swipe left to delete
+                  key: ValueKey(list.id),
+                  direction: DismissDirection.endToStart,
                   background: Container(
                     color: Colors.red,
                     alignment: Alignment.centerRight,
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: const Icon(Icons.delete, color: Colors.white),
                   ),
-                  // Confirmation dialog before deleting
                   confirmDismiss: (direction) async {
-                    // Use context directly
                     return await showDialog<bool>(
-                          context: context, // Use context from build method
+                          context: context,
                           builder: (dialogContext) {
                             return AlertDialog(
                               title: const Text('Confirm Deletion'),
@@ -97,11 +108,10 @@ class ShoppingListsScreen extends StatelessWidget {
                         false;
                   },
                   onDismissed: (direction) {
-                    // Use context directly for Cubit interaction
                     context.read<ShoppingListCubit>().deleteList(
                           list.id,
                         );
-                    ScaffoldMessenger.of(context).showSnackBar( // Use context
+                    ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('${list.name} deleted'),
                         duration: const Duration(seconds: 2),
@@ -113,12 +123,10 @@ class ShoppingListsScreen extends StatelessWidget {
                     trailing: IconButton(
                       icon: const Icon(Icons.edit),
                       onPressed: () {
-                        // Use context directly for dialog function
                         _showAddEditListDialog(context, list: list);
                       },
                     ),
                     onTap: () {
-                      // Use context directly for navigation
                       context.push('/list/${list.id}');
                     },
                   ),
@@ -128,17 +136,16 @@ class ShoppingListsScreen extends StatelessWidget {
           }
           // ---- Error State ----
           else if (state is ShoppingListError) {
-             log('State: Error - ${state.message}', name: 'ShoppingListsScreen', error: state.message); // Example log
-             return Center(child: Text('Error loading lists: ${state.message}'));
+            log('State: Error - ${state.message}', name: 'ShoppingListsScreen', error: state.message);
+            return Center(child: Text('Error loading lists: ${state.message}'));
           }
           // Fallback for any unhandled state
-          log('State: Unknown - $state', name: 'ShoppingListsScreen'); // Example log
+          log('State: Unknown - $state', name: 'ShoppingListsScreen');
           return const Center(child: Text('Something went wrong.'));
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Use context directly
           _showAddEditListDialog(context);
         },
         tooltip: 'Add New List',
@@ -147,13 +154,11 @@ class ShoppingListsScreen extends StatelessWidget {
     );
   }
 
-  // --- Helper Function for Add/Edit Dialog ---
-  // This function remains the same, it correctly uses the context passed to it.
+  // Move the dialog function to the view class
   Future<void> _showAddEditListDialog(
     BuildContext context, {
     ShoppingList? list,
   }) async {
-    // Capture the cubit from the context before showing dialog
     final cubit = context.read<ShoppingListCubit>();
 
     final formKey = GlobalKey<FormState>();
@@ -164,7 +169,7 @@ class ShoppingListsScreen extends StatelessWidget {
 
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // User must tap button!
+      barrierDismissible: false,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: Text(isEditing ? 'Rename List' : 'Add New List'),
@@ -192,7 +197,7 @@ class ShoppingListsScreen extends StatelessWidget {
             TextButton(
               child: const Text('Cancel'),
               onPressed: () {
-                Navigator.of(dialogContext).pop(); // Close the dialog
+                Navigator.of(dialogContext).pop();
               },
             ),
             TextButton(
@@ -201,13 +206,11 @@ class ShoppingListsScreen extends StatelessWidget {
                 if (formKey.currentState!.validate()) {
                   final listName = nameController.text.trim();
                   if (isEditing) {
-                    // Use the captured cubit
                     cubit.renameList(list.id, listName);
                   } else {
-                    // Use the captured cubit
                     cubit.addList(listName);
                   }
-                  Navigator.of(dialogContext).pop(); // Close the dialog
+                  Navigator.of(dialogContext).pop();
                 }
               },
             ),

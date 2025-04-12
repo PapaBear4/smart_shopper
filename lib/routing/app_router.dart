@@ -1,89 +1,86 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import 'package:smart_shopper/features/shopping_lists/cubit/shopping_list_cubit.dart';
+import 'package:go_router/go_router.dart'; // Removed BlocProvider import
 import 'package:smart_shopper/features/stores/view/store_screen.dart';
-import 'package:smart_shopper/service_locator.dart';
 import '../features/shopping_lists/view/shopping_lists_screen.dart';
 import '../features/shopping_items/view/shopping_items_screen.dart';
-import '../repositories/shopping_list_repository.dart';
 import 'dart:developer';
 import 'package:flutter/foundation.dart';
 
 // Define the router configuration
+// GoRouter handles navigation throughout the app and maintains navigation state
 final GoRouter appRouter = GoRouter(
-  // Set the initial route when the app starts
+  // Set the initial route when the app starts - the root path '/'
   initialLocation: '/',
-  
-  // Optional logging for debugging navigation issues
+
+  // Enable detailed GoRouter debug logs in debug mode only
+  // This helps diagnose navigation issues during development
   debugLogDiagnostics: !kReleaseMode,
 
-  // Define the list of routes
+  // Define the app's route structure - each route shows a specific screen
   routes: <RouteBase>[
-    // Route for the main Shopping Lists screen
+    // === ROOT ROUTE: SHOPPING LISTS SCREEN ===
     GoRoute(
-      path: '/', // This is the root path
+      path: '/', // Root path (home screen)
       builder: (BuildContext context, GoRouterState state) {
         if (!kReleaseMode) {
-          log('Router: Building root path with BlocProvider', name: 'app_router');
+          log('Router: Building root path', name: 'app_router');
         }
-        
-        // Get repository from service locator
-        final repo = getIt<IShoppingListRepository>();
-        
-        if (!kReleaseMode) {
-          log('Router: Repository instance obtained from GetIt', name: 'app_router');
-        }
-        
-        // Wrap the screen with BlocProvider
-        return BlocProvider(
-          // Create the Cubit with the repository
-          create: (_) => ShoppingListCubit(repository: repo),
-          // Return the actual screen as the child
-          child: const ShoppingListsScreen(),
-        );
+
+        // Return the screen directly - it now has its own BlocProvider
+        return const ShoppingListsScreen();
       },
+      // === NESTED ROUTES UNDER ROOT ===
       routes: <RouteBase>[
-        // Nested route for viewing items within a specific list
+        // === SHOPPING ITEMS ROUTE (Child of root) ===
         GoRoute(
-          path: 'list/:listId', // Matches paths like /list/1, /list/42, etc.
+          // Dynamic path segment with parameter 'listId'
+          // This creates URLs like /list/1, /list/42, etc.
+          path: 'list/:listId',
           builder: (BuildContext context, GoRouterState state) {
-            // Extract the 'listId' parameter from the path
+            // Extract and process route parameters
+            // GoRouterState.pathParameters contains all path parameters as strings
             final String? listIdParam = state.pathParameters['listId'];
-            
-            // Parse as integer since the model uses int IDs
+
+            // Convert string parameter to int (required by our model)
+            // Using int.tryParse which returns null if conversion fails
             final int? listId = int.tryParse(listIdParam ?? '');
-            
+
             if (!kReleaseMode) {
-              log('Router: Navigating to list ID: $listId (from param: $listIdParam)', 
+              log('Router: Navigating to list ID: $listId (from param: $listIdParam)',
                   name: 'app_router');
             }
 
-            // Ensure listId is valid (not null after parsing)
+            // Parameter validation - ensure we have a valid list ID
+            // This prevents crashes if someone manually enters an invalid URL
             if (listId == null) {
-              // Show an error if ID is invalid
+              // Show a user-friendly error screen for invalid IDs
               return Scaffold(
                 appBar: AppBar(title: const Text('Error')),
                 body: Center(child: Text('Invalid List ID: "$listIdParam"')),
               );
             }
 
-            // Return the ShoppingItemsScreen with the parsed integer ID
+            // Successfully extracted list ID - show the shopping items screen
+            // ShoppingItemsScreen already has its own BlocProvider
             return ShoppingItemsScreen(listId: listId);
           },
         ),
       ],
     ),
+
+    // === STORES MANAGEMENT ROUTE (Top-level route) ===
     GoRoute(
-      path: '/stores', // Path for the store management screen
+      path: '/stores', // Absolute path starting with /
       builder: (BuildContext context, GoRouterState state) {
-        // Return store management screen
+        // StoreManagementScreen already has its own BlocProvider
         return const StoreManagementScreen();
       },
     ),
   ],
 
-  // Optional: A builder for handling routes that are not found
+  // === ERROR HANDLING ===
+  // Displayed when navigation fails (e.g., user enters invalid URL)
+  // This ensures a good UX even when navigation errors occur
   errorBuilder: (context, state) => Scaffold(
     appBar: AppBar(title: const Text('Page Not Found')),
     body: Center(
