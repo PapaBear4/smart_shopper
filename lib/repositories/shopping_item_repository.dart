@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import '../models/models.dart';
 import '../objectbox.dart';
 import '../objectbox.g.dart'; // Required for generated query conditions like ShoppingItem_.shoppingList
@@ -73,26 +72,12 @@ class ShoppingItemRepository implements IShoppingItemRepository {
 
   @override
   Future<int> addItem(ShoppingItem item, int listId) async {
-    log(
-      "addItem method started for item name: ${item.name}",
-      name: 'ShoppingItemRepository',
-    ); // <<< Use log
     item.shoppingList.targetId = listId;
     try {
       final id = _itemBox.put(item);
-      log(
-        "_itemBox.put completed. Returned ID: $id",
-        name: 'ShoppingItemRepository',
-      ); // <<< Use log
       return id;
-    } catch (e, s) {
+    } catch (e) {
       // Capture stack trace (s)
-      log(
-        "ERROR calling put",
-        name: 'ShoppingItemRepository',
-        error: e,
-        stackTrace: s,
-      ); // <<< Use log
       rethrow;
     }
   }

@@ -1,9 +1,6 @@
-import 'dart:developer';
-
 import 'package:smart_shopper/objectbox.g.dart';
-
 import '../models/models.dart'; // Uses the barrel file
-import '../objectbox.dart';   // The ObjectBox helper class
+import '../objectbox.dart'; // The ObjectBox helper class
 
 // Define an interface (abstract class) for testability/mocking
 abstract class IShoppingListRepository {
@@ -25,20 +22,20 @@ class ShoppingListRepository implements IShoppingListRepository {
   @override
   Stream<List<ShoppingList>> getAllListsStream() {
     // Create a query for all ShoppingList objects, sorted by name
-    final query = _listBox.query().order(ShoppingList_.name).watch(triggerImmediately: true);
+    final query = _listBox
+        .query()
+        .order(ShoppingList_.name)
+        .watch(triggerImmediately: true);
     // Map the query stream to a stream of lists
     return query.map((query) => query.find());
   }
 
   @override
   Future<int> addList(ShoppingList list) async {
-    log("Repository: addList called for '${list.name}'"); // <-- ADD THIS
     try {
       final id = _listBox.put(list);
-      log("Repository: ObjectBox put successful, ID: $id"); // <-- ADD THIS
       return id;
     } catch (e) {
-      log("Repository: ERROR calling put: $e"); // <-- ADD THIS
       rethrow; // Re-throw the error so the Cubit can catch it
     }
   }

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import '../../../models/models.dart';
@@ -51,42 +50,17 @@ class ShoppingItemCubit extends Cubit<ShoppingItemState> {
               emit(ShoppingItemError("Failed to load items: $error"));
             },
           );
-    } catch (e, s) {
-      log(
-        "Listener: ERROR",
-        name: 'ShoppingItemCubit',
-        error: e,
-        stackTrace: s,
-      ); // <<< Use log
+    } catch (e) {
       emit(ShoppingItemError("Failed to initialize item view: $e"));
     }
   }
 
   Future<void> addItem(ShoppingItem item) async {
-    log(
-      "addItem method started for item: ${item.name}",
-      name: 'ShoppingItemCubit',
-    );
-    
     try {
-      log(
-        "Calling repository.addItem...",
-        name: 'ShoppingItemCubit',
-      );
       // The repository handles linking it to the listId
       await _repository.addItem(item, listId);
-      log(
-        "repository.addItem finished.",
-        name: 'ShoppingItemCubit',
-      );
       // UI updates via stream subscription
-    } catch (e, s) {
-      log(
-        "ERROR adding item",
-        name: 'ShoppingItemCubit',
-        error: e,
-        stackTrace: s,
-      );
+    } catch (e) {
       emit(ShoppingItemError("Failed to add item: $e"));
     }
   }
