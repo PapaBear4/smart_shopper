@@ -1,6 +1,6 @@
 {
-    "name": "smart_shopper2",
-    "short_name": "smart_shopper2",
+    "name": "smart_shopper",
+    "short_name": "smart_shopper",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

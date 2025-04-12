@@ -2,7 +2,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:smart_shopper2/repositories/store_repository.dart';
+import 'package:smart_shopper/repositories/store_repository.dart';
 import '../../../models/models.dart';
 import '../../../repositories/shopping_item_repository.dart'; // Needed for Cubit creation
 import '../../../service_locator.dart'; // Needed for GetIt

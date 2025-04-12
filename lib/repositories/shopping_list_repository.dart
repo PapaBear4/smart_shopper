@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:smart_shopper2/objectbox.g.dart';
+import 'package:smart_shopper/objectbox.g.dart';
 
 import '../models/models.dart'; // Uses the barrel file
 import '../objectbox.dart';   // The ObjectBox helper class

@@ -1,3 +1,3 @@
-# smart_shopper2
+# smart_shopper
 
 A new Flutter project.

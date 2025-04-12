@@ -1,7 +1,7 @@
 import 'package:get_it/get_it.dart';
-import 'package:smart_shopper2/features/stores/cubit/store_cubit.dart';
-import 'package:smart_shopper2/repositories/shopping_item_repository.dart';
-import 'package:smart_shopper2/repositories/store_repository.dart';
+import 'package:smart_shopper/features/stores/cubit/store_cubit.dart';
+import 'package:smart_shopper/repositories/shopping_item_repository.dart';
+import 'package:smart_shopper/repositories/store_repository.dart';
 import 'objectbox.dart'; // Your ObjectBox helper class
 import 'repositories/shopping_list_repository.dart'; // Import repository
 import 'features/shopping_lists/cubit/shopping_list_cubit.dart'; // Import cubit

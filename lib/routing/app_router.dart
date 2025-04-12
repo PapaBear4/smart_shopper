@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:smart_shopper2/features/stores/view/store_screen.dart';
+import 'package:smart_shopper/features/stores/view/store_screen.dart';
 import '../features/shopping_lists/view/shopping_lists_screen.dart'; // Import your main screen
 import '../features/shopping_items/view/shopping_items_screen.dart';
 
