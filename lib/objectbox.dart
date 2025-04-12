@@ -12,7 +12,6 @@ class ObjectBox {
   late final Box<GroceryStore> groceryStoreBox;
   late final Box<ShoppingItem> shoppingItemBox;
 
-
   // Private constructor
   ObjectBox._create(this._store) {
     // Assign the boxes for convenience
@@ -42,6 +41,15 @@ class ObjectBox {
   /// Closes the Store. Useful for clean shutdown but not always critical on mobile.
   void close() {
     _store.close();
+  }
+
+  /// Cleanup method for testing purposes
+  Future<void> cleanupForTesting() async {
+    // Close any open connections
+    _store.close();
+    
+    // You could add code to clear specific boxes if needed
+    // For example: shoppingListBox.removeAll();
   }
 
   // If you didn't pre-expose boxes above, you could use a generic getter:

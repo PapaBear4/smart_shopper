@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "smart_shopper2",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "program": "lib/main.dart",
+      // Add this line to make VS Code clear state between runs
+      "args": ["--no-fast-start"]
+    }
+  ]
+}
