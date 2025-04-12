@@ -1,5 +1,5 @@
+// ignore: unused_import
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_shopper2/repositories/store_repository.dart';
@@ -32,6 +32,7 @@ class ShoppingItemsScreen extends StatelessWidget {
 class ShoppingItemView extends StatelessWidget {
   const ShoppingItemView({super.key});
   @override
+  // WIDGET FOR THE LIST ITSELF
   Widget build(BuildContext context) {
     // Use BlocSelector to get the parent list name for the AppBar title.
     // This avoids rebuilding the whole AppBar when only items change.
@@ -44,16 +45,18 @@ class ShoppingItemView extends StatelessWidget {
     });
 
     return Scaffold(
+      // TOP APPBAR
       appBar: AppBar(
         title: Text(listName), // Display dynamic list name
       ),
+      // BODY CONTENT
       body: BlocBuilder<ShoppingItemCubit, ShoppingItemState>(
         builder: (context, state) {
-          // --- Loading State ---
+          // --- LOADING State ---
           if (state is ShoppingItemLoading || state is ShoppingItemInitial) {
             return const Center(child: CircularProgressIndicator());
           }
-          // --- Error State ---
+          // --- ERROR State ---
           if (state is ShoppingItemError) {
             return Center(
               child: Padding(
@@ -62,7 +65,7 @@ class ShoppingItemView extends StatelessWidget {
               ),
             );
           }
-          // --- Loaded State ---
+          // --- LOADED State ---
           if (state is ShoppingItemLoaded) {
             if (state.items.isEmpty) {
               return const Center(
@@ -85,7 +88,7 @@ class ShoppingItemView extends StatelessWidget {
                   ),
                   confirmDismiss: (direction) async {
                     return await showDialog<bool>(
-                          context: context, // Context from builder is fine here
+                          context: context,
                           builder: (BuildContext ctx) {
                             return AlertDialog(
                               title: const Text('Confirm Deletion'),
@@ -119,6 +122,7 @@ class ShoppingItemView extends StatelessWidget {
                         ),
                       );
                   },
+                  // EACH ITEM
                   child: ListTile(
                     leading: Checkbox(
                       value: item.isCompleted,
@@ -154,10 +158,11 @@ class ShoppingItemView extends StatelessWidget {
               },
             );
           }
-          // --- Fallback ---
+          // --- FALL BACK ---
           return const Center(child: Text('Something went wrong.'));
         },
       ),
+      // FLOATING ACTION BUTTON to add new item
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _showAddEditItemDialog(context); // Call to add new item
@@ -168,8 +173,7 @@ class ShoppingItemView extends StatelessWidget {
     );
   }
 
-  // --- Helper Function for Add/Edit Item Dialog ---
-  // --- Helper Function for Add/Edit Item Dialog (with Store Selection) ---
+  // --- ADD/EDIT ITEM DIALOG ---
   Future<void> _showAddEditItemDialog(
     BuildContext context, {
     ShoppingItem? item,
@@ -192,12 +196,16 @@ class ShoppingItemView extends StatelessWidget {
 
     // State needed within the dialog
     List<GroceryStore>? allStores; // Will hold fetched stores
-    Set<int> selectedStoreIds =
-        isEditing
-            ? item.groceryStores
-                .map((store) => store.id)
-                .toSet() // Initialize with existing selections if editing
-            : {}; // Start with empty set if adding
+
+    // Changed from Set<int> to int? for single store selection
+    int? selectedStoreId =
+        isEditing && item.groceryStores.isNotEmpty
+            ? item
+                .groceryStores
+                .first
+                .id // Get the first store if editing
+            : null;
+
     bool isLoadingStores = true;
     String? storeError;
 
@@ -217,6 +225,7 @@ class ShoppingItemView extends StatelessWidget {
       }
     }
 
+    // THE DIALOG ITSELF
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -229,13 +238,13 @@ class ShoppingItemView extends StatelessWidget {
               fetchStores(stfSetState);
             }
 
+            // DIALOG CONTENTS
             return AlertDialog(
               title: Text(isEditing ? 'Edit Item' : 'Add New Item'),
               content: SingleChildScrollView(
                 child: Form(
                   key: formKey,
                   child: Column(
-                    // <<< Use this complete Column definition
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       // --- Name Field ---
@@ -252,13 +261,14 @@ class ShoppingItemView extends StatelessWidget {
                                     ? 'Enter a name'
                                     : null,
                       ),
-                      const SizedBox(height: 8), // Spacing
+                      const SizedBox(height: 8),
                       // --- Quantity and Unit Fields ---
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Expanded(
                             flex: 2,
+                            // --- Quantity ---
                             child: TextFormField(
                               controller: quantityController,
                               decoration: const InputDecoration(
@@ -283,6 +293,7 @@ class ShoppingItemView extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 10),
+                          // --- Unit ---
                           Expanded(
                             flex: 3,
                             child: TextFormField(
@@ -300,8 +311,8 @@ class ShoppingItemView extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8), // Spacing
-                      // --- Category Field ---
+                      const SizedBox(height: 8),
+                      // --- CATEGORY Field ---
                       TextFormField(
                         controller: categoryController,
                         decoration: const InputDecoration(
@@ -314,10 +325,11 @@ class ShoppingItemView extends StatelessWidget {
                                     ? 'Enter category'
                                     : null,
                       ),
-                      const Divider(height: 30, thickness: 1), // Separator
+                      const Divider(height: 30, thickness: 1),
+
                       // --- Store Selection Section ---
                       const Text(
-                        'Associated Stores:',
+                        'Store to purchase at:',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 8),
@@ -343,40 +355,40 @@ class ShoppingItemView extends StatelessWidget {
                                 ),
                               ),
                             )
-                            : Wrap(
-                              // Use Wrap for chips
-                              spacing: 8.0, // Horizontal space between chips
-                              runSpacing: 0.0, // Vertical space between rows
-                              children:
+                            : DropdownButtonFormField<int>(
+                              decoration: const InputDecoration(
+                                labelText: 'Select Store',
+                                border: OutlineInputBorder(),
+                              ),
+                              value: selectedStoreId,
+                              hint: const Text('Select a store'),
+                              isExpanded: true,
+                              items:
                                   allStores!.map((store) {
-                                    return FilterChip(
-                                      label: Text(store.name),
-                                      selected: selectedStoreIds.contains(
-                                        store.id,
-                                      ),
-                                      onSelected: (bool selected) {
-                                        stfSetState(() {
-                                          // Use stfSetState from StatefulBuilder
-                                          if (selected) {
-                                            selectedStoreIds.add(store.id);
-                                          } else {
-                                            selectedStoreIds.remove(store.id);
-                                          }
-                                        });
-                                      },
+                                    return DropdownMenuItem<int>(
+                                      value: store.id,
+                                      child: Text(store.name),
                                     );
                                   }).toList(),
+                              onChanged: (value) {
+                                stfSetState(() {
+                                  selectedStoreId = value;
+                                });
+                              },
                             ),
                       // --- End Store Selection ---
                     ],
                   ),
                 ), // End Form
               ),
+              // ---BOTTOM ACTIONS ---
               actions: <Widget>[
+                // --- CANCEL ---
                 TextButton(
                   child: const Text('Cancel'),
                   onPressed: () => Navigator.of(dialogContext).pop(),
                 ),
+                // --- SAVE ---
                 TextButton(
                   child: Text(isEditing ? 'Save' : 'Add'),
                   onPressed: () {
@@ -386,19 +398,21 @@ class ShoppingItemView extends StatelessWidget {
                       final quantity = double.parse(quantityController.text);
                       final unit = unitController.text.trim();
 
-                      // Find the actual GroceryStore objects for the selected IDs
-                      // This assumes allStores is loaded and not null if selection occurred
-                      final List<GroceryStore> selectedStores =
-                          allStores
-                              ?.where((s) => selectedStoreIds.contains(s.id))
-                              .toList() ??
-                          [];
+                      // Find the single store (if selected)
+                      GroceryStore? selectedStore; // Initialize as null
+                      if (selectedStoreId != null && allStores != null) {
+                        try {
+                          // firstWhere without orElse throws if not found
+                          selectedStore = allStores?.firstWhere(
+                            (store) => store.id == selectedStoreId,
+                          );
+                        } on StateError {
+                          // Catch the error when no element satisfies the test
+                          selectedStore = null;
+                        }
+                      }
 
                       if (isEditing) {
-                        log(
-                          "Calling cubit.renameList...",
-                          name: 'AddEditItemDialog',
-                        ); // Example for edit
                         // Update existing item
                         final updatedItem =
                             item; // We know item is not null if isEditing
@@ -407,20 +421,19 @@ class ShoppingItemView extends StatelessWidget {
                         updatedItem.category = category;
                         updatedItem.quantity = quantity;
                         updatedItem.unit = unit;
-                        // Update ToMany relation
+
+                        // Update store relation
                         updatedItem.groceryStores
                             .clear(); // Clear existing links
-                        updatedItem.groceryStores.addAll(
-                          selectedStores,
-                        ); // Add current selections
-
+                        if (selectedStore != null) {
+                          updatedItem.groceryStores.add(
+                            selectedStore,
+                          ); // Add single selected store
+                        }
+                        // UPDATE EXISTING ITEM VIA CUBIT
                         cubit.updateItem(updatedItem);
                       } else {
-                        log(
-                          "Calling cubit.addList with name: $name",
-                          name: 'AddEditItemDialog',
-                        ); // <<< Use log
-                        // Create new item and set relations
+                        // CREATE new item
                         final newItem = ShoppingItem(
                           name: name,
                           category: category,
@@ -428,38 +441,17 @@ class ShoppingItemView extends StatelessWidget {
                           unit: unit,
                           isCompleted: false,
                         );
-                        newItem.groceryStores.addAll(
-                          selectedStores,
-                        ); // Set ToMany link
-                        log("DIALOG: Calling cubit.addItem for name: $name");
 
-                        // The cubit's addItem method calls the repository which links ToOne shoppingList
-                        cubit.addItem(name, category, quantity, unit);
-                        // IMPORTANT CORRECTION: The current addItem signature doesn't take the item
-                        // We need to modify the cubit/repo or handle it differently.
-                        // Easiest: Modify cubit.addItem to take the constructed item or modify repo.addItem.
-                        // Let's assume we modify cubit.addItem later OR handle saving here:
-                        // --> Reverting cubit call for now, needs adjustment later <--
-                        // print("Need to adjust how item with stores is added via cubit");
-                        // For now, let's just make a direct repo call for simplicity,
-                        // although ideally this goes via cubit.
-                        cubit.addItem(
-                          name,
-                          category,
-                          quantity,
-                          unit,
-                        ); //KEEPING THIS - We'll adjust addItem signature later
+                        // Set single store if selected
+                        if (selectedStore != null) {
+                          newItem.groceryStores.add(selectedStore);
+                        }
+
+                        // Add the item via cubit
+                        cubit.addItem(newItem);
                       }
-                      log(
-                        "Cubit call finished.",
-                        name: 'AddEditItemDialog',
-                      ); // <<< Use log
+
                       Navigator.of(dialogContext).pop(); // Close dialog
-                    } else {
-                      log(
-                        "Validation failed.",
-                        name: 'AddEditItemDialog',
-                      ); // <<< Use log (optional)
                     }
                   },
                 ),
@@ -471,8 +463,3 @@ class ShoppingItemView extends StatelessWidget {
     );
   }
 }
-
-// Helper TextFormField builders (kept from previous dialog example for brevity)
-// You'll need to ensure these TextFormField widgets are correctly placed within the Column
-// (e.g., TextFormField(...) for Name, Row(...) for Qty/Unit, TextFormField(...) for Category)
-// The code above shows the structure - fill in the TextFormField details as before.}

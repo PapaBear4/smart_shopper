@@ -10,7 +10,9 @@ abstract class IShoppingItemRepository {
   Future<int> addItem(ShoppingItem item, int listId);
   Future<void> updateItem(ShoppingItem item);
   Future<bool> deleteItem(int id);
-  Future<ShoppingList?> getShoppingList(int listId); // Helper to get list details
+  Future<ShoppingList?> getShoppingList(
+    int listId,
+  ); // Helper to get list details
 }
 
 // Implementation using ObjectBox
@@ -69,26 +71,39 @@ class ShoppingItemRepository implements IShoppingItemRepository {
     });
   }
 
-@override
+  @override
   Future<int> addItem(ShoppingItem item, int listId) async {
-    log("addItem method started for item name: ${item.name}", name: 'ShoppingItemRepository'); // <<< Use log
+    log(
+      "addItem method started for item name: ${item.name}",
+      name: 'ShoppingItemRepository',
+    ); // <<< Use log
     item.shoppingList.targetId = listId;
     try {
       final id = _itemBox.put(item);
-      log("_itemBox.put completed. Returned ID: $id", name: 'ShoppingItemRepository'); // <<< Use log
+      log(
+        "_itemBox.put completed. Returned ID: $id",
+        name: 'ShoppingItemRepository',
+      ); // <<< Use log
       return id;
-    } catch (e, s) { // Capture stack trace (s)
-      log("ERROR calling put", name: 'ShoppingItemRepository', error: e, stackTrace: s); // <<< Use log
+    } catch (e, s) {
+      // Capture stack trace (s)
+      log(
+        "ERROR calling put",
+        name: 'ShoppingItemRepository',
+        error: e,
+        stackTrace: s,
+      ); // <<< Use log
       rethrow;
     }
   }
+
   @override
   Future<void> updateItem(ShoppingItem item) async {
     // Put handles both inserts and updates based on the ID.
     // Ensure item.id is correctly set before calling update.
     // Any changes to the item's fields (name, quantity, isCompleted)
     // or its ToMany<GroceryStore> link will be persisted.
-     _itemBox.put(item);
+    _itemBox.put(item);
   }
 
   @override
@@ -103,6 +118,6 @@ class ShoppingItemRepository implements IShoppingItemRepository {
   // Helper method to get the parent shopping list details if needed (e.g., for AppBar title)
   @override
   Future<ShoppingList?> getShoppingList(int listId) async {
-     return _listBox.get(listId);
+    return _listBox.get(listId);
   }
 }

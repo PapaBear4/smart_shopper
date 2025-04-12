@@ -62,48 +62,32 @@ class ShoppingItemCubit extends Cubit<ShoppingItemState> {
     }
   }
 
-  Future<void> addItem(
-    String name,
-    String category,
-    double quantity,
-    String unit,
-  ) async {
+  Future<void> addItem(ShoppingItem item) async {
     log(
-      "addItem method started for name: $name",
+      "addItem method started for item: ${item.name}",
       name: 'ShoppingItemCubit',
-    ); // <<< Use log
-    if (name.trim().isEmpty) return; // Add more validation as needed
-
+    );
+    
     try {
-      final newItem = ShoppingItem(
-        name: name.trim(),
-        category:
-            category
-                .trim(), // Assuming category/unit are simple strings for now
-        quantity: quantity,
-        unit: unit.trim(),
-        isCompleted: false,
-      );
       log(
         "Calling repository.addItem...",
         name: 'ShoppingItemCubit',
-      ); // <<< Use log
+      );
       // The repository handles linking it to the listId
-      await _repository.addItem(newItem, listId);
+      await _repository.addItem(item, listId);
       log(
         "repository.addItem finished.",
         name: 'ShoppingItemCubit',
-      ); // <<< Use log
+      );
       // UI updates via stream subscription
     } catch (e, s) {
       log(
-        "ERROR adding list",
+        "ERROR adding item",
         name: 'ShoppingItemCubit',
         error: e,
         stackTrace: s,
-      ); // <<< Use log with error/stack
+      );
       emit(ShoppingItemError("Failed to add item: $e"));
-      // Optionally re-fetch or revert state if needed
     }
   }
 
