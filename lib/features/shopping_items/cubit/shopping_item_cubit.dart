@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import '../../../models/models.dart';
 import '../../../repositories/shopping_item_repository.dart'; // Import item repository

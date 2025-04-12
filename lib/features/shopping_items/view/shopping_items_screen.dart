@@ -30,6 +30,7 @@ class ShoppingItemsScreen extends StatelessWidget {
 
 // Separate View widget to easily access the Cubit context below the provider
 class ShoppingItemView extends StatelessWidget {
+  const ShoppingItemView({super.key});
   @override
   Widget build(BuildContext context) {
     // Use BlocSelector to get the parent list name for the AppBar title.
@@ -193,7 +194,7 @@ class ShoppingItemView extends StatelessWidget {
     List<GroceryStore>? allStores; // Will hold fetched stores
     Set<int> selectedStoreIds =
         isEditing
-            ? item!.groceryStores
+            ? item.groceryStores
                 .map((store) => store.id)
                 .toSet() // Initialize with existing selections if editing
             : {}; // Start with empty set if adding
@@ -268,12 +269,15 @@ class ShoppingItemView extends StatelessWidget {
                                     decimal: true,
                                   ),
                               validator: (value) {
-                                if (value == null || value.isEmpty)
+                                if (value == null || value.isEmpty) {
                                   return 'Enter quantity';
-                                if (double.tryParse(value) == null)
+                                }
+                                if (double.tryParse(value) == null) {
                                   return 'Invalid number';
-                                if (double.parse(value) <= 0)
+                                }
+                                if (double.parse(value) <= 0) {
                                   return 'Must be > 0'; // Optional: Ensure positive
+                                }
                                 return null;
                               },
                             ),
@@ -397,7 +401,7 @@ class ShoppingItemView extends StatelessWidget {
                         ); // Example for edit
                         // Update existing item
                         final updatedItem =
-                            item!; // We know item is not null if isEditing
+                            item; // We know item is not null if isEditing
                         // Update scalar fields
                         updatedItem.name = name;
                         updatedItem.category = category;

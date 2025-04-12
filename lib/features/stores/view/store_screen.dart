@@ -18,6 +18,8 @@ class StoreManagementScreen extends StatelessWidget {
 }
 
 class StoreView extends StatelessWidget {
+  const StoreView({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -191,7 +193,7 @@ class StoreView extends StatelessWidget {
                   if (isEditing) {
                      // Create updated store object, preserving the ID
                      final updatedStore = GroceryStore(
-                        id: store!.id, // Keep original ID
+                        id: store.id, // Keep original ID
                         name: name,
                         address: address.isNotEmpty ? address : null, // Store null if empty
                         website: website.isNotEmpty ? website : null,

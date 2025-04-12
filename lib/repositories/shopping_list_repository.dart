@@ -1,4 +1,5 @@
-import 'package:objectbox/objectbox.dart';
+import 'dart:developer';
+
 import 'package:smart_shopper2/objectbox.g.dart';
 
 import '../models/models.dart'; // Uses the barrel file
@@ -31,13 +32,13 @@ class ShoppingListRepository implements IShoppingListRepository {
 
   @override
   Future<int> addList(ShoppingList list) async {
-    print("Repository: addList called for '${list.name}'"); // <-- ADD THIS
+    log("Repository: addList called for '${list.name}'"); // <-- ADD THIS
     try {
       final id = _listBox.put(list);
-      print("Repository: ObjectBox put successful, ID: $id"); // <-- ADD THIS
+      log("Repository: ObjectBox put successful, ID: $id"); // <-- ADD THIS
       return id;
     } catch (e) {
-      print("Repository: ERROR calling put: $e"); // <-- ADD THIS
+      log("Repository: ERROR calling put: $e"); // <-- ADD THIS
       rethrow; // Re-throw the error so the Cubit can catch it
     }
   }

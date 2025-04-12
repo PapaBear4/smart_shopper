@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../../../models/models.dart'; // Models barrel file
 import '../../../service_locator.dart'; // To get dependencies (GetIt)
 import '../cubit/shopping_list_cubit.dart'; // The Cubit for this feature
-import 'package:go_router/go_router.dart';
 
 class ShoppingListsScreen extends StatelessWidget {
   const ShoppingListsScreen({super.key});
@@ -159,7 +158,7 @@ class ShoppingListsScreen extends StatelessWidget {
     // Capture the cubit from the context before showing dialog
     final cubit = context.read<ShoppingListCubit>();
 
-    final _formKey = GlobalKey<FormState>();
+    final formKey = GlobalKey<FormState>();
     final TextEditingController nameController = TextEditingController(
       text: list?.name ?? '',
     );
@@ -173,7 +172,7 @@ class ShoppingListsScreen extends StatelessWidget {
           title: Text(isEditing ? 'Rename List' : 'Add New List'),
           content: SingleChildScrollView(
             child: Form(
-              key: _formKey,
+              key: formKey,
               child: ListBody(
                 children: <Widget>[
                   TextFormField(
@@ -201,11 +200,11 @@ class ShoppingListsScreen extends StatelessWidget {
             TextButton(
               child: Text(isEditing ? 'Save' : 'Add'),
               onPressed: () {
-                if (_formKey.currentState!.validate()) {
+                if (formKey.currentState!.validate()) {
                   final listName = nameController.text.trim();
                   if (isEditing) {
                     // Use the captured cubit instead of trying to get it from dialogContext
-                    cubit.renameList(list!.id, listName);
+                    cubit.renameList(list.id, listName);
                   } else {
                     // Use the captured cubit instead of trying to get it from dialogContext
                     cubit.addList(listName);

@@ -1,6 +1,7 @@
 // lib/features/shopping_lists/cubit/shopping_list_cubit.dart
 import 'dart:async'; // For StreamSubscription
-import 'package:bloc/bloc.dart';
+import 'dart:developer';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import '../../../models/models.dart'; // Barrel file
 import '../../../repositories/shopping_list_repository.dart'; // Repository
@@ -23,35 +24,40 @@ class ShoppingListCubit extends Cubit<ShoppingListState> {
     _listSubscription?.cancel(); // Cancel previous subscription if any
     _listSubscription = _repository.getAllListsStream().listen(
       (lists) {
-        print(
-          "Cubit Listener: Received ${lists.length} lists.",
-        ); // <-- ADD THIS
+        log("Cubit Listener: Received ${lists.length} lists."); // <-- ADD THIS
         emit(ShoppingListLoaded(lists)); // Emit loaded state with data
       },
-      onError: (error) {
-        // TODO: Add proper error handling/logging
-        print("Cubit Listener: ERROR - $error"); // <-- ADD THIS
+      onError: (error, stackTrace) {
+        // Add stackTrace parameter
+        log(
+          "Cubit Listener: ERROR loading lists.", // More descriptive message
+          error: error, // Pass error object
+          stackTrace: stackTrace, // Pass stack trace object
+        );
         emit(ShoppingListError("Failed to load lists: $error"));
       },
     );
   }
 
   Future<void> addList(String name) async {
-    print("Cubit: addList called with name: $name"); // <-- ADD THIS
+    log("Cubit: addList called with name: $name"); // <-- ADD THIS
     if (name.trim().isEmpty) {
-      print("Cubit: addList - Name is empty, returning."); // <-- ADD THIS
+      log("Cubit: addList - Name is empty, returning."); // <-- ADD THIS
       return;
     } // Basic validation
 
     try {
       final newList = ShoppingList(name: name.trim());
-      print("Cubit: Calling repository.addList..."); // <-- ADD THIS
+      log("Cubit: Calling repository.addList..."); // <-- ADD THIS
       await _repository.addList(newList);
-      print("Cubit: repository.addList finished."); // <-- ADD THIS
+      log("Cubit: repository.addList finished."); // <-- ADD THIS
       // No need to emit here, the stream subscription will trigger an update
-    } catch (e) {
-      // TODO: Improve error feedback
-      print("Cubit: ERROR adding list: $e"); // <-- ADD THIS
+    } catch (e, s) {
+      log(
+        "Cubit: ERROR adding list.", // More descriptive message
+        error: e, // Pass error object
+        stackTrace: s, // Pass stack trace object
+      );
       emit(ShoppingListError("Failed to add list: $e"));
       // Re-emit previous loaded state if possible, or reload
       _subscribeToLists(); // Attempt to reload lists on error
