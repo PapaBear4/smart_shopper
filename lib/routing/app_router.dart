@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../features/shopping_lists/view/shopping_lists_screen.dart'; // Import your main screen
+import '../features/shopping_items/view/shopping_items_screen.dart';
 
 // Define the router configuration
 final GoRouter appRouter = GoRouter(
@@ -16,22 +17,20 @@ final GoRouter appRouter = GoRouter(
         // When the path is '/', build and return the ShoppingListsScreen
         return const ShoppingListsScreen();
       },
-      // We can define nested routes later for list details, items etc.
-      // Example for later:
-      /*
       routes: <RouteBase>[
         GoRoute(
-          path: 'list/:listId', // Path parameter for list ID e.g., /list/1
+          path: 'list/:listId', // Matches paths like /list/1, /list/42, etc.
           builder: (BuildContext context, GoRouterState state) {
-            // Extract the listId from the path parameters
+            // Extract the 'listId' parameter from the path
             final String listIdString = state.pathParameters['listId'] ?? '0';
+            // Convert the string parameter to an integer
             final int listId = int.tryParse(listIdString) ?? 0;
-            // Return the screen for viewing items in a specific list
-            // return ShoppingItemsScreen(listId: listId); // You'll create this screen later
+
+            // Return the ShoppingItemsScreen, passing the extracted ID
+            return ShoppingItemsScreen(listId: listId); // <<< Ensure this line is active
           },
         ),
       ],
-      */
     ),
 
     // Add other top-level routes here if needed (e.g., '/settings')

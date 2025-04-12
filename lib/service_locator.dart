@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:smart_shopper2/repositories/shopping_item_repository.dart';
 import 'objectbox.dart'; // Your ObjectBox helper class
 import 'repositories/shopping_list_repository.dart'; // Import repository
 import 'features/shopping_lists/cubit/shopping_list_cubit.dart'; // Import cubit
@@ -16,6 +17,9 @@ void setupLocator(ObjectBox objectboxInstance) {
   // Use registerLazySingleton for repositories: create only when first needed
   getIt.registerLazySingleton<IShoppingListRepository>(
       () => ShoppingListRepository(getIt<ObjectBox>()), // Pass ObjectBox instance
+  );
+  getIt.registerLazySingleton<IShoppingItemRepository>(
+    () => ShoppingItemRepository(getIt<ObjectBox>()),
   );
   // Register other repositories here (e.g., StoreRepository, ItemRepository)
 

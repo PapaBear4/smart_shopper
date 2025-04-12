@@ -19,7 +19,7 @@ dependencies:
   go_router: ^14.1.0        # Declarative Routing/Navigation
   url_launcher: ^6.3.0      # Launch URLs (websites, phone calls)
   cupertino_icons: ^1.0.6
-
+  collection: ^1.19.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
