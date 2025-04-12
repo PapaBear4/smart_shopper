@@ -133,9 +133,10 @@ class ShoppingListRepository implements IShoppingListRepository {
                 log('ShoppingListRepository: Error finding lists from query event',
                     name: 'ShoppingListRepository', error: e);
               }
-              // Consider error handling: maybe addError or emit last known good state
-              // For now, logging the error. Re-emitting initialLists might be stale.
-              // controller.addError(e); // Option: Propagate error
+              // Handle error properly in both release and debug builds
+              if (!controller.isClosed) {
+                controller.addError(e);
+              }
             }
           });
           
@@ -151,6 +152,9 @@ class ShoppingListRepository implements IShoppingListRepository {
           }
           // Keep the controller alive even if watcher setup fails
           // We've already added the initial list
+          if (!controller.isClosed) {
+            controller.addError(e);
+          }
         }
       } catch (e) {
         if (!kReleaseMode) {
@@ -158,6 +162,9 @@ class ShoppingListRepository implements IShoppingListRepository {
               name: 'ShoppingListRepository', error: e);
         }
         controller.add([]);
+        if (!controller.isClosed) {
+          controller.addError(e);
+        }
       }
     }
     
@@ -229,7 +236,7 @@ class ShoppingListRepository implements IShoppingListRepository {
     
     try {
       // put() also updates if the object ID already exists
-      final id = _listBox.put(list);
+      _listBox.put(list);
       if (!kReleaseMode) {
         log('ShoppingListRepository: Updated list ID ${list.id}',
             name: 'ShoppingListRepository');

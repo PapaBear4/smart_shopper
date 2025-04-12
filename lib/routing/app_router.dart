@@ -31,7 +31,6 @@ final GoRouter appRouter = GoRouter(
         // Get repository from service locator
         final repo = getIt<IShoppingListRepository>();
         
-        // Log current repository state in debug mode
         if (!kReleaseMode) {
           log('Router: Repository instance obtained from GetIt', name: 'app_router');
         }

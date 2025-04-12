@@ -135,9 +135,15 @@ class ShoppingListCubit extends Cubit<ShoppingListState> {
   Future<void> deleteList(int id) async {
     try {
       final success = await _repository.deleteList(id);
-      if (!success && !kReleaseMode) {
-        log('ShoppingListCubit: Delete operation reported no list removed with ID $id.', 
-            name: 'ShoppingListCubit');
+      
+      // This is now separate from the logging condition
+      if (!success) {
+        if (!kReleaseMode) {
+          log('ShoppingListCubit: Delete operation reported no list removed with ID $id.', 
+              name: 'ShoppingListCubit');
+        }
+        // In both debug and release, attempt to refresh the list if delete failed
+        _resubscribeToListsAfterError();
       }
     } catch (e, s) {
       if (!kReleaseMode) {
