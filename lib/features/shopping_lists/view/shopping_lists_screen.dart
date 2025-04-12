@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../models/models.dart'; // Models barrel file
 import '../../../service_locator.dart'; // To get dependencies (GetIt)
 import '../cubit/shopping_list_cubit.dart'; // The Cubit for this feature
+import 'package:go_router/go_router.dart';
 
 class ShoppingListsScreen extends StatelessWidget {
   const ShoppingListsScreen({super.key});
@@ -20,13 +21,25 @@ class ShoppingListsScreen extends StatelessWidget {
           return Scaffold(
             appBar: AppBar(
               title: const Text('My Shopping Lists'),
-              // Optional: Add actions later if needed
+              actions: [
+                IconButton(
+                  icon: const Icon(
+                    Icons.storefront,
+                  ), // Or Icons.settings, Icons.store
+                  tooltip: 'Manage Stores',
+                  onPressed: () {
+                    // Use the innerContext to navigate
+                    innerContext.push('/stores');
+                  },
+                ),
+              ],
             ),
             // Use BlocBuilder to react to state changes from the Cubit
             body: BlocBuilder<ShoppingListCubit, ShoppingListState>(
               builder: (context, state) {
                 // ---- Loading State ----
-                if (state is ShoppingListLoading || state is ShoppingListInitial) {
+                if (state is ShoppingListLoading ||
+                    state is ShoppingListInitial) {
                   return const Center(child: CircularProgressIndicator());
                 }
                 // ---- Loaded State ----
@@ -40,7 +53,7 @@ class ShoppingListsScreen extends StatelessWidget {
                       ),
                     );
                   }
-                  
+
                   // Display the list using ListView.builder
                   return ListView.builder(
                     itemCount: state.lists.length,
@@ -48,7 +61,8 @@ class ShoppingListsScreen extends StatelessWidget {
                       final list = state.lists[index];
                       return Dismissible(
                         key: ValueKey(list.id), // Unique key for Dismissible
-                        direction: DismissDirection.endToStart, // Swipe left to delete
+                        direction:
+                            DismissDirection.endToStart, // Swipe left to delete
                         background: Container(
                           color: Colors.red,
                           alignment: Alignment.centerRight,
@@ -67,11 +81,17 @@ class ShoppingListsScreen extends StatelessWidget {
                                     ),
                                     actions: <Widget>[
                                       TextButton(
-                                        onPressed: () => Navigator.of(dialogContext).pop(false),
+                                        onPressed:
+                                            () => Navigator.of(
+                                              dialogContext,
+                                            ).pop(false),
                                         child: const Text('Cancel'),
                                       ),
                                       TextButton(
-                                        onPressed: () => Navigator.of(dialogContext).pop(true),
+                                        onPressed:
+                                            () => Navigator.of(
+                                              dialogContext,
+                                            ).pop(true),
                                         child: const Text(
                                           'Delete',
                                           style: TextStyle(color: Colors.red),
@@ -80,11 +100,14 @@ class ShoppingListsScreen extends StatelessWidget {
                                     ],
                                   );
                                 },
-                              ) ?? false;
+                              ) ??
+                              false;
                         },
                         onDismissed: (direction) {
                           // Use innerContext for Cubit interaction
-                          innerContext.read<ShoppingListCubit>().deleteList(list.id);
+                          innerContext.read<ShoppingListCubit>().deleteList(
+                            list.id,
+                          );
                           ScaffoldMessenger.of(innerContext).showSnackBar(
                             SnackBar(
                               content: Text('${list.name} deleted'),
@@ -123,7 +146,7 @@ class ShoppingListsScreen extends StatelessWidget {
               child: const Icon(Icons.add),
             ),
           );
-        }
+        },
       ),
     );
   }
@@ -135,7 +158,7 @@ class ShoppingListsScreen extends StatelessWidget {
   }) async {
     // Capture the cubit from the context before showing dialog
     final cubit = context.read<ShoppingListCubit>();
-    
+
     final _formKey = GlobalKey<FormState>();
     final TextEditingController nameController = TextEditingController(
       text: list?.name ?? '',
