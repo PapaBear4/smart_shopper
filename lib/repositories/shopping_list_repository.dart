@@ -8,6 +8,7 @@ import 'dart:async'; // Import for StreamController
 // Define an interface (abstract class) for testability/mocking
 abstract class IShoppingListRepository {
   Stream<List<ShoppingList>> getAllListsStream(); // Get lists reactively
+  Future<List<ShoppingList>> getAllLists(); // Add this non-stream method
   Future<int> addList(ShoppingList list);
   Future<bool> deleteList(int id);
   Future<void> updateList(ShoppingList list); // For renaming
@@ -169,6 +170,34 @@ class ShoppingListRepository implements IShoppingListRepository {
     }
     
     return controller.stream;
+  }
+
+  /// Gets all shopping lists as a Future
+  /// This provides immediate access to data without stream subscription
+  @override
+  Future<List<ShoppingList>> getAllLists() async {
+    if (!_isReady) {
+      if (!kReleaseMode) {
+        log('ShoppingListRepository: Cannot get lists, box not ready', 
+            name: 'ShoppingListRepository');
+      }
+      return [];
+    }
+    
+    try {
+      final lists = _listBox.getAll();
+      if (!kReleaseMode) {
+        log('ShoppingListRepository: Retrieved ${lists.length} lists', 
+            name: 'ShoppingListRepository');
+      }
+      return lists;
+    } catch (e, s) {
+      if (!kReleaseMode) {
+        log('ShoppingListRepository: Error getting lists', 
+            name: 'ShoppingListRepository', error: e, stackTrace: s);
+      }
+      return [];
+    }
   }
 
   @override
