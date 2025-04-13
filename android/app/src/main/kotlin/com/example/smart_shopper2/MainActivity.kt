@@ -1,4 +1,4 @@
-package com.example.smart_shopper
+package com.brambleberrytech.smart_shopper
 
 import io.flutter.embedding.android.FlutterActivity
 

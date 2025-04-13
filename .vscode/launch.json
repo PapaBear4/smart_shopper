@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "smart_shopper2",
+      "name": "smart_shopper",
       "request": "launch",
       "type": "dart",
       "flutterMode": "debug",
