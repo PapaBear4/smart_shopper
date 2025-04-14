@@ -2,7 +2,6 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 // Simple utility to generate a placeholder app icon
 // Run this once to create placeholder icons for testing
