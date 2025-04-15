@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart'; // Removed BlocProvider import
 import 'package:smart_shopper/features/stores/view/store_screen.dart';
+import 'package:smart_shopper/repositories/shopping_item_repository.dart';
+import 'package:smart_shopper/repositories/shopping_list_repository.dart';
+import 'package:smart_shopper/repositories/store_repository.dart';
+import 'package:smart_shopper/screens/settings_screen.dart';
+import 'package:smart_shopper/service_locator.dart';
 import '../features/shopping_lists/view/shopping_lists_screen.dart';
 import '../features/shopping_items/view/shopping_items_screen.dart';
 import 'dart:developer';
@@ -46,8 +51,10 @@ final GoRouter appRouter = GoRouter(
             final int? listId = int.tryParse(listIdParam ?? '');
 
             if (!kReleaseMode) {
-              log('Router: Navigating to list ID: $listId (from param: $listIdParam)',
-                  name: 'app_router');
+              log(
+                'Router: Navigating to list ID: $listId (from param: $listIdParam)',
+                name: 'app_router',
+              );
             }
 
             // Parameter validation - ensure we have a valid list ID
@@ -76,15 +83,26 @@ final GoRouter appRouter = GoRouter(
         return const StoreManagementScreen();
       },
     ),
+    // === SETTINGS SCREEN ===
+    GoRoute(
+      path: '/settings',
+      builder:
+          (context, state) => SettingsScreen(
+            itemRepository: getIt<IShoppingItemRepository>(),
+            listRepository: getIt<IShoppingListRepository>(),
+            storeRepository: getIt<IStoreRepository>(),
+          ),
+    ),
   ],
 
   // === ERROR HANDLING ===
   // Displayed when navigation fails (e.g., user enters invalid URL)
   // This ensures a good UX even when navigation errors occur
-  errorBuilder: (context, state) => Scaffold(
-    appBar: AppBar(title: const Text('Page Not Found')),
-    body: Center(
-      child: Text('The route "${state.uri}" could not be found.'),
-    ),
-  ),
+  errorBuilder:
+      (context, state) => Scaffold(
+        appBar: AppBar(title: const Text('Page Not Found')),
+        body: Center(
+          child: Text('The route "${state.uri}" could not be found.'),
+        ),
+      ),
 );

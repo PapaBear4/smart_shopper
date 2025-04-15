@@ -33,23 +33,30 @@ class ShoppingListsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // === APPBAR: Top navigation bar ===
-      appBar: AppBar(
-        title: const Text('My Shopping Lists'),
-        // Store management button in the app bar
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.storefront),
-            tooltip: 'Manage Stores',
-            onPressed: () {
-              // Navigation using GoRouter - pushes the stores screen onto the navigation stack
-              context.push('/stores');
-            },
-          ),
-        ],
-      ),
-      
+      return Scaffold(
+        // === APPBAR: Top navigation bar ===
+        appBar: AppBar(
+          title: const Text('My Shopping Lists'),
+          // Store management and settings buttons in the app bar
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.storefront),
+              tooltip: 'Manage Stores',
+              onPressed: () {
+                // Navigation using GoRouter - pushes the stores screen onto the navigation stack
+                context.push('/stores');
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.settings),
+              tooltip: 'Settings',
+              onPressed: () {
+                // Navigation using GoRouter - pushes the settings screen onto the navigation stack
+                context.push('/settings');
+              },
+            ),
+          ],
+        ),      
       // === BODY: Main content area ===
       // BlocBuilder automatically rebuilds UI when the cubit emits a new state
       body: BlocBuilder<ShoppingListCubit, ShoppingListState>(
