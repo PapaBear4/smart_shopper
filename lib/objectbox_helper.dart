@@ -39,4 +39,25 @@ class ObjectBoxHelper {
     final store = await openStore();
     return ObjectBoxHelper._create(store);
   }
+
+  /// Clears all data from all entity boxes.
+  Future<void> clearAllData() async {
+    // It's good practice to run this in a write transaction
+    // if multiple boxes are being cleared, though removeAll() on each box
+    // is usually transactional itself.
+    // For simplicity and clarity, we'll clear them one by one.
+    // The order typically doesn't matter unless there are specific
+    // inter-dependencies you need to manage manually (rare).
+    await brandBox.removeAllAsync();
+    await priceEntryBox.removeAllAsync();
+    await shoppingItemBox.removeAllAsync(); // Clear items before lists if items have relations to lists
+    await shoppingListBox.removeAllAsync();
+    await groceryStoreBox.removeAllAsync(); // Clear stores last if other entities relate to them
+    
+    // Alternatively, ObjectBox provides a way to delete all objects of all types,
+    // but it's often safer to be explicit if you want to ensure specific order
+    // or if you might not want to clear *everything* in the future.
+    // Example: _store.removeAllObjects(); (This is a more direct way)
+    // For this helper, explicit removal is fine.
+  }
 }

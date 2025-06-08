@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart'; // Removed BlocProvider import
+import 'package:go_router/go_router.dart'; 
 import 'package:smart_shopper/features/stores/view/store_screen.dart';
+import '../features/debug/view/debug_screen.dart'; 
 import '../features/shopping_lists/view/shopping_lists_screen.dart';
 import '../features/shopping_items/view/shopping_items_screen.dart';
 import 'dart:developer';
@@ -74,6 +75,13 @@ final GoRouter appRouter = GoRouter(
       builder: (BuildContext context, GoRouterState state) {
         // StoreManagementScreen already has its own BlocProvider
         return const StoreManagementScreen();
+      },
+    ),
+    // === DEBUG SCREEN ROUTE (Top-level route) ===
+    GoRoute(
+      path: '/debug',
+      builder: (BuildContext context, GoRouterState state) {
+        return const DebugScreen();
       },
     ),
   ],

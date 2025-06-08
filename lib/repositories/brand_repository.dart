@@ -6,6 +6,7 @@ import '../objectbox.g.dart';
 abstract class IBrandRepository {
   Stream<List<Brand>> getBrandsStream();
   Future<List<Brand>> getAllBrands();
+  Future<Brand?> getBrandById(int id); // Added method
   Future<int> addBrand(Brand brand);
   Future<void> updateBrand(Brand brand);
   Future<bool> deleteBrand(int id);
@@ -32,6 +33,11 @@ class BrandRepository implements IBrandRepository {
     final brands = _brandBox.getAll();
     brands.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
     return brands;
+  }
+
+  @override
+  Future<Brand?> getBrandById(int id) async {
+    return _brandBox.get(id);
   }
 
   @override

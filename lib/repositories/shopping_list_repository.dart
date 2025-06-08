@@ -9,6 +9,7 @@ import 'dart:async'; // Import for StreamController
 abstract class IShoppingListRepository {
   Stream<List<ShoppingList>> getAllListsStream(); // Get lists reactively
   Future<List<ShoppingList>> getAllLists(); // Add this non-stream method
+  Future<ShoppingList?> getListById(int id); // Added method
   Future<int> addList(ShoppingList list);
   Future<bool> deleteList(int id);
   Future<void> updateList(ShoppingList list); // For renaming
@@ -176,27 +177,32 @@ class ShoppingListRepository implements IShoppingListRepository {
   /// This provides immediate access to data without stream subscription
   @override
   Future<List<ShoppingList>> getAllLists() async {
-    if (!_isReady) {
+    if (!_isReady) return [];
+    try {
+      final lists = _listBox.getAll();
+      // Optional: sort if needed, though stream already sorts by name
+      // lists.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+      return lists;
+    } catch (e) {
       if (!kReleaseMode) {
-        log('ShoppingListRepository: Cannot get lists, box not ready', 
-            name: 'ShoppingListRepository');
+        log('ShoppingListRepository: Error in getAllLists', 
+            name: 'ShoppingListRepository', error: e);
       }
       return [];
     }
-    
+  }
+
+  @override
+  Future<ShoppingList?> getListById(int id) async {
+    if (!_isReady) return null;
     try {
-      final lists = _listBox.getAll();
+      return _listBox.get(id);
+    } catch (e) {
       if (!kReleaseMode) {
-        log('ShoppingListRepository: Retrieved ${lists.length} lists', 
-            name: 'ShoppingListRepository');
+        log('ShoppingListRepository: Error in getListById for id: $id', 
+            name: 'ShoppingListRepository', error: e);
       }
-      return lists;
-    } catch (e, s) {
-      if (!kReleaseMode) {
-        log('ShoppingListRepository: Error getting lists', 
-            name: 'ShoppingListRepository', error: e, stackTrace: s);
-      }
-      return [];
+      return null;
     }
   }
 

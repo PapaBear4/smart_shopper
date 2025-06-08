@@ -7,6 +7,7 @@ import '../objectbox.g.dart'; // Generated file for query conditions
 abstract class IStoreRepository {
   Stream<List<GroceryStore>> getStoresStream(); // Reactive stream of stores
   Future<List<GroceryStore>> getAllStores();   // One-time fetch of all stores
+  Future<GroceryStore?> getStoreById(int id); // Added method
   Future<int> addStore(GroceryStore store);
   Future<void> updateStore(GroceryStore store);
   Future<bool> deleteStore(int id);
@@ -36,6 +37,11 @@ class StoreRepository implements IStoreRepository {
     final stores = _storeBox.getAll();
     stores.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
     return stores;
+  }
+
+  @override
+  Future<GroceryStore?> getStoreById(int id) async {
+    return _storeBox.get(id);
   }
 
   @override
