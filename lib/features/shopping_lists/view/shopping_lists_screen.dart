@@ -5,6 +5,7 @@ import '../../../models/models.dart';
 import '../../../service_locator.dart'; 
 import '../cubit/shopping_list_cubit.dart';
 import 'dart:developer';
+import 'package:flutter/foundation.dart'; // Added for kDebugMode
 
 /// Top-level screen for displaying and managing shopping lists
 /// Follows the screen-level BlocProvider pattern where each screen is responsible for
@@ -47,6 +48,14 @@ class ShoppingListsView extends StatelessWidget {
               context.push('/stores');
             },
           ),
+          if (kDebugMode) // Only show debug button in debug mode
+            IconButton(
+              icon: const Icon(Icons.bug_report),
+              tooltip: 'Open Debug Menu',
+              onPressed: () {
+                context.push('/debug');
+              },
+            ),
         ],
       ),
       

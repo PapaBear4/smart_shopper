@@ -45,28 +45,38 @@ class DebugUtilities {
 
     // 4. Create Shopping Items
     // List 1 Items
-    final item1L1 = ShoppingItem(name: 'Milk', quantity: 1, unit: 'gallon', category: 'Dairy', id: list1Id);
+    // final item1L1 = ShoppingItem(name: 'Milk', quantity: 1, unit: 'gallon', category: 'Dairy', id: list1Id);
+    final item1L1 = ShoppingItem(name: 'Milk', quantity: 1, unit: 'gallon', category: 'Dairy');
+    item1L1.shoppingList.targetId = list1Id; // Set the foreign key for the list
     if (fetchedBrandA != null) item1L1.brand.target = fetchedBrandA;
     if (fetchedStore1 != null) item1L1.groceryStores.add(fetchedStore1);
-    await itemRepo.addItem(item1L1,list1Id);
+    await itemRepo.addItem(item1L1, list1Id);
 
-    final item2L1 = ShoppingItem(name: 'Bread', quantity: 1, unit: 'loaf', category: 'Bakery', id: list1Id);
+    // final item2L1 = ShoppingItem(name: 'Bread', quantity: 1, unit: 'loaf', category: 'Bakery', id: list1Id);
+    final item2L1 = ShoppingItem(name: 'Bread', quantity: 1, unit: 'loaf', category: 'Bakery');
+    item2L1.shoppingList.targetId = list1Id;
     if (fetchedBrandB != null) item2L1.brand.target = fetchedBrandB;
     if (fetchedStore1 != null) item2L1.groceryStores.add(fetchedStore1);
-    await itemRepo.addItem(item2L1,list1Id);
+    await itemRepo.addItem(item2L1, list1Id);
     
-    final item3L1 = ShoppingItem(name: 'Organic Apples', quantity: 5, unit: 'pieces', category: 'Produce', id: list1Id);
+    // final item3L1 = ShoppingItem(name: 'Organic Apples', quantity: 5, unit: 'pieces', category: 'Produce', id: list1Id);
+    final item3L1 = ShoppingItem(name: 'Organic Apples', quantity: 5, unit: 'pieces', category: 'Produce');
+    item3L1.shoppingList.targetId = list1Id;
     if (fetchedBrandC != null) item3L1.brand.target = fetchedBrandC;
     if (fetchedStore2 != null) item3L1.groceryStores.add(fetchedStore2);
     await itemRepo.addItem(item3L1, list1Id);
 
     // List 2 Items
-    final item1L2 = ShoppingItem(name: 'Chips', quantity: 2, unit: 'bags', category: 'Snacks', id: list2Id);
+    // final item1L2 = ShoppingItem(name: 'Chips', quantity: 2, unit: 'bags', category: 'Snacks', id: list2Id);
+    final item1L2 = ShoppingItem(name: 'Chips', quantity: 2, unit: 'bags', category: 'Snacks');
+    item1L2.shoppingList.targetId = list2Id;
     if (fetchedBrandB != null) item1L2.brand.target = fetchedBrandB;
     if (fetchedStore1 != null) item1L2.groceryStores.add(fetchedStore1);
     await itemRepo.addItem(item1L2, list2Id);
 
-    final item2L2 = ShoppingItem(name: 'Soda', quantity: 1, unit: '2-liter', category: 'Drinks', id: list2Id);
+    // final item2L2 = ShoppingItem(name: 'Soda', quantity: 1, unit: '2-liter', category: 'Drinks', id: list2Id);
+    final item2L2 = ShoppingItem(name: 'Soda', quantity: 1, unit: '2-liter', category: 'Drinks');
+    item2L2.shoppingList.targetId = list2Id;
     // No brand for this one
     if (fetchedStore2 != null) item2L2.groceryStores.add(fetchedStore2);
     await itemRepo.addItem(item2L2, list2Id);
