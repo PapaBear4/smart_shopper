@@ -20,10 +20,12 @@ class ShoppingItemRepository implements IShoppingItemRepository {
   final ObjectBoxHelper _objectBoxHelper; // Changed type
   late final Box<ShoppingItem> _itemBox;
   late final Box<ShoppingList> _listBox; // Needed to fetch list details
+  late final Box<PriceEntry> _priceEntryBox; // Added for PriceEntry access
 
   ShoppingItemRepository(this._objectBoxHelper) { // Changed parameter type
     _itemBox = _objectBoxHelper.shoppingItemBox; // Changed to use helper
     _listBox = _objectBoxHelper.shoppingListBox; // Changed to use helper
+    _priceEntryBox = _objectBoxHelper.priceEntryBox; // Initialize PriceEntry box
   }
 
   @override
@@ -35,10 +37,23 @@ class ShoppingItemRepository implements IShoppingItemRepository {
     final queryStream = builder.watch(triggerImmediately: true);
 
     // Map the stream of queries to a stream of lists of items
-    // Also apply sorting here: unchecked first, then by name
     return queryStream.map((query) {
       // Find the items for the current query result
       final items = query.find();
+
+      // For each item, fetch its associated price entries
+      for (var item in items) {
+        QueryBuilder<PriceEntry> priceEntryQueryBuilder = _priceEntryBox.query(
+          PriceEntry_.canonicalItemName.equals(item.name, caseSensitive: false)
+        );
+
+        // Conditionally add brand filter
+        // If item.brand.targetId is 0, it means no brand is associated.
+        // If item.brand.targetId is > 0, it's a valid brand ID.
+        priceEntryQueryBuilder.link(PriceEntry_.brand, Brand_.id.equals(item.brand.targetId));
+        
+        item.priceEntries = priceEntryQueryBuilder.build().find();
+      }
 
       // Sort the list IN PLACE using a custom comparison function
       items.sort((a, b) {

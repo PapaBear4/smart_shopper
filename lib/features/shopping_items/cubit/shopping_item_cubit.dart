@@ -40,18 +40,23 @@ class ShoppingItemCubit extends Cubit<ShoppingItemState> {
               // When new items arrive, emit loaded state with items and cached parent list
               if (_parentList != null) {
                 // Ensure parent list is still available
-                // Preserve existing showCompletedItems value if state is already ShoppingItemLoaded
+                // Preserve existing showCompletedItems, groupByCategory, and groupByStore values if state is already ShoppingItemLoaded
                 final bool showCompleted = state is ShoppingItemLoaded
                     ? (state as ShoppingItemLoaded).showCompletedItems
                     : false; // Default to false
                 final bool groupingByCategory = state is ShoppingItemLoaded
                     ? (state as ShoppingItemLoaded).groupByCategory
                     : false; // Default to false
+                final bool groupingByStore = state is ShoppingItemLoaded
+                    ? (state as ShoppingItemLoaded).groupByStore
+                    : false; // Default to false
+                    
                 emit(ShoppingItemLoaded(
                   items,
                   _parentList!,
                   showCompletedItems: showCompleted,
                   groupByCategory: groupingByCategory,
+                  groupByStore: groupingByStore, // Preserve groupByStore state
                 ));
               } else {
                 // This case should ideally not happen if initial load succeeded
@@ -125,7 +130,14 @@ class ShoppingItemCubit extends Cubit<ShoppingItemState> {
   void toggleGroupByCategory() {
     if (state is ShoppingItemLoaded) {
       final currentState = state as ShoppingItemLoaded;
-      emit(currentState.copyWith(groupByCategory: !currentState.groupByCategory));
+      emit(currentState.copyWith(groupByCategory: !currentState.groupByCategory, groupByStore: false));
+    }
+  }
+
+  void toggleGroupByStore() {
+    if (state is ShoppingItemLoaded) {
+      final currentState = state as ShoppingItemLoaded;
+      emit(currentState.copyWith(groupByStore: !currentState.groupByStore, groupByCategory: false));
     }
   }
 

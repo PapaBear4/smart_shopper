@@ -17,12 +17,14 @@ class ShoppingItemLoaded extends ShoppingItemState {
   final ShoppingList parentList; // Include parent list for context (e.g., AppBar title)
   final bool showCompletedItems; // New field
   final bool groupByCategory; // New field for grouping
+  final bool groupByStore; // New field for grouping by store
 
   const ShoppingItemLoaded(
     this.items,
     this.parentList, {
     this.showCompletedItems = false, // Default to false
     this.groupByCategory = false, // Default to false
+    this.groupByStore = false, // Default to false
   });
 
   // Helper to create a new state with modified showCompletedItems
@@ -31,17 +33,19 @@ class ShoppingItemLoaded extends ShoppingItemState {
     ShoppingList? parentList,
     bool? showCompletedItems,
     bool? groupByCategory,
+    bool? groupByStore,
   }) {
     return ShoppingItemLoaded(
       items ?? this.items,
       parentList ?? this.parentList,
       showCompletedItems: showCompletedItems ?? this.showCompletedItems,
       groupByCategory: groupByCategory ?? this.groupByCategory,
+      groupByStore: groupByStore ?? this.groupByStore,
     );
   }
 
   @override
-  List<Object?> get props => [items, parentList, showCompletedItems, groupByCategory];
+  List<Object?> get props => [items, parentList, showCompletedItems, groupByCategory, groupByStore];
 }
 
 // State for handling errors

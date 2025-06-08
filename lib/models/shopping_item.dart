@@ -2,6 +2,7 @@ import 'package:objectbox/objectbox.dart';
 import 'shopping_list.dart'; // Import needed for relationships
 import 'grocery_store.dart';       // Import needed for relationships
 import 'brand.dart'; // Import for ToOne<Brand>
+import 'price_entry.dart'; // Import for PriceEntry
 
 @Entity()
 class ShoppingItem {
@@ -22,6 +23,9 @@ class ShoppingItem {
 
   // Reference to a brand
   final brand = ToOne<Brand>();
+
+  @Transient() // This field is not stored in the database
+  List<PriceEntry> priceEntries = [];
 
   ShoppingItem({
     this.id = 0,
