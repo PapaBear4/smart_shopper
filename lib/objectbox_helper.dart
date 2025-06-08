@@ -1,4 +1,3 @@
-import 'package:objectbox/objectbox.dart';
 // This imports the generated file that contains the openStore() function
 // and entity model definitions for ObjectBox.
 import 'objectbox.g.dart'; 

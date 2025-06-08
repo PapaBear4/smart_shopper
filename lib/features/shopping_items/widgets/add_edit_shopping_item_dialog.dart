@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Required for DateFormat
-import 'package:provider/provider.dart'; // Required for context.read
 import 'package:collection/collection.dart'; // Required for firstWhereOrNull
 
 import '../../../models/models.dart';
@@ -414,8 +413,8 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
-          child: Text(_isEditing ? 'Save' : 'Add'),
           onPressed: _saveForm,
+          child: Text(_isEditing ? 'Save' : 'Add'),
         ),
       ],
     );
