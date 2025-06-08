@@ -1,6 +1,7 @@
 import 'package:objectbox/objectbox.dart';
 import 'shopping_list.dart'; // Import needed for relationships
 import 'grocery_store.dart';       // Import needed for relationships
+import 'brand.dart'; // Import for ToOne<Brand>
 
 @Entity()
 class ShoppingItem {
@@ -18,6 +19,9 @@ class ShoppingItem {
 
   // Establishes a many-to-many relationship with Store
   final groceryStores = ToMany<GroceryStore>();
+
+  // Reference to a brand
+  final brand = ToOne<Brand>();
 
   ShoppingItem({
     this.id = 0,

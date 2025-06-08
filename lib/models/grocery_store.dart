@@ -1,5 +1,6 @@
 //lib/models/grocery_store.dart
 import 'package:objectbox/objectbox.dart';
+import 'brand.dart'; // Import for ToMany<Brand>
 
 @Entity()
 class GroceryStore {
@@ -10,6 +11,9 @@ class GroceryStore {
   String? website;
   String? address;
   String? phoneNumber;
+
+  // Establishes a many-to-many relationship with Brand
+  final brands = ToMany<Brand>();
 
   // Corrected constructor name to match the class name 'GroceryStore'
   GroceryStore({

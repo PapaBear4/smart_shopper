@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'objectbox.dart'; // Import the ObjectBox helper class
+import 'objectbox_helper.dart'; // Import the ObjectBox helper class
 import 'service_locator.dart'; // Import the GetIt setup file
 import 'routing/app_router.dart'; // Import the router config
 
@@ -13,7 +13,7 @@ Future<void> main() async {
   // OBJECTBOX SETUP
   // Initialize the ObjectBox database instance
   // ObjectBox is a NoSQL database used for local data persistence
-  final objectboxInstance = await ObjectBox.create();
+  final objectboxInstance = await ObjectBoxHelper.create();
 
   // Set up dependency injection using GetIt service locator
   // This makes services and repositories available throughout the app

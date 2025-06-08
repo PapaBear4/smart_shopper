@@ -1,6 +1,6 @@
 import 'dart:async';
 import '../models/models.dart'; // Barrel file for models
-import '../objectbox.dart';   // ObjectBox helper
+import '../objectbox_helper.dart';   // Changed from objectbox.dart
 import '../objectbox.g.dart'; // Generated file for query conditions
 
 // Interface for the Store Repository
@@ -14,12 +14,12 @@ abstract class IStoreRepository {
 
 // Implementation using ObjectBox
 class StoreRepository implements IStoreRepository {
-  final ObjectBox _objectBox;
+  final ObjectBoxHelper _objectBoxHelper; // Changed type
   late final Box<GroceryStore> _storeBox;
 
-  StoreRepository(this._objectBox) {
+  StoreRepository(this._objectBoxHelper) { // Changed parameter type
     // Get the GroceryStore box from the ObjectBox instance
-    _storeBox = _objectBox.groceryStoreBox; // Assumes groceryStoreBox exists in ObjectBox helper [cite: uploaded:lib/objectbox.dart]
+    _storeBox = _objectBoxHelper.groceryStoreBox; // Changed to use helper
   }
 
   @override

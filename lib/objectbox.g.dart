@@ -14,7 +14,9 @@ import 'package:objectbox/internal.dart'
 import 'package:objectbox/objectbox.dart' as obx;
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
+import 'models/brand.dart';
 import 'models/grocery_store.dart';
+import 'models/price_entry.dart';
 import 'models/shopping_item.dart';
 import 'models/shopping_list.dart';
 
@@ -22,112 +24,225 @@ export 'package:objectbox/objectbox.dart'; // so that callers only have to impor
 
 final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
-      id: const obx_int.IdUid(1, 4843160077464443892),
-      name: 'GroceryStore',
-      lastPropertyId: const obx_int.IdUid(5, 8858691880572558394),
-      flags: 0,
-      properties: <obx_int.ModelProperty>[
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(1, 8097639316485930552),
-            name: 'id',
-            type: 6,
-            flags: 1),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(2, 8560774994384355071),
-            name: 'name',
-            type: 9,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(3, 8818619943353349853),
-            name: 'website',
-            type: 9,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(4, 5899172197649786906),
-            name: 'address',
-            type: 9,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(5, 8858691880572558394),
-            name: 'phoneNumber',
-            type: 9,
-            flags: 0)
-      ],
-      relations: <obx_int.ModelRelation>[],
-      backlinks: <obx_int.ModelBacklink>[]),
+    id: const obx_int.IdUid(1, 1350387564383969056),
+    name: 'Brand',
+    lastPropertyId: const obx_int.IdUid(2, 7687436088201772380),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 8761874532321917652),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 7687436088201772380),
+        name: 'name',
+        type: 9,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[
+      obx_int.ModelBacklink(
+        name: 'groceryStores',
+        srcEntity: 'GroceryStore',
+        srcField: 'brands',
+      ),
+    ],
+  ),
   obx_int.ModelEntity(
-      id: const obx_int.IdUid(2, 4997435842082196630),
-      name: 'ShoppingItem',
-      lastPropertyId: const obx_int.IdUid(7, 9092583722736998308),
-      flags: 0,
-      properties: <obx_int.ModelProperty>[
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(1, 1695149542950782062),
-            name: 'id',
-            type: 6,
-            flags: 1),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(2, 6359404052085084853),
-            name: 'name',
-            type: 9,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(3, 20874931826965993),
-            name: 'category',
-            type: 9,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(4, 7137229638748703116),
-            name: 'quantity',
-            type: 8,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(5, 3141370697861114506),
-            name: 'unit',
-            type: 9,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(6, 8358550304604749660),
-            name: 'isCompleted',
-            type: 1,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(7, 9092583722736998308),
-            name: 'shoppingListId',
-            type: 11,
-            flags: 520,
-            indexId: const obx_int.IdUid(1, 9141118425478715926),
-            relationTarget: 'ShoppingList')
-      ],
-      relations: <obx_int.ModelRelation>[
-        obx_int.ModelRelation(
-            id: const obx_int.IdUid(1, 9084818011994416483),
-            name: 'groceryStores',
-            targetId: const obx_int.IdUid(1, 4843160077464443892))
-      ],
-      backlinks: <obx_int.ModelBacklink>[]),
+    id: const obx_int.IdUid(2, 5392232521263040000),
+    name: 'GroceryStore',
+    lastPropertyId: const obx_int.IdUid(5, 1326364750653525587),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 5743311374707640706),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 5640327601109155288),
+        name: 'name',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 2458881672330496623),
+        name: 'website',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 2634876967099437326),
+        name: 'address',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(5, 1326364750653525587),
+        name: 'phoneNumber',
+        type: 9,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[
+      obx_int.ModelRelation(
+        id: const obx_int.IdUid(1, 1179179430474418289),
+        name: 'brands',
+        targetId: const obx_int.IdUid(1, 1350387564383969056),
+      ),
+    ],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
   obx_int.ModelEntity(
-      id: const obx_int.IdUid(3, 4792679058667801946),
-      name: 'ShoppingList',
-      lastPropertyId: const obx_int.IdUid(2, 102620082133135101),
-      flags: 0,
-      properties: <obx_int.ModelProperty>[
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(1, 8691350366388863580),
-            name: 'id',
-            type: 6,
-            flags: 1),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(2, 102620082133135101),
-            name: 'name',
-            type: 9,
-            flags: 0)
-      ],
-      relations: <obx_int.ModelRelation>[],
-      backlinks: <obx_int.ModelBacklink>[
-        obx_int.ModelBacklink(
-            name: 'items', srcEntity: 'ShoppingItem', srcField: 'shoppingList')
-      ])
+    id: const obx_int.IdUid(3, 5884021774426625564),
+    name: 'PriceEntry',
+    lastPropertyId: const obx_int.IdUid(6, 1077850470130638092),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 4053898171902608147),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 8531733499047451153),
+        name: 'price',
+        type: 8,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 4169143285421413535),
+        name: 'date',
+        type: 10,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 2302950537414718852),
+        name: 'canonicalItemName',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(5, 4935364066352572488),
+        name: 'groceryStoreId',
+        type: 11,
+        flags: 520,
+        indexId: const obx_int.IdUid(1, 1020527030735291276),
+        relationTarget: 'GroceryStore',
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(6, 1077850470130638092),
+        name: 'brandId',
+        type: 11,
+        flags: 520,
+        indexId: const obx_int.IdUid(2, 1205661651718775251),
+        relationTarget: 'Brand',
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(4, 6701175573460648360),
+    name: 'ShoppingItem',
+    lastPropertyId: const obx_int.IdUid(8, 557341323890659898),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 1433682486671584200),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 6183159279299876135),
+        name: 'name',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 6531799950927374350),
+        name: 'category',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 2406488466200381600),
+        name: 'quantity',
+        type: 8,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(5, 3924568137145655625),
+        name: 'unit',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(6, 4620948759756646472),
+        name: 'isCompleted',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(7, 803727051165036413),
+        name: 'shoppingListId',
+        type: 11,
+        flags: 520,
+        indexId: const obx_int.IdUid(3, 4104004541648570195),
+        relationTarget: 'ShoppingList',
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(8, 557341323890659898),
+        name: 'brandId',
+        type: 11,
+        flags: 520,
+        indexId: const obx_int.IdUid(4, 1359002738651244461),
+        relationTarget: 'Brand',
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[
+      obx_int.ModelRelation(
+        id: const obx_int.IdUid(2, 6021917186737555969),
+        name: 'groceryStores',
+        targetId: const obx_int.IdUid(2, 5392232521263040000),
+      ),
+    ],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(5, 1820958202328536689),
+    name: 'ShoppingList',
+    lastPropertyId: const obx_int.IdUid(2, 9103335636842345087),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 6299104716667177880),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 9103335636842345087),
+        name: 'name',
+        type: 9,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[
+      obx_int.ModelBacklink(
+        name: 'items',
+        srcEntity: 'ShoppingItem',
+        srcField: 'shoppingList',
+      ),
+    ],
+  ),
 ];
 
 /// Shortcut for [obx.Store.new] that passes [getObjectBoxModel] and for Flutter
@@ -141,260 +256,505 @@ final _entities = <obx_int.ModelEntity>[
 /// For Flutter apps, also calls `loadObjectBoxLibraryAndroidCompat()` from
 /// the ObjectBox Flutter library to fix loading the native ObjectBox library
 /// on Android 6 and older.
-Future<obx.Store> openStore(
-    {String? directory,
-    int? maxDBSizeInKB,
-    int? maxDataSizeInKB,
-    int? fileMode,
-    int? maxReaders,
-    bool queriesCaseSensitiveDefault = true,
-    String? macosApplicationGroup}) async {
+Future<obx.Store> openStore({
+  String? directory,
+  int? maxDBSizeInKB,
+  int? maxDataSizeInKB,
+  int? fileMode,
+  int? maxReaders,
+  bool queriesCaseSensitiveDefault = true,
+  String? macosApplicationGroup,
+}) async {
   await loadObjectBoxLibraryAndroidCompat();
-  return obx.Store(getObjectBoxModel(),
-      directory: directory ?? (await defaultStoreDirectory()).path,
-      maxDBSizeInKB: maxDBSizeInKB,
-      maxDataSizeInKB: maxDataSizeInKB,
-      fileMode: fileMode,
-      maxReaders: maxReaders,
-      queriesCaseSensitiveDefault: queriesCaseSensitiveDefault,
-      macosApplicationGroup: macosApplicationGroup);
+  return obx.Store(
+    getObjectBoxModel(),
+    directory: directory ?? (await defaultStoreDirectory()).path,
+    maxDBSizeInKB: maxDBSizeInKB,
+    maxDataSizeInKB: maxDataSizeInKB,
+    fileMode: fileMode,
+    maxReaders: maxReaders,
+    queriesCaseSensitiveDefault: queriesCaseSensitiveDefault,
+    macosApplicationGroup: macosApplicationGroup,
+  );
 }
 
 /// Returns the ObjectBox model definition for this project for use with
 /// [obx.Store.new].
 obx_int.ModelDefinition getObjectBoxModel() {
   final model = obx_int.ModelInfo(
-      entities: _entities,
-      lastEntityId: const obx_int.IdUid(3, 4792679058667801946),
-      lastIndexId: const obx_int.IdUid(1, 9141118425478715926),
-      lastRelationId: const obx_int.IdUid(1, 9084818011994416483),
-      lastSequenceId: const obx_int.IdUid(0, 0),
-      retiredEntityUids: const [],
-      retiredIndexUids: const [],
-      retiredPropertyUids: const [],
-      retiredRelationUids: const [],
-      modelVersion: 5,
-      modelVersionParserMinimum: 5,
-      version: 1);
+    entities: _entities,
+    lastEntityId: const obx_int.IdUid(5, 1820958202328536689),
+    lastIndexId: const obx_int.IdUid(4, 1359002738651244461),
+    lastRelationId: const obx_int.IdUid(2, 6021917186737555969),
+    lastSequenceId: const obx_int.IdUid(0, 0),
+    retiredEntityUids: const [],
+    retiredIndexUids: const [],
+    retiredPropertyUids: const [],
+    retiredRelationUids: const [],
+    modelVersion: 5,
+    modelVersionParserMinimum: 5,
+    version: 1,
+  );
 
   final bindings = <Type, obx_int.EntityDefinition>{
+    Brand: obx_int.EntityDefinition<Brand>(
+      model: _entities[0],
+      toOneRelations: (Brand object) => [],
+      toManyRelations: (Brand object) => {
+        obx_int.RelInfo<GroceryStore>.toManyBacklink(1, object.id):
+            object.groceryStores,
+      },
+      getId: (Brand object) => object.id,
+      setId: (Brand object, int id) {
+        object.id = id;
+      },
+      objectToFB: (Brand object, fb.Builder fbb) {
+        final nameOffset = fbb.writeString(object.name);
+        fbb.startTable(3);
+        fbb.addInt64(0, object.id);
+        fbb.addOffset(1, nameOffset);
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final idParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          4,
+          0,
+        );
+        final nameParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 6, '');
+        final object = Brand(id: idParam, name: nameParam);
+        obx_int.InternalToManyAccess.setRelInfo<Brand>(
+          object.groceryStores,
+          store,
+          obx_int.RelInfo<GroceryStore>.toManyBacklink(1, object.id),
+        );
+        return object;
+      },
+    ),
     GroceryStore: obx_int.EntityDefinition<GroceryStore>(
-        model: _entities[0],
-        toOneRelations: (GroceryStore object) => [],
-        toManyRelations: (GroceryStore object) => {},
-        getId: (GroceryStore object) => object.id,
-        setId: (GroceryStore object, int id) {
-          object.id = id;
-        },
-        objectToFB: (GroceryStore object, fb.Builder fbb) {
-          final nameOffset = fbb.writeString(object.name);
-          final websiteOffset =
-              object.website == null ? null : fbb.writeString(object.website!);
-          final addressOffset =
-              object.address == null ? null : fbb.writeString(object.address!);
-          final phoneNumberOffset = object.phoneNumber == null
-              ? null
-              : fbb.writeString(object.phoneNumber!);
-          fbb.startTable(6);
-          fbb.addInt64(0, object.id);
-          fbb.addOffset(1, nameOffset);
-          fbb.addOffset(2, websiteOffset);
-          fbb.addOffset(3, addressOffset);
-          fbb.addOffset(4, phoneNumberOffset);
-          fbb.finish(fbb.endTable());
-          return object.id;
-        },
-        objectFromFB: (obx.Store store, ByteData fbData) {
-          final buffer = fb.BufferContext(fbData);
-          final rootOffset = buffer.derefObject(0);
-          final idParam =
-              const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
-          final nameParam = const fb.StringReader(asciiOptimization: true)
-              .vTableGet(buffer, rootOffset, 6, '');
-          final websiteParam = const fb.StringReader(asciiOptimization: true)
-              .vTableGetNullable(buffer, rootOffset, 8);
-          final addressParam = const fb.StringReader(asciiOptimization: true)
-              .vTableGetNullable(buffer, rootOffset, 10);
-          final phoneNumberParam =
-              const fb.StringReader(asciiOptimization: true)
-                  .vTableGetNullable(buffer, rootOffset, 12);
-          final object = GroceryStore(
-              id: idParam,
-              name: nameParam,
-              website: websiteParam,
-              address: addressParam,
-              phoneNumber: phoneNumberParam);
-
-          return object;
-        }),
+      model: _entities[1],
+      toOneRelations: (GroceryStore object) => [],
+      toManyRelations: (GroceryStore object) => {
+        obx_int.RelInfo<GroceryStore>.toMany(1, object.id): object.brands,
+      },
+      getId: (GroceryStore object) => object.id,
+      setId: (GroceryStore object, int id) {
+        object.id = id;
+      },
+      objectToFB: (GroceryStore object, fb.Builder fbb) {
+        final nameOffset = fbb.writeString(object.name);
+        final websiteOffset = object.website == null
+            ? null
+            : fbb.writeString(object.website!);
+        final addressOffset = object.address == null
+            ? null
+            : fbb.writeString(object.address!);
+        final phoneNumberOffset = object.phoneNumber == null
+            ? null
+            : fbb.writeString(object.phoneNumber!);
+        fbb.startTable(6);
+        fbb.addInt64(0, object.id);
+        fbb.addOffset(1, nameOffset);
+        fbb.addOffset(2, websiteOffset);
+        fbb.addOffset(3, addressOffset);
+        fbb.addOffset(4, phoneNumberOffset);
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final idParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          4,
+          0,
+        );
+        final nameParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 6, '');
+        final websiteParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 8);
+        final addressParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 10);
+        final phoneNumberParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 12);
+        final object = GroceryStore(
+          id: idParam,
+          name: nameParam,
+          website: websiteParam,
+          address: addressParam,
+          phoneNumber: phoneNumberParam,
+        );
+        obx_int.InternalToManyAccess.setRelInfo<GroceryStore>(
+          object.brands,
+          store,
+          obx_int.RelInfo<GroceryStore>.toMany(1, object.id),
+        );
+        return object;
+      },
+    ),
+    PriceEntry: obx_int.EntityDefinition<PriceEntry>(
+      model: _entities[2],
+      toOneRelations: (PriceEntry object) => [
+        object.groceryStore,
+        object.brand,
+      ],
+      toManyRelations: (PriceEntry object) => {},
+      getId: (PriceEntry object) => object.id,
+      setId: (PriceEntry object, int id) {
+        object.id = id;
+      },
+      objectToFB: (PriceEntry object, fb.Builder fbb) {
+        final canonicalItemNameOffset = fbb.writeString(
+          object.canonicalItemName,
+        );
+        fbb.startTable(7);
+        fbb.addInt64(0, object.id);
+        fbb.addFloat64(1, object.price);
+        fbb.addInt64(2, object.date.millisecondsSinceEpoch);
+        fbb.addOffset(3, canonicalItemNameOffset);
+        fbb.addInt64(4, object.groceryStore.targetId);
+        fbb.addInt64(5, object.brand.targetId);
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final idParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          4,
+          0,
+        );
+        final priceParam = const fb.Float64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          6,
+          0,
+        );
+        final dateParam = DateTime.fromMillisecondsSinceEpoch(
+          const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0),
+        );
+        final canonicalItemNameParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 10, '');
+        final object = PriceEntry(
+          id: idParam,
+          price: priceParam,
+          date: dateParam,
+          canonicalItemName: canonicalItemNameParam,
+        );
+        object.groceryStore.targetId = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          12,
+          0,
+        );
+        object.groceryStore.attach(store);
+        object.brand.targetId = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          14,
+          0,
+        );
+        object.brand.attach(store);
+        return object;
+      },
+    ),
     ShoppingItem: obx_int.EntityDefinition<ShoppingItem>(
-        model: _entities[1],
-        toOneRelations: (ShoppingItem object) => [object.shoppingList],
-        toManyRelations: (ShoppingItem object) => {
-              obx_int.RelInfo<ShoppingItem>.toMany(1, object.id):
-                  object.groceryStores
-            },
-        getId: (ShoppingItem object) => object.id,
-        setId: (ShoppingItem object, int id) {
-          object.id = id;
-        },
-        objectToFB: (ShoppingItem object, fb.Builder fbb) {
-          final nameOffset = fbb.writeString(object.name);
-          final categoryOffset = fbb.writeString(object.category);
-          final unitOffset = fbb.writeString(object.unit);
-          fbb.startTable(8);
-          fbb.addInt64(0, object.id);
-          fbb.addOffset(1, nameOffset);
-          fbb.addOffset(2, categoryOffset);
-          fbb.addFloat64(3, object.quantity);
-          fbb.addOffset(4, unitOffset);
-          fbb.addBool(5, object.isCompleted);
-          fbb.addInt64(6, object.shoppingList.targetId);
-          fbb.finish(fbb.endTable());
-          return object.id;
-        },
-        objectFromFB: (obx.Store store, ByteData fbData) {
-          final buffer = fb.BufferContext(fbData);
-          final rootOffset = buffer.derefObject(0);
-          final idParam =
-              const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
-          final nameParam = const fb.StringReader(asciiOptimization: true)
-              .vTableGet(buffer, rootOffset, 6, '');
-          final categoryParam = const fb.StringReader(asciiOptimization: true)
-              .vTableGet(buffer, rootOffset, 8, '');
-          final quantityParam =
-              const fb.Float64Reader().vTableGet(buffer, rootOffset, 10, 0);
-          final unitParam = const fb.StringReader(asciiOptimization: true)
-              .vTableGet(buffer, rootOffset, 12, '');
-          final isCompletedParam =
-              const fb.BoolReader().vTableGet(buffer, rootOffset, 14, false);
-          final object = ShoppingItem(
-              id: idParam,
-              name: nameParam,
-              category: categoryParam,
-              quantity: quantityParam,
-              unit: unitParam,
-              isCompleted: isCompletedParam);
-          object.shoppingList.targetId =
-              const fb.Int64Reader().vTableGet(buffer, rootOffset, 16, 0);
-          object.shoppingList.attach(store);
-          obx_int.InternalToManyAccess.setRelInfo<ShoppingItem>(
-              object.groceryStores,
-              store,
-              obx_int.RelInfo<ShoppingItem>.toMany(1, object.id));
-          return object;
-        }),
+      model: _entities[3],
+      toOneRelations: (ShoppingItem object) => [
+        object.shoppingList,
+        object.brand,
+      ],
+      toManyRelations: (ShoppingItem object) => {
+        obx_int.RelInfo<ShoppingItem>.toMany(2, object.id):
+            object.groceryStores,
+      },
+      getId: (ShoppingItem object) => object.id,
+      setId: (ShoppingItem object, int id) {
+        object.id = id;
+      },
+      objectToFB: (ShoppingItem object, fb.Builder fbb) {
+        final nameOffset = fbb.writeString(object.name);
+        final categoryOffset = fbb.writeString(object.category);
+        final unitOffset = fbb.writeString(object.unit);
+        fbb.startTable(9);
+        fbb.addInt64(0, object.id);
+        fbb.addOffset(1, nameOffset);
+        fbb.addOffset(2, categoryOffset);
+        fbb.addFloat64(3, object.quantity);
+        fbb.addOffset(4, unitOffset);
+        fbb.addBool(5, object.isCompleted);
+        fbb.addInt64(6, object.shoppingList.targetId);
+        fbb.addInt64(7, object.brand.targetId);
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final idParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          4,
+          0,
+        );
+        final nameParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 6, '');
+        final categoryParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 8, '');
+        final quantityParam = const fb.Float64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          10,
+          0,
+        );
+        final unitParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 12, '');
+        final isCompletedParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          14,
+          false,
+        );
+        final object = ShoppingItem(
+          id: idParam,
+          name: nameParam,
+          category: categoryParam,
+          quantity: quantityParam,
+          unit: unitParam,
+          isCompleted: isCompletedParam,
+        );
+        object.shoppingList.targetId = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          16,
+          0,
+        );
+        object.shoppingList.attach(store);
+        object.brand.targetId = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          18,
+          0,
+        );
+        object.brand.attach(store);
+        obx_int.InternalToManyAccess.setRelInfo<ShoppingItem>(
+          object.groceryStores,
+          store,
+          obx_int.RelInfo<ShoppingItem>.toMany(2, object.id),
+        );
+        return object;
+      },
+    ),
     ShoppingList: obx_int.EntityDefinition<ShoppingList>(
-        model: _entities[2],
-        toOneRelations: (ShoppingList object) => [],
-        toManyRelations: (ShoppingList object) => {
-              obx_int.RelInfo<ShoppingItem>.toOneBacklink(7, object.id,
-                      (ShoppingItem srcObject) => srcObject.shoppingList):
-                  object.items
-            },
-        getId: (ShoppingList object) => object.id,
-        setId: (ShoppingList object, int id) {
-          object.id = id;
-        },
-        objectToFB: (ShoppingList object, fb.Builder fbb) {
-          final nameOffset = fbb.writeString(object.name);
-          fbb.startTable(3);
-          fbb.addInt64(0, object.id);
-          fbb.addOffset(1, nameOffset);
-          fbb.finish(fbb.endTable());
-          return object.id;
-        },
-        objectFromFB: (obx.Store store, ByteData fbData) {
-          final buffer = fb.BufferContext(fbData);
-          final rootOffset = buffer.derefObject(0);
-          final idParam =
-              const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
-          final nameParam = const fb.StringReader(asciiOptimization: true)
-              .vTableGet(buffer, rootOffset, 6, '');
-          final object = ShoppingList(id: idParam, name: nameParam);
-          obx_int.InternalToManyAccess.setRelInfo<ShoppingList>(
-              object.items,
-              store,
-              obx_int.RelInfo<ShoppingItem>.toOneBacklink(7, object.id,
-                  (ShoppingItem srcObject) => srcObject.shoppingList));
-          return object;
-        })
+      model: _entities[4],
+      toOneRelations: (ShoppingList object) => [],
+      toManyRelations: (ShoppingList object) => {
+        obx_int.RelInfo<ShoppingItem>.toOneBacklink(
+          7,
+          object.id,
+          (ShoppingItem srcObject) => srcObject.shoppingList,
+        ): object.items,
+      },
+      getId: (ShoppingList object) => object.id,
+      setId: (ShoppingList object, int id) {
+        object.id = id;
+      },
+      objectToFB: (ShoppingList object, fb.Builder fbb) {
+        final nameOffset = fbb.writeString(object.name);
+        fbb.startTable(3);
+        fbb.addInt64(0, object.id);
+        fbb.addOffset(1, nameOffset);
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final idParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          4,
+          0,
+        );
+        final nameParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 6, '');
+        final object = ShoppingList(id: idParam, name: nameParam);
+        obx_int.InternalToManyAccess.setRelInfo<ShoppingList>(
+          object.items,
+          store,
+          obx_int.RelInfo<ShoppingItem>.toOneBacklink(
+            7,
+            object.id,
+            (ShoppingItem srcObject) => srcObject.shoppingList,
+          ),
+        );
+        return object;
+      },
+    ),
   };
 
   return obx_int.ModelDefinition(model, bindings);
 }
 
+/// [Brand] entity fields to define ObjectBox queries.
+class Brand_ {
+  /// See [Brand.id].
+  static final id = obx.QueryIntegerProperty<Brand>(_entities[0].properties[0]);
+
+  /// See [Brand.name].
+  static final name = obx.QueryStringProperty<Brand>(
+    _entities[0].properties[1],
+  );
+}
+
 /// [GroceryStore] entity fields to define ObjectBox queries.
 class GroceryStore_ {
   /// See [GroceryStore.id].
-  static final id =
-      obx.QueryIntegerProperty<GroceryStore>(_entities[0].properties[0]);
+  static final id = obx.QueryIntegerProperty<GroceryStore>(
+    _entities[1].properties[0],
+  );
 
   /// See [GroceryStore.name].
-  static final name =
-      obx.QueryStringProperty<GroceryStore>(_entities[0].properties[1]);
+  static final name = obx.QueryStringProperty<GroceryStore>(
+    _entities[1].properties[1],
+  );
 
   /// See [GroceryStore.website].
-  static final website =
-      obx.QueryStringProperty<GroceryStore>(_entities[0].properties[2]);
+  static final website = obx.QueryStringProperty<GroceryStore>(
+    _entities[1].properties[2],
+  );
 
   /// See [GroceryStore.address].
-  static final address =
-      obx.QueryStringProperty<GroceryStore>(_entities[0].properties[3]);
+  static final address = obx.QueryStringProperty<GroceryStore>(
+    _entities[1].properties[3],
+  );
 
   /// See [GroceryStore.phoneNumber].
-  static final phoneNumber =
-      obx.QueryStringProperty<GroceryStore>(_entities[0].properties[4]);
+  static final phoneNumber = obx.QueryStringProperty<GroceryStore>(
+    _entities[1].properties[4],
+  );
+
+  /// see [GroceryStore.brands]
+  static final brands = obx.QueryRelationToMany<GroceryStore, Brand>(
+    _entities[1].relations[0],
+  );
+}
+
+/// [PriceEntry] entity fields to define ObjectBox queries.
+class PriceEntry_ {
+  /// See [PriceEntry.id].
+  static final id = obx.QueryIntegerProperty<PriceEntry>(
+    _entities[2].properties[0],
+  );
+
+  /// See [PriceEntry.price].
+  static final price = obx.QueryDoubleProperty<PriceEntry>(
+    _entities[2].properties[1],
+  );
+
+  /// See [PriceEntry.date].
+  static final date = obx.QueryDateProperty<PriceEntry>(
+    _entities[2].properties[2],
+  );
+
+  /// See [PriceEntry.canonicalItemName].
+  static final canonicalItemName = obx.QueryStringProperty<PriceEntry>(
+    _entities[2].properties[3],
+  );
+
+  /// See [PriceEntry.groceryStore].
+  static final groceryStore = obx.QueryRelationToOne<PriceEntry, GroceryStore>(
+    _entities[2].properties[4],
+  );
+
+  /// See [PriceEntry.brand].
+  static final brand = obx.QueryRelationToOne<PriceEntry, Brand>(
+    _entities[2].properties[5],
+  );
 }
 
 /// [ShoppingItem] entity fields to define ObjectBox queries.
 class ShoppingItem_ {
   /// See [ShoppingItem.id].
-  static final id =
-      obx.QueryIntegerProperty<ShoppingItem>(_entities[1].properties[0]);
+  static final id = obx.QueryIntegerProperty<ShoppingItem>(
+    _entities[3].properties[0],
+  );
 
   /// See [ShoppingItem.name].
-  static final name =
-      obx.QueryStringProperty<ShoppingItem>(_entities[1].properties[1]);
+  static final name = obx.QueryStringProperty<ShoppingItem>(
+    _entities[3].properties[1],
+  );
 
   /// See [ShoppingItem.category].
-  static final category =
-      obx.QueryStringProperty<ShoppingItem>(_entities[1].properties[2]);
+  static final category = obx.QueryStringProperty<ShoppingItem>(
+    _entities[3].properties[2],
+  );
 
   /// See [ShoppingItem.quantity].
-  static final quantity =
-      obx.QueryDoubleProperty<ShoppingItem>(_entities[1].properties[3]);
+  static final quantity = obx.QueryDoubleProperty<ShoppingItem>(
+    _entities[3].properties[3],
+  );
 
   /// See [ShoppingItem.unit].
-  static final unit =
-      obx.QueryStringProperty<ShoppingItem>(_entities[1].properties[4]);
+  static final unit = obx.QueryStringProperty<ShoppingItem>(
+    _entities[3].properties[4],
+  );
 
   /// See [ShoppingItem.isCompleted].
-  static final isCompleted =
-      obx.QueryBooleanProperty<ShoppingItem>(_entities[1].properties[5]);
+  static final isCompleted = obx.QueryBooleanProperty<ShoppingItem>(
+    _entities[3].properties[5],
+  );
 
   /// See [ShoppingItem.shoppingList].
   static final shoppingList =
       obx.QueryRelationToOne<ShoppingItem, ShoppingList>(
-          _entities[1].properties[6]);
+        _entities[3].properties[6],
+      );
+
+  /// See [ShoppingItem.brand].
+  static final brand = obx.QueryRelationToOne<ShoppingItem, Brand>(
+    _entities[3].properties[7],
+  );
 
   /// see [ShoppingItem.groceryStores]
   static final groceryStores =
       obx.QueryRelationToMany<ShoppingItem, GroceryStore>(
-          _entities[1].relations[0]);
+        _entities[3].relations[0],
+      );
 }
 
 /// [ShoppingList] entity fields to define ObjectBox queries.
 class ShoppingList_ {
   /// See [ShoppingList.id].
-  static final id =
-      obx.QueryIntegerProperty<ShoppingList>(_entities[2].properties[0]);
+  static final id = obx.QueryIntegerProperty<ShoppingList>(
+    _entities[4].properties[0],
+  );
 
   /// See [ShoppingList.name].
-  static final name =
-      obx.QueryStringProperty<ShoppingList>(_entities[2].properties[1]);
+  static final name = obx.QueryStringProperty<ShoppingList>(
+    _entities[4].properties[1],
+  );
 
   /// see [ShoppingList.items]
   static final items = obx.QueryBacklinkToMany<ShoppingItem, ShoppingList>(
-      ShoppingItem_.shoppingList);
+    ShoppingItem_.shoppingList,
+  );
 }

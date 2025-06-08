@@ -1,6 +1,6 @@
 import 'dart:async';
 import '../models/models.dart';
-import '../objectbox.dart';
+import '../objectbox_helper.dart'; // Changed from objectbox.dart
 import '../objectbox.g.dart'; // Required for generated query conditions like ShoppingItem_.shoppingList
 
 // Interface definition
@@ -16,13 +16,13 @@ abstract class IShoppingItemRepository {
 
 // Implementation using ObjectBox
 class ShoppingItemRepository implements IShoppingItemRepository {
-  final ObjectBox _objectBox;
+  final ObjectBoxHelper _objectBoxHelper; // Changed type
   late final Box<ShoppingItem> _itemBox;
   late final Box<ShoppingList> _listBox; // Needed to fetch list details
 
-  ShoppingItemRepository(this._objectBox) {
-    _itemBox = _objectBox.shoppingItemBox;
-    _listBox = _objectBox.shoppingListBox; // Get list box from helper
+  ShoppingItemRepository(this._objectBoxHelper) { // Changed parameter type
+    _itemBox = _objectBoxHelper.shoppingItemBox; // Changed to use helper
+    _listBox = _objectBoxHelper.shoppingListBox; // Changed to use helper
   }
 
   @override

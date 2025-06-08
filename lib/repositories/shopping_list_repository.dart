@@ -1,6 +1,6 @@
 import 'package:smart_shopper/objectbox.g.dart';
 import '../models/models.dart'; // Uses the barrel file
-import '../objectbox.dart'; // The ObjectBox helper class
+import '../objectbox_helper.dart'; // Changed from objectbox.dart
 import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'dart:async'; // Import for StreamController
@@ -17,14 +17,14 @@ abstract class IShoppingListRepository {
 
 // Concrete implementation using ObjectBox
 class ShoppingListRepository implements IShoppingListRepository {
-  final ObjectBox _objectBox;
+  final ObjectBoxHelper _objectBoxHelper; // Changed type
   late final Box<ShoppingList> _listBox;
   // Track if the box has been initialized properly
   bool _isReady = false;
 
-  ShoppingListRepository(this._objectBox) {
+  ShoppingListRepository(this._objectBoxHelper) { // Changed parameter type
     try {
-      _listBox = _objectBox.shoppingListBox; // Get the box from the helper
+      _listBox = _objectBoxHelper.shoppingListBox; // Changed to use helper
       _isReady = true;
       
       if (!kReleaseMode) {
