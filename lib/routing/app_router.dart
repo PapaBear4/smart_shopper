@@ -4,6 +4,7 @@ import 'package:smart_shopper/features/stores/view/store_screen.dart';
 import '../features/debug/view/debug_screen.dart'; 
 import '../features/shopping_lists/view/shopping_lists_screen.dart';
 import '../features/shopping_items/view/shopping_items_screen.dart';
+import '../features/items_by_store/view/items_by_store_screen.dart';
 import 'dart:developer';
 import 'package:flutter/foundation.dart';
 
@@ -76,6 +77,30 @@ final GoRouter appRouter = GoRouter(
         // StoreManagementScreen already has its own BlocProvider
         return const StoreManagementScreen();
       },
+      // === NESTED ROUTE FOR ITEMS BY STORE ===
+      routes: <RouteBase>[
+        GoRoute(
+          path: ':storeId/items', // Relative path: /stores/:storeId/items
+          builder: (BuildContext context, GoRouterState state) {
+            final String? storeIdParam = state.pathParameters['storeId'];
+            final int? storeId = int.tryParse(storeIdParam ?? '');
+
+            if (!kReleaseMode) {
+              log('Router: Navigating to items for store ID: $storeId (from param: $storeIdParam)',
+                  name: 'app_router');
+            }
+
+            if (storeId == null) {
+              return Scaffold(
+                appBar: AppBar(title: const Text('Error')),
+                body: Center(child: Text('Invalid Store ID: "$storeIdParam"')),
+              );
+            }
+            // ItemsByStoreScreen has its own BlocProvider
+            return ItemsByStoreScreen(storeId: storeId);
+          },
+        ),
+      ],
     ),
     // === DEBUG SCREEN ROUTE (Top-level route) ===
     GoRoute(

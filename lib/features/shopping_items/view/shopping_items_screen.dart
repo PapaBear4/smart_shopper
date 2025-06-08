@@ -5,8 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_shopper/features/shopping_items/cubit/shopping_item_cubit.dart';
 import 'package:smart_shopper/features/shopping_items/widgets/add_edit_shopping_item_dialog.dart';
 import 'package:smart_shopper/features/shopping_items/widgets/shopping_item_list_view.dart';
-import 'package:smart_shopper/repositories/shopping_item_repository.dart';
+import 'package:smart_shopper/repositories/shopping_item_repository.dart'; // Ensure this import is present
 import 'package:smart_shopper/service_locator.dart';
+import '../../../common_widgets/loading_indicator.dart'; 
+import '../../../common_widgets/error_display.dart'; 
 
 class ShoppingItemsScreen extends StatelessWidget {
   final int listId; // Received from the router
@@ -108,13 +110,13 @@ class ShoppingItemView extends StatelessWidget {
       body: BlocBuilder<ShoppingItemCubit, ShoppingItemState>(
         builder: (context, state) {
           if (state is ShoppingItemLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const LoadingIndicator(); 
           } else if (state is ShoppingItemLoaded) {
             return const ShoppingItemListView();
           } else if (state is ShoppingItemError) {
-            return Center(child: Text('Error: ${state.message}'));
+            return ErrorDisplay(message: state.message); 
           }
-          return const Center(child: Text('Loading items...'));
+          return const Center(child: Text('Loading items...')); 
         },
       ),
       floatingActionButton: FloatingActionButton(

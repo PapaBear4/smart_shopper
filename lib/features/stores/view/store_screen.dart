@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../models/models.dart'; // Models barrel file
 import '../../../service_locator.dart'; // GetIt for dependency injection
 import '../cubit/store_cubit.dart'; // The Cubit for this feature
@@ -125,7 +126,7 @@ class StoreView extends StatelessWidget {
                       maxLines: 1, // Prevent multi-line display
                       overflow: TextOverflow.ellipsis, // Handle long text gracefully
                     ),
-                     trailing: IconButton(
+                    trailing: IconButton( // Keep only the edit button in trailing
                        icon: const Icon(Icons.edit, size: 20),
                        tooltip: 'Edit Store',
                        onPressed: () {
@@ -133,7 +134,10 @@ class StoreView extends StatelessWidget {
                           _showAddEditStoreDialog(context, store: store);
                        },
                      ),
-                    // Future enhancement: Could add onTap to show full store details or navigate to a map
+                    onTap: () { // Add onTap to the ListTile itself
+                      // Navigate to the new screen using GoRouter
+                      GoRouter.of(context).push('/stores/${store.id}/items');
+                    },
                   ),
                 );
               },
