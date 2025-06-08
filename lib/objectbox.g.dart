@@ -49,6 +49,11 @@ final _entities = <obx_int.ModelEntity>[
         srcEntity: 'GroceryStore',
         srcField: 'brands',
       ),
+      obx_int.ModelBacklink(
+        name: 'shoppingItems',
+        srcEntity: 'ShoppingItem',
+        srcField: 'brand',
+      ),
     ],
   ),
   obx_int.ModelEntity(
@@ -303,6 +308,11 @@ obx_int.ModelDefinition getObjectBoxModel() {
       toManyRelations: (Brand object) => {
         obx_int.RelInfo<GroceryStore>.toManyBacklink(1, object.id):
             object.groceryStores,
+        obx_int.RelInfo<ShoppingItem>.toOneBacklink(
+          8,
+          object.id,
+          (ShoppingItem srcObject) => srcObject.brand,
+        ): object.shoppingItems,
       },
       getId: (Brand object) => object.id,
       setId: (Brand object, int id) {
@@ -333,6 +343,15 @@ obx_int.ModelDefinition getObjectBoxModel() {
           object.groceryStores,
           store,
           obx_int.RelInfo<GroceryStore>.toManyBacklink(1, object.id),
+        );
+        obx_int.InternalToManyAccess.setRelInfo<Brand>(
+          object.shoppingItems,
+          store,
+          obx_int.RelInfo<ShoppingItem>.toOneBacklink(
+            8,
+            object.id,
+            (ShoppingItem srcObject) => srcObject.brand,
+          ),
         );
         return object;
       },
@@ -622,6 +641,11 @@ class Brand_ {
   /// See [Brand.name].
   static final name = obx.QueryStringProperty<Brand>(
     _entities[0].properties[1],
+  );
+
+  /// see [Brand.shoppingItems]
+  static final shoppingItems = obx.QueryBacklinkToMany<ShoppingItem, Brand>(
+    ShoppingItem_.brand,
   );
 }
 
