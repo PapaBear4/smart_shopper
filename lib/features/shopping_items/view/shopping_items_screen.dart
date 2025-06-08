@@ -7,6 +7,10 @@ import '../../../models/models.dart';
 import '../../../repositories/shopping_item_repository.dart'; // Needed for Cubit creation
 import '../../../service_locator.dart'; // Needed for GetIt
 import '../cubit/shopping_item_cubit.dart'; // The Cubit for this feature
+import '../../../repositories/brand_repository.dart'; // Added for Brand selection
+import '../../../repositories/price_entry_repository.dart'; // Added for PriceEntry
+import 'package:intl/intl.dart'; // For date formatting
+import 'package:collection/collection.dart'; // Added for firstWhereOrNull
 
 class ShoppingItemsScreen extends StatelessWidget {
   final int listId; // Received from the router
@@ -181,6 +185,8 @@ class ShoppingItemView extends StatelessWidget {
     // Get the necessary cubit and repository instances from the context/DI
     final cubit = context.read<ShoppingItemCubit>();
     final storeRepository = getIt<IStoreRepository>(); // To fetch stores
+    final brandRepository = getIt<IBrandRepository>(); // To fetch brands
+    final priceEntryRepository = getIt<IPriceEntryRepository>(); // To add price entries
     final bool isEditing = item != null;
 
     // Form key and controllers
@@ -193,25 +199,30 @@ class ShoppingItemView extends StatelessWidget {
       text: item?.quantity.toString() ?? '1',
     );
     final unitController = TextEditingController(text: item?.unit ?? '');
+    final newBrandNameController = TextEditingController();
+    final priceController = TextEditingController();
 
     // State needed within the dialog
     List<GroceryStore>? allStores; // Will hold fetched stores
-
-    // Changed from Set<int> to int? for single store selection
     int? selectedStoreId =
-        isEditing && item.groceryStores.isNotEmpty
-            ? item
-                .groceryStores
-                .first
-                .id // Get the first store if editing
+        isEditing && item.groceryStores.isNotEmpty // Corrected: item is non-null if isEditing is true
+            ? item.groceryStores.first.id
             : null;
-
     bool isLoadingStores = true;
     String? storeError;
+
+    List<Brand>? allBrands;
+    int? selectedBrandId = item?.brand.targetId;
+    bool isLoadingBrands = true;
+    String? brandError;
+    bool showNewBrandField = false;
+
+    DateTime? selectedDate = DateTime.now(); // Default to today for PriceEntry
 
     // --- Fetch stores function ---
     Future<void> fetchStores(StateSetter setState) async {
       try {
+        // Ensure storeRepository is initialized
         final stores = await storeRepository.getAllStores();
         setState(() {
           allStores = stores;
@@ -221,6 +232,23 @@ class ShoppingItemView extends StatelessWidget {
         setState(() {
           storeError = "Error loading stores: $e";
           isLoadingStores = false;
+        });
+      }
+    }
+
+    // --- Fetch brands function ---
+    Future<void> fetchBrands(StateSetter setState) async {
+      try {
+        // Ensure brandRepository is initialized
+        final brands = await brandRepository.getAllBrands();
+        setState(() {
+          allBrands = brands;
+          isLoadingBrands = false;
+        });
+      } catch (e) {
+        setState(() {
+          brandError = "Error loading brands: $e";
+          isLoadingBrands = false;
         });
       }
     }
@@ -237,6 +265,10 @@ class ShoppingItemView extends StatelessWidget {
             if (allStores == null && isLoadingStores && storeError == null) {
               fetchStores(stfSetState);
             }
+            // Fetch brands the first time
+            if (allBrands == null && isLoadingBrands && brandError == null) {
+              fetchBrands(stfSetState);
+            }
 
             // DIALOG CONTENTS
             return AlertDialog(
@@ -246,6 +278,7 @@ class ShoppingItemView extends StatelessWidget {
                   key: formKey,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       // --- Name Field ---
                       TextFormField(
@@ -343,39 +376,176 @@ class ShoppingItemView extends StatelessWidget {
                           style: const TextStyle(color: Colors.red),
                         ),
                       if (!isLoadingStores && storeError == null)
-                        (allStores?.isEmpty ?? true)
+                        (allStores == null || allStores!.isEmpty)
                             ? const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 8.0),
-                              child: Text(
-                                'No stores saved yet.\nAdd stores via Manage Stores screen first.',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontStyle: FontStyle.italic,
-                                  color: Colors.grey,
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(
+                                  'No stores saved yet.\\nAdd stores via Manage Stores screen first.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontStyle: FontStyle.italic,
+                                    color: Colors.grey,
+                                  ),
                                 ),
-                              ),
-                            )
+                              )
                             : DropdownButtonFormField<int>(
-                              decoration: const InputDecoration(
-                                labelText: 'Select Store',
-                                border: OutlineInputBorder(),
+                                decoration: const InputDecoration(
+                                  labelText: 'Select Store',
+                                  border: OutlineInputBorder(),
+                                ),
+                                value: selectedStoreId,
+                                hint: const Text('Select a store'),
+                                isExpanded: true,
+                                items: allStores!.map((store) {
+                                  return DropdownMenuItem<int>(
+                                    value: store.id,
+                                    child: Text(store.name),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  stfSetState(() {
+                                    selectedStoreId = value;
+                                  });
+                                },
                               ),
-                              value: selectedStoreId,
-                              hint: const Text('Select a store'),
-                              isExpanded: true,
-                              items:
-                                  allStores!.map((store) {
-                                    return DropdownMenuItem<int>(
-                                      value: store.id,
-                                      child: Text(store.name),
-                                    );
-                                  }).toList(),
-                              onChanged: (value) {
+                      const Divider(height: 30, thickness: 1),
+
+                      // --- Brand Selection Section ---
+                      const Text(
+                        'Brand:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      if (isLoadingBrands)
+                        const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2)),
+                      if (brandError != null)
+                        Text(brandError!, style: const TextStyle(color: Colors.red)),
+                      if (!isLoadingBrands && brandError == null && !showNewBrandField)
+                        Row(
+                          children: [
+                            Expanded(
+                              child: (allBrands == null || allBrands!.isEmpty)
+                                  ? const Text(
+                                      'No brands saved yet. Add one below.',
+                                      style: TextStyle(
+                                          fontStyle: FontStyle.italic,
+                                          color: Colors.grey),
+                                    )
+                                  : DropdownButtonFormField<int>(
+                                      decoration: const InputDecoration(
+                                        labelText: 'Select Brand',
+                                        border: OutlineInputBorder(),
+                                      ),
+                                      value: selectedBrandId,
+                                      hint: const Text('Select a brand (optional)'),
+                                      isExpanded: true,
+                                      items: allBrands!.map((brand) {
+                                        return DropdownMenuItem<int>(
+                                          value: brand.id,
+                                          child: Text(brand.name),
+                                        );
+                                      }).toList(),
+                                      onChanged: (value) {
+                                        stfSetState(() {
+                                          selectedBrandId = value;
+                                        });
+                                      },
+                                    ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.add_circle_outline),
+                              tooltip: 'Add New Brand',
+                              onPressed: () {
                                 stfSetState(() {
-                                  selectedStoreId = value;
+                                  showNewBrandField = true;
                                 });
                               },
                             ),
+                          ],
+                        ),
+                      if (showNewBrandField)
+                        TextFormField(
+                          controller: newBrandNameController,
+                          decoration: InputDecoration(
+                            labelText: 'New Brand Name',
+                            hintText: 'Enter brand if not listed',
+                            suffixIcon: IconButton(
+                              icon: const Icon(Icons.cancel_outlined),
+                              tooltip: 'Cancel New Brand',
+                              onPressed: () {
+                                stfSetState(() {
+                                  showNewBrandField = false;
+                                  newBrandNameController.clear();
+                                });
+                              },
+                            )
+                          ),
+                          validator: (value) {
+                            // Only validate if new brand field is shown and no existing brand selected
+                            if (showNewBrandField && selectedBrandId == null && (value == null || value.trim().isEmpty)) {
+                              // return 'Enter new brand name or select existing';
+                            }
+                            return null;
+                          },
+                        ),
+                      const Divider(height: 30, thickness: 1),
+
+                      // --- Price Entry Section ---
+                      const Text(
+                        'Log Price:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: priceController,
+                        decoration: const InputDecoration(
+                          labelText: 'Price',
+                          hintText: 'e.g., 2.99',
+                          border: OutlineInputBorder(),
+                        ),
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        validator: (value) {
+                          if (value != null && value.isNotEmpty) {
+                            if (double.tryParse(value) == null) {
+                              return 'Invalid price';
+                            }
+                            if (double.parse(value) <= 0) {
+                              return 'Price must be positive';
+                            }
+                          }
+                          return null; // Price is optional
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              selectedDate == null
+                                  ? 'Date: Not set'
+                                  : 'Date: ${DateFormat.yMd().format(selectedDate!)}', // Corrected: Ensure intl is imported and available
+                            ),
+                          ),
+                          TextButton.icon(
+                            icon: const Icon(Icons.calendar_today),
+                            label: const Text('Select Date'),
+                            onPressed: () async {
+                              final DateTime? picked = await showDatePicker(
+                                context: stfContext, // use stfContext for dialogs from StatefulBuilder
+                                initialDate: selectedDate ?? DateTime.now(),
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(2101),
+                              );
+                              if (picked != null && picked != selectedDate) {
+                                stfSetState(() {
+                                  selectedDate = picked;
+                                });
+                              }
+                            },
+                          ),
+                        ],
+                      ),
                       // --- End Store Selection ---
                     ],
                   ),
@@ -391,66 +561,90 @@ class ShoppingItemView extends StatelessWidget {
                 // --- SAVE ---
                 TextButton(
                   child: Text(isEditing ? 'Save' : 'Add'),
-                  onPressed: () {
+                  onPressed: () async { // Made async for repository calls
                     if (formKey.currentState!.validate()) {
                       final name = nameController.text.trim();
                       final category = categoryController.text.trim();
                       final quantity = double.parse(quantityController.text);
                       final unit = unitController.text.trim();
 
-                      // Find the single store (if selected)
-                      GroceryStore? selectedStore; // Initialize as null
-                      if (selectedStoreId != null && allStores != null) {
+                      int? finalBrandId = selectedBrandId;
+                      if (showNewBrandField && newBrandNameController.text.isNotEmpty) {
                         try {
-                          // firstWhere without orElse throws if not found
-                          selectedStore = allStores?.firstWhere(
-                            (store) => store.id == selectedStoreId,
+                          final newBrand = Brand(name: newBrandNameController.text.trim());
+                          finalBrandId = await brandRepository.addBrand(newBrand);
+                        } catch (e) {
+                          // Handle error adding brand, maybe show a snackbar
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Error adding new brand: $e"))
                           );
-                        } on StateError {
-                          // Catch the error when no element satisfies the test
-                          selectedStore = null;
+                          return; // Don't proceed if brand creation fails
                         }
                       }
 
+                      ShoppingItem shoppingItemToSave;
                       if (isEditing) {
-                        // Update existing item
-                        final updatedItem =
-                            item; // We know item is not null if isEditing
-                        // Update scalar fields
-                        updatedItem.name = name;
-                        updatedItem.category = category;
-                        updatedItem.quantity = quantity;
-                        updatedItem.unit = unit;
-
-                        // Update store relation
-                        updatedItem.groceryStores
-                            .clear(); // Clear existing links
-                        if (selectedStore != null) {
-                          updatedItem.groceryStores.add(
-                            selectedStore,
-                          ); // Add single selected store
-                        }
-                        // UPDATE EXISTING ITEM VIA CUBIT
-                        cubit.updateItem(updatedItem);
+                        shoppingItemToSave = item; // item is not null here due to isEditing check
+                        shoppingItemToSave.name = name;
+                        shoppingItemToSave.category = category;
+                        shoppingItemToSave.quantity = quantity;
+                        shoppingItemToSave.unit = unit;
                       } else {
-                        // CREATE new item
-                        final newItem = ShoppingItem(
+                        shoppingItemToSave = ShoppingItem(
                           name: name,
                           category: category,
                           quantity: quantity,
                           unit: unit,
                           isCompleted: false,
                         );
-
-                        // Set single store if selected
-                        if (selectedStore != null) {
-                          newItem.groceryStores.add(selectedStore);
-                        }
-
-                        // Add the item via cubit
-                        cubit.addItem(newItem);
                       }
 
+                      // Link brand
+                      if (finalBrandId != null) {
+                        shoppingItemToSave.brand.targetId = finalBrandId;
+                      } else {
+                        shoppingItemToSave.brand.targetId = 0; // Or handle no brand selected
+                      }
+
+                      // Link store (single store for now as per existing dialog logic)
+                      shoppingItemToSave.groceryStores.clear();
+                      if (selectedStoreId != null && allStores != null) {
+                        final storeToAdd = allStores!.firstWhereOrNull((s) => s.id == selectedStoreId);
+                        if (storeToAdd != null) {
+                           shoppingItemToSave.groceryStores.add(storeToAdd);
+                        }
+                      }
+
+                      if (isEditing) {
+                        await cubit.updateItem(shoppingItemToSave);
+                      } else {
+                        await cubit.addItem(shoppingItemToSave);
+                      }
+
+                      // Add Price Entry if price is provided
+                      if (priceController.text.isNotEmpty && selectedDate != null) {
+                        final price = double.tryParse(priceController.text);
+                        if (price != null && price > 0) {
+                          final newPriceEntry = PriceEntry(
+                            price: price,
+                            date: selectedDate!,
+                            canonicalItemName: name, // Use the item's name
+                          );
+                          if (selectedStoreId != null) {
+                            newPriceEntry.groceryStore.targetId = selectedStoreId;
+                          }
+                          if (finalBrandId != null) {
+                            newPriceEntry.brand.targetId = finalBrandId;
+                          }
+                          try {
+                            await priceEntryRepository.addPriceEntry(newPriceEntry);
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Error saving price entry: $e"))
+                            );
+                          }
+                        }
+                      }
                       Navigator.of(dialogContext).pop(); // Close dialog
                     }
                   },
