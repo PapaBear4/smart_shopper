@@ -40,7 +40,19 @@ class ShoppingItemCubit extends Cubit<ShoppingItemState> {
               // When new items arrive, emit loaded state with items and cached parent list
               if (_parentList != null) {
                 // Ensure parent list is still available
-                emit(ShoppingItemLoaded(items, _parentList!));
+                // Preserve existing showCompletedItems value if state is already ShoppingItemLoaded
+                final bool showCompleted = state is ShoppingItemLoaded
+                    ? (state as ShoppingItemLoaded).showCompletedItems
+                    : false; // Default to false
+                final bool groupingByCategory = state is ShoppingItemLoaded
+                    ? (state as ShoppingItemLoaded).groupByCategory
+                    : false; // Default to false
+                emit(ShoppingItemLoaded(
+                  items,
+                  _parentList!,
+                  showCompletedItems: showCompleted,
+                  groupByCategory: groupingByCategory,
+                ));
               } else {
                 // This case should ideally not happen if initial load succeeded
                 emit(const ShoppingItemError("Parent list data lost."));
@@ -100,6 +112,52 @@ class ShoppingItemCubit extends Cubit<ShoppingItemState> {
       // UI updates via stream subscription
     } catch (e) {
       emit(ShoppingItemError("Failed to delete item: $e"));
+    }
+  }
+
+  void toggleShowCompletedItems() {
+    if (state is ShoppingItemLoaded) {
+      final currentState = state as ShoppingItemLoaded;
+      emit(currentState.copyWith(showCompletedItems: !currentState.showCompletedItems));
+    }
+  }
+
+  void toggleGroupByCategory() {
+    if (state is ShoppingItemLoaded) {
+      final currentState = state as ShoppingItemLoaded;
+      emit(currentState.copyWith(groupByCategory: !currentState.groupByCategory));
+    }
+  }
+
+  Future<void> uncheckAllItems() async {
+    if (state is ShoppingItemLoaded) {
+      final currentState = state as ShoppingItemLoaded;
+      List<ShoppingItem> itemsToUpdate = [];
+      for (var item in currentState.items) {
+        if (item.isCompleted) {
+          // Create a copy with isCompleted set to false
+          final updatedItem = ShoppingItem(
+            id: item.id,
+            name: item.name,
+            category: item.category,
+            quantity: item.quantity,
+            unit: item.unit,
+            isCompleted: false, // Uncheck the item
+          )
+            ..shoppingList.targetId = item.shoppingList.targetId
+            ..brand.targetId = item.brand.targetId;
+          updatedItem.groceryStores.addAll(item.groceryStores);
+          itemsToUpdate.add(updatedItem);
+        }
+      }
+      if (itemsToUpdate.isNotEmpty) {
+        try {
+          await _repository.updateItems(itemsToUpdate); 
+          // UI will update via stream
+        } catch (e) {
+          emit(ShoppingItemError("Failed to uncheck all items: $e"));
+        }
+      }
     }
   }
 

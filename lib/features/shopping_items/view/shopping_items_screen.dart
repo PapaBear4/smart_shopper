@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_shopper/features/shopping_items/cubit/shopping_item_cubit.dart';
 import 'package:smart_shopper/features/shopping_items/widgets/add_edit_shopping_item_dialog.dart';
+import 'package:smart_shopper/features/shopping_items/widgets/shopping_item_list_view.dart';
 import 'package:smart_shopper/repositories/shopping_item_repository.dart';
 import 'package:smart_shopper/service_locator.dart';
 
@@ -44,11 +45,46 @@ class ShoppingItemView extends StatelessWidget {
           },
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.check_circle_outline),
-            tooltip: 'Show Completed',
-            onPressed: () {
-              // TODO: Implement filter for completed items
+          BlocBuilder<ShoppingItemCubit, ShoppingItemState>(
+            builder: (context, state) {
+              bool showCompleted = false;
+              if (state is ShoppingItemLoaded) {
+                showCompleted = state.showCompletedItems;
+              }
+              return IconButton(
+                icon: Icon(showCompleted ? Icons.check_circle : Icons.check_circle_outline),
+                tooltip: showCompleted ? 'Hide Completed' : 'Show Completed',
+                onPressed: () {
+                  context.read<ShoppingItemCubit>().toggleShowCompletedItems();
+                },
+              );
+            },
+          ),
+          BlocBuilder<ShoppingItemCubit, ShoppingItemState>(
+            builder: (context, state) {
+              bool isGrouped = false;
+              if (state is ShoppingItemLoaded) {
+                isGrouped = state.groupByCategory;
+              }
+              return PopupMenuButton<String>(
+                onSelected: (value) {
+                  if (value == 'uncheck_all') {
+                    context.read<ShoppingItemCubit>().uncheckAllItems();
+                  } else if (value == 'toggle_group_by_category') {
+                    context.read<ShoppingItemCubit>().toggleGroupByCategory();
+                  }
+                },
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                  const PopupMenuItem<String>(
+                    value: 'uncheck_all',
+                    child: Text('Uncheck All Items'),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'toggle_group_by_category',
+                    child: Text(isGrouped ? 'Ungroup by Category' : 'Group by Category'),
+                  ),
+                ],
+              );
             },
           ),
         ],
@@ -58,55 +94,20 @@ class ShoppingItemView extends StatelessWidget {
           if (state is ShoppingItemLoading) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is ShoppingItemLoaded) {
-            if (state.items.isEmpty) {
-              return const Center(child: Text('No items yet. Add some!'));
-            }
-            return ListView.builder(
-              itemCount: state.items.length,
-              itemBuilder: (context, index) {
-                final item = state.items[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  child: ListTile(
-                    leading: Checkbox(
-                      value: item.isCompleted,
-                      onChanged: (bool? value) {
-                        if (value != null) {
-                          // Pass the whole item to the cubit method
-                          context.read<ShoppingItemCubit>().toggleItemCompletion(item);
-                        }
-                      },
-                    ),
-                    title: Text(item.name, style: TextStyle(decoration: item.isCompleted ? TextDecoration.lineThrough : null)),
-                    subtitle: Text('${item.quantity} ${item.unit} - ${item.category}'),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.edit, size: 20),
-                      tooltip: 'Edit Item',
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (_) => AddEditShoppingItemDialog(item: item),
-                        );
-                      },
-                    ),
-                    onTap: () {
-                        // TODO: Show item details or quick edit options
-                    }
-                  ),
-                );
-              },
-            );
+            return const ShoppingItemListView();
           } else if (state is ShoppingItemError) {
             return Center(child: Text('Error: ${state.message}'));
           }
-          return const Center(child: Text('Press + to add an item.'));
+          return const Center(child: Text('Loading items...'));
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showDialog(
             context: context,
-            builder: (_) => const AddEditShoppingItemDialog(),
+            builder: (_) => AddEditShoppingItemDialog(
+              shoppingItemCubit: context.read<ShoppingItemCubit>(), // Pass the cubit
+            ),
           );
         },
         tooltip: 'Add Item',

@@ -15,11 +15,33 @@ class ShoppingItemLoading extends ShoppingItemState {}
 class ShoppingItemLoaded extends ShoppingItemState {
   final List<ShoppingItem> items;
   final ShoppingList parentList; // Include parent list for context (e.g., AppBar title)
+  final bool showCompletedItems; // New field
+  final bool groupByCategory; // New field for grouping
 
-  const ShoppingItemLoaded(this.items, this.parentList);
+  const ShoppingItemLoaded(
+    this.items,
+    this.parentList, {
+    this.showCompletedItems = false, // Default to false
+    this.groupByCategory = false, // Default to false
+  });
+
+  // Helper to create a new state with modified showCompletedItems
+  ShoppingItemLoaded copyWith({
+    List<ShoppingItem>? items,
+    ShoppingList? parentList,
+    bool? showCompletedItems,
+    bool? groupByCategory,
+  }) {
+    return ShoppingItemLoaded(
+      items ?? this.items,
+      parentList ?? this.parentList,
+      showCompletedItems: showCompletedItems ?? this.showCompletedItems,
+      groupByCategory: groupByCategory ?? this.groupByCategory,
+    );
+  }
 
   @override
-  List<Object?> get props => [items, parentList];
+  List<Object?> get props => [items, parentList, showCompletedItems, groupByCategory];
 }
 
 // State for handling errors

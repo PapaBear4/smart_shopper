@@ -13,8 +13,13 @@ import '../../../constants/app_constants.dart'; // Import AppConstants
 
 class AddEditShoppingItemDialog extends StatefulWidget {
   final ShoppingItem? item;
+  final ShoppingItemCubit shoppingItemCubit; // Add this
 
-  const AddEditShoppingItemDialog({super.key, this.item});
+  const AddEditShoppingItemDialog({
+    super.key,
+    this.item,
+    required this.shoppingItemCubit, // Require in constructor
+  });
 
   @override
   State<AddEditShoppingItemDialog> createState() => _AddEditShoppingItemDialogState();
@@ -55,7 +60,7 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
   @override
   void initState() {
     super.initState();
-    _cubit = context.read<ShoppingItemCubit>();
+    _cubit = widget.shoppingItemCubit; // Use the passed cubit instance
     _isEditing = widget.item != null;
 
     _nameController = TextEditingController(text: widget.item?.name ?? '');
@@ -259,7 +264,6 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
                   Expanded(
                     flex: 3,
                     child: DropdownButtonFormField<String>(
-                      // controller: _unitController, // Removed controller
                       decoration: const InputDecoration(
                         labelText: 'Unit*',
                         hintText: 'e.g., gallon, box, lbs',
@@ -269,7 +273,7 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
                           ? _unitController.text
                           : null,
                       items: AppConstants.predefinedUnits.map((String unit) {
-                        return DropdownMenuItem<String>(
+                        return DropdownMenuItem<String>( // Create DropdownMenuItem
                           value: unit,
                           child: Text(unit),
                         );
@@ -279,12 +283,9 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
                           _unitController.text = newValue ?? '';
                         });
                       },
-                      validator: (value) {
-                        // The DropdownButtonFormField's value is the selected item (a String here),
-                        // not the controller's text directly for validation purposes.
-                        // So, we check _unitController.text which is updated by onChanged.
-                        if (_unitController.text.trim().isEmpty) {
-                          return 'Select unit';
+                      validator: (value) { // Added validator back
+                        if (value == null || value.isEmpty) {
+                          return 'Please select a unit';
                         }
                         return null;
                       },
@@ -502,100 +503,118 @@ class _BrandSelectionWidgetState extends State<_BrandSelectionWidget> {
   // MARK: - Build Method (BrandSelectionWidget)
   @override
   Widget build(BuildContext context) {
+    if (widget.showNewBrandField) {
+      // When adding a new brand, only show the text field and cancel button
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextFormField(
+            controller: widget.newBrandNameController,
+            decoration: const InputDecoration(
+              labelText: 'New Brand Name',
+              hintText: 'Enter brand name',
+              border: OutlineInputBorder(),
+            ),
+            validator: (value) {
+              if (widget.showNewBrandField && (value == null || value.trim().isEmpty)) {
+                return 'Enter a name for the new brand';
+              }
+              return null;
+            },
+            autofocus: true,
+          ),
+          const SizedBox(height: 8),
+          TextButton.icon(
+            icon: const Icon(Icons.cancel_outlined),
+            label: const Text('Cancel New Brand'),
+            onPressed: widget.onToggleShowNewBrandField,
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+          ),
+        ],
+      );
+    }
+
+    // When selecting an existing brand or choosing to add a new one
     if (_isLoadingBrands) {
       return const Center(child: CircularProgressIndicator(strokeWidth: 2));
     }
     if (_brandError != null) {
-      return Text(_brandError!, style: const TextStyle(color: Colors.red));
-    }
-
-    if (!widget.showNewBrandField) {
-      return Row(
+      return Column(
         children: [
-          Expanded(
-            child: (_allBrands == null || _allBrands!.isEmpty)
-                ? const Text(
-                    'No brands saved yet. Add one below.',
-                    style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
-                  )
-                : DropdownButtonFormField<int>(
-                    decoration: const InputDecoration(
-                      labelText: 'Select Brand',
-                      border: OutlineInputBorder(),
-                    ),
-                    value: _currentSelectedBrandId,
-                    hint: const Text('Select a brand (optional)'),
-                    isExpanded: true,
-                    items: _allBrands!.map((brand) {
-                      return DropdownMenuItem<int>(
-                        value: brand.id,
-                        child: Text(brand.name),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _currentSelectedBrandId = value;
-                      });
-                      widget.onBrandSelected(value);
-                    },
-                  ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.add_circle_outline),
-            tooltip: 'Add New Brand',
-            onPressed: () {
-              // When Add New Brand is pressed, clear the current selection from dropdown
-              // so that if user cancels, it doesn't retain a dropdown selection
-              // while also having typed in new brand field.
-              // However, the parent's _selectedBrandId should only be cleared if a new brand is *saved*.
-              // This interaction needs careful thought.
-              // For now, just toggle the field. Parent will manage _selectedBrandId.
-              // setState(() { _currentSelectedBrandId = null; }); // Option: clear local selection
-              // widget.onBrandSelected(null); // Option: notify parent immediately
-              widget.onToggleShowNewBrandField();
-            }
-          ),
+          Text(_brandError!, style: const TextStyle(color: Colors.red)),
+          TextButton(onPressed: _fetchBrands, child: const Text("Retry")),
         ],
       );
-    } else { // Show New Brand Field is true
-      return TextFormField(
-        controller: widget.newBrandNameController,
-        autofocus: true, // Focus when it appears
-        decoration: InputDecoration(
-          labelText: 'New Brand Name',
-          hintText: 'Enter brand if not listed',
-          suffixIcon: IconButton(
-            icon: const Icon(Icons.cancel_outlined),
-            tooltip: 'Cancel New Brand',
-            onPressed: () {
-                widget.onToggleShowNewBrandField(); // This will set showNewBrandField to false in parent
-                // Parent's callback for onToggleShowNewBrandField should also clear newBrandNameController
-            }
-          ),
-        ),
-        validator: (value) {
-          // Validation for new brand name is tricky here.
-          // If a brand is selected in dropdown, this field might not be required.
-          // If no brand selected, and this field is empty, then it's an issue.
-          // The parent's _saveForm has the ultimate validation logic.
-          // This local validator can provide immediate feedback.
-          if (widget.showNewBrandField && _currentSelectedBrandId == null && (value == null || value.trim().isEmpty)) {
-            return 'Enter new brand name or select existing';
-          }
-          return null;
-        },
-        onChanged: (text) {
-          // If user types in new brand field, we should probably clear the dropdown selection
-          // to avoid ambiguity.
-          if (text.isNotEmpty && _currentSelectedBrandId != null) {
-            setState(() {
-              _currentSelectedBrandId = null;
-            });
-            widget.onBrandSelected(null); // Notify parent that dropdown selection is cleared
-          }
-        }
-      );
     }
+
+    List<DropdownMenuItem<int?>> dropdownItems = [
+      const DropdownMenuItem<int?>(
+        value: 0, // Represent "No Brand" or "Generic" with value 0
+        child: Text("No Brand / Generic"),
+      ),
+    ];
+
+    if (_allBrands != null) {
+      for (var brand in _allBrands!) {
+        dropdownItems.add(DropdownMenuItem<int?>(
+          value: brand.id,
+          child: Text(brand.name),
+        ));
+      }
+    }
+
+    // Ensure _currentSelectedBrandId is a valid value present in dropdownItems.
+    // If _currentSelectedBrandId is null, and we use 0 for "No Brand", map null to 0 for consistency if needed.
+    // However, item.brand.targetId defaults to 0, so _currentSelectedBrandId will likely be 0 rather than null for "no brand".
+    int? currentValue = _currentSelectedBrandId;
+    if (!dropdownItems.any((item) => item.value == currentValue)) {
+      // If current value (e.g. a deleted brand ID) isn't in the list, default to "No Brand" (0)
+      // or null if 0 isn't explicitly handled as "No Brand"
+      currentValue = 0; 
+    }
+    
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        DropdownButtonFormField<int?>(
+          decoration: const InputDecoration(
+            labelText: 'Select Brand',
+            border: OutlineInputBorder(),
+            // contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10), // Adjust padding if needed
+          ),
+          value: currentValue,
+          hint: const Text('Optional'),
+          isExpanded: true,
+          items: dropdownItems,
+          onChanged: (value) {
+            setState(() {
+              _currentSelectedBrandId = value;
+            });
+            widget.onBrandSelected(value);
+          },
+          // validator: (value) { // Optional: if brand selection is mandatory
+          //   if (value == null) return 'Please select a brand';
+          //   return null;
+          // },
+        ),
+        const SizedBox(height: 8),
+        TextButton.icon(
+          icon: const Icon(Icons.add_circle_outline),
+          label: const Text('Add New Brand'),
+          onPressed: widget.onToggleShowNewBrandField,
+           style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+        ),
+      ],
+    );
   }
 }
 

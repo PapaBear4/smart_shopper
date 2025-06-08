@@ -12,6 +12,7 @@ abstract class IShoppingItemRepository {
   Future<ShoppingList?> getShoppingList(
     int listId,
   ); // Helper to get list details
+  Future<void> updateItems(List<ShoppingItem> items); // Add this
 }
 
 // Implementation using ObjectBox
@@ -104,5 +105,11 @@ class ShoppingItemRepository implements IShoppingItemRepository {
   @override
   Future<ShoppingList?> getShoppingList(int listId) async {
     return _listBox.get(listId);
+  }
+
+  @override
+  Future<void> updateItems(List<ShoppingItem> items) async {
+    // Use putMany for efficiency if updating multiple items
+    _itemBox.putMany(items);
   }
 }
