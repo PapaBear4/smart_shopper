@@ -1,3 +1,5 @@
+import 'package:faker_dart/faker_dart.dart'; // Changed import to faker_dart
+import 'dart:math'; // Import dart:math for Random
 import 'package:smart_shopper/models/models.dart';
 import 'package:smart_shopper/objectbox_helper.dart';
 import 'package:smart_shopper/repositories/brand_repository.dart';
@@ -6,113 +8,148 @@ import 'package:smart_shopper/repositories/shopping_item_repository.dart';
 import 'package:smart_shopper/repositories/shopping_list_repository.dart';
 import 'package:smart_shopper/repositories/store_repository.dart';
 import 'package:smart_shopper/service_locator.dart';
+import 'package:smart_shopper/tools/logger.dart'; // Import the logger
 
 class DebugUtilities {
-  static Future<void> generateTestData() async {
-    final storeRepo = getIt<IStoreRepository>();
-    final brandRepo = getIt<IBrandRepository>();
-    final listRepo = getIt<IShoppingListRepository>();
-    final itemRepo = getIt<IShoppingItemRepository>();
-    final priceRepo = getIt<IPriceEntryRepository>();
+  static final faker = Faker.instance; // Changed to Faker.instance for faker_dart
+  static final _random = Random(); // Create a Random instance for selections
 
-    // 0. Clear existing data to avoid duplicates if run multiple times
+  static Future<void> generateTestData({
+    int numStores = 5,
+    int numBrands = 8,
+    int numLists = 5,
+    int itemsPerList = 15,
+    int priceEntriesPerItem = 5,
+  }) async {
     await clearAppData();
 
-    // 1. Create Grocery Stores
-    final store1 = GroceryStore(name: 'MegaMart', address: '123 Main St');
-    final store2 = GroceryStore(name: 'Local Grocer', address: '456 Oak Ave');
-    final store1Id = await storeRepo.addStore(store1);
-    final store2Id = await storeRepo.addStore(store2);
-    final fetchedStore1 = await storeRepo.getStoreById(store1Id);
-    final fetchedStore2 = await storeRepo.getStoreById(store2Id);
+    final stores = await _generateStores(numStores);
+    final brands = await _generateBrands(numBrands);
+    final lists = await _generateShoppingLists(numLists);
 
-    // 2. Create Brands
-    final brandA = Brand(name: 'Fresh Farms');
-    final brandB = Brand(name: 'BestValue');
-    final brandC = Brand(name: 'Organix');
-    final brandAId = await brandRepo.addBrand(brandA);
-    final brandBId = await brandRepo.addBrand(brandB);
-    final brandCId = await brandRepo.addBrand(brandC);
-    final fetchedBrandA = await brandRepo.getBrandById(brandAId);
-    final fetchedBrandB = await brandRepo.getBrandById(brandBId);
-    final fetchedBrandC = await brandRepo.getBrandById(brandCId);
-
-    // 3. Create Shopping Lists
-    final list1 = ShoppingList(name: 'Weekly Groceries');
-    final list2 = ShoppingList(name: 'Party Supplies');
-    final list1Id = await listRepo.addList(list1);
-    final list2Id = await listRepo.addList(list2);
-
-    // 4. Create Shopping Items
-    // List 1 Items
-    // final item1L1 = ShoppingItem(name: 'Milk', quantity: 1, unit: 'gallon', category: 'Dairy', id: list1Id);
-    final item1L1 = ShoppingItem(name: 'Milk', quantity: 1, unit: 'gallon', category: 'Dairy');
-    item1L1.shoppingList.targetId = list1Id; // Set the foreign key for the list
-    if (fetchedBrandA != null) item1L1.brand.target = fetchedBrandA;
-    if (fetchedStore1 != null) item1L1.groceryStores.add(fetchedStore1);
-    await itemRepo.addItem(item1L1, list1Id);
-
-    // final item2L1 = ShoppingItem(name: 'Bread', quantity: 1, unit: 'loaf', category: 'Bakery', id: list1Id);
-    final item2L1 = ShoppingItem(name: 'Bread', quantity: 1, unit: 'loaf', category: 'Bakery');
-    item2L1.shoppingList.targetId = list1Id;
-    if (fetchedBrandB != null) item2L1.brand.target = fetchedBrandB;
-    if (fetchedStore1 != null) item2L1.groceryStores.add(fetchedStore1);
-    await itemRepo.addItem(item2L1, list1Id);
-    
-    // final item3L1 = ShoppingItem(name: 'Organic Apples', quantity: 5, unit: 'pieces', category: 'Produce', id: list1Id);
-    final item3L1 = ShoppingItem(name: 'Organic Apples', quantity: 5, unit: 'pieces', category: 'Produce');
-    item3L1.shoppingList.targetId = list1Id;
-    if (fetchedBrandC != null) item3L1.brand.target = fetchedBrandC;
-    if (fetchedStore2 != null) item3L1.groceryStores.add(fetchedStore2);
-    await itemRepo.addItem(item3L1, list1Id);
-
-    // List 2 Items
-    // final item1L2 = ShoppingItem(name: 'Chips', quantity: 2, unit: 'bags', category: 'Snacks', id: list2Id);
-    final item1L2 = ShoppingItem(name: 'Chips', quantity: 2, unit: 'bags', category: 'Snacks');
-    item1L2.shoppingList.targetId = list2Id;
-    if (fetchedBrandB != null) item1L2.brand.target = fetchedBrandB;
-    if (fetchedStore1 != null) item1L2.groceryStores.add(fetchedStore1);
-    await itemRepo.addItem(item1L2, list2Id);
-
-    // final item2L2 = ShoppingItem(name: 'Soda', quantity: 1, unit: '2-liter', category: 'Drinks', id: list2Id);
-    final item2L2 = ShoppingItem(name: 'Soda', quantity: 1, unit: '2-liter', category: 'Drinks');
-    item2L2.shoppingList.targetId = list2Id;
-    // No brand for this one
-    if (fetchedStore2 != null) item2L2.groceryStores.add(fetchedStore2);
-    await itemRepo.addItem(item2L2, list2Id);
-
-    // 5. Create Price Entries
-    if (fetchedStore1 != null && fetchedBrandA != null) {
-      final price1 = PriceEntry(price: 3.50, date: DateTime.now().subtract(const Duration(days: 7)), canonicalItemName: 'Milk');
-      price1.groceryStore.target = fetchedStore1;
-      price1.brand.target = fetchedBrandA;
-      await priceRepo.addPriceEntry(price1);
-    }
-    if (fetchedStore1 != null && fetchedBrandB != null) {
-      final price2 = PriceEntry(price: 2.20, date: DateTime.now().subtract(const Duration(days: 5)), canonicalItemName: 'Bread');
-      price2.groceryStore.target = fetchedStore1;
-      price2.brand.target = fetchedBrandB;
-      await priceRepo.addPriceEntry(price2);
-    }
-    if (fetchedStore2 != null && fetchedBrandC != null) {
-      final price3 = PriceEntry(price: 1.50, date: DateTime.now(), canonicalItemName: 'Organic Apples'); // Price per piece
-      price3.groceryStore.target = fetchedStore2;
-      price3.brand.target = fetchedBrandC;
-      await priceRepo.addPriceEntry(price3);
-    }
-     if (fetchedStore1 != null && fetchedBrandB != null) {
-      final price4 = PriceEntry(price: 4.00, date: DateTime.now().subtract(const Duration(days: 2)), canonicalItemName: 'Chips');
-      price4.groceryStore.target = fetchedStore1;
-      price4.brand.target = fetchedBrandB;
-      await priceRepo.addPriceEntry(price4);
+    for (final list in lists) {
+      await _generateShoppingItems(list, itemsPerList, brands, stores, priceEntriesPerItem);
     }
 
-    print('Test data generated.');
+    logInfo('Test data generated: $numStores stores, $numBrands brands, $numLists lists, ${numLists * itemsPerList} items, ${numLists * itemsPerList * priceEntriesPerItem} price entries.');
+  }
+
+  static Future<List<GroceryStore>> _generateStores(int count) async {
+    final storeRepo = getIt<IStoreRepository>();
+    final stores = <GroceryStore>[];
+    for (int i = 0; i < count; i++) {
+      final store = GroceryStore(
+        name: faker.company.companyName(),
+        address: faker.address.streetAddress(),
+      );
+      final id = await storeRepo.addStore(store);
+      final fetchedStore = await storeRepo.getStoreById(id);
+      if (fetchedStore != null) {
+        stores.add(fetchedStore);
+      }
+    }
+    return stores;
+  }
+
+  static Future<List<Brand>> _generateBrands(int count) async {
+    final brandRepo = getIt<IBrandRepository>();
+    final brands = <Brand>[];
+    for (int i = 0; i < count; i++) {
+      final brand = Brand(name: faker.company.companyName());
+      final id = await brandRepo.addBrand(brand);
+      final fetchedBrand = await brandRepo.getBrandById(id);
+      if (fetchedBrand != null) {
+        brands.add(fetchedBrand);
+      }
+    }
+    return brands;
+  }
+
+  static Future<List<ShoppingList>> _generateShoppingLists(int count) async {
+    final listRepo = getIt<IShoppingListRepository>();
+    final lists = <ShoppingList>[];
+    for (int i = 0; i < count; i++) {
+      final list = ShoppingList(name: '${faker.lorem.word()} Shopping List ${i + 1}');
+      final id = await listRepo.addList(list);
+      final fetchedList = await listRepo.getListById(id);
+      if (fetchedList != null) {
+        lists.add(fetchedList);
+      }
+    }
+    return lists;
+  }
+
+  static Future<void> _generateShoppingItems(
+    ShoppingList list,
+    int count,
+    List<Brand> allBrands,
+    List<GroceryStore> allStores,
+    int priceEntriesPerItem,
+  ) async {
+    final itemRepo = getIt<IShoppingItemRepository>();
+
+    for (int i = 0; i < count; i++) {
+      final itemName = faker.commerce.productName();
+      final item = ShoppingItem(
+        name: itemName,
+        quantity: faker.datatype.number(max: 10, min: 1).toDouble(),
+        unit: allBrands.isNotEmpty ? allBrands[_random.nextInt(allBrands.length)].name : 'pcs', // Corrected: Select from list using Random
+        category: faker.commerce.department(),
+      );
+      item.shoppingList.targetId = list.id;
+
+      if (allBrands.isNotEmpty && faker.datatype.boolean()) {
+        item.brand.target = allBrands[_random.nextInt(allBrands.length)]; // Corrected: Select from list using Random
+      }
+
+      if (allStores.isNotEmpty) {
+        final numStoresForItem = faker.datatype.number(max: allStores.length, min: 1);
+        final selectedStores = List<GroceryStore>.from(allStores)..shuffle(_random); // Pass Random instance to shuffle
+        for (int j = 0; j < numStoresForItem; j++) {
+          item.groceryStores.add(selectedStores[j]);
+        }
+      }
+      
+      await itemRepo.addItem(item, list.id);
+      // Retrieve the added item to ensure we have its ID for price entries if needed,
+      // or rely on the fact that addItem might populate the ID in the passed 'item' object if it's designed that way.
+      // For simplicity, we'll assume item.id is populated or not strictly needed for price entry linking here,
+      // as PriceEntry uses canonicalItemName.
+
+      await _generatePriceEntries(itemName, priceEntriesPerItem, allStores, allBrands);
+    }
+  }
+
+  static Future<void> _generatePriceEntries(
+    String canonicalItemName,
+    int count,
+    List<GroceryStore> allStores,
+    List<Brand> allBrands,
+  ) async {
+    final priceRepo = getIt<IPriceEntryRepository>();
+
+    for (int i = 0; i < count; i++) {
+      if (allStores.isEmpty) continue;
+
+      final store = allStores[_random.nextInt(allStores.length)]; // Corrected: Select from list using Random
+      final priceValue = double.parse(faker.commerce.price(max: 50, min: 1, symbol: ''));
+      final price = PriceEntry(
+        price: priceValue,
+        date: faker.date.between(DateTime(2023, 1, 1), DateTime(2025, 12, 31)),
+        canonicalItemName: canonicalItemName,
+      );
+      price.groceryStore.target = store;
+
+      if (allBrands.isNotEmpty && faker.datatype.boolean()) {
+        price.brand.target = allBrands[_random.nextInt(allBrands.length)]; // Corrected: Select from list using Random
+      }
+      await priceRepo.addPriceEntry(price);
+    }
   }
 
   static Future<void> clearAppData() async {
     final objectBoxHelper = getIt<ObjectBoxHelper>();
     await objectBoxHelper.clearAllData();
-    print('All app data cleared.');
+    logInfo('All app data cleared.');
   }
 }
