@@ -36,10 +36,14 @@ class ItemsByStoreCubit extends Cubit<ItemsByStoreState> {
         // Ensure we emit ItemsByStoreLoaded with the current showCompletedItems value
         final currentState = state;
         bool showCompleted = true; // Default if not already loaded
+        bool groupByCat = true; // Default for groupByCategory
+        bool groupByLst = false; // Default for groupByList
         if (currentState is ItemsByStoreLoaded) {
           showCompleted = currentState.showCompletedItems;
+          groupByCat = currentState.groupByCategory;
+          groupByLst = currentState.groupByList;
         }
-        emit(ItemsByStoreLoaded(items, store, showCompletedItems: showCompleted));
+        emit(ItemsByStoreLoaded(items, store, showCompletedItems: showCompleted, groupByCategory: groupByCat, groupByList: groupByLst));
       }, onError: (error) {
         emit(ItemsByStoreError('Failed to load items: ${error.toString()}'));
       });
@@ -64,6 +68,14 @@ class ItemsByStoreCubit extends Cubit<ItemsByStoreState> {
     
     await _shoppingItemRepository.updateItem(updatedItem);
     // The stream will automatically update the UI
+  }
+
+  Future<void> deleteItem(ShoppingItem item) async {
+    // No need to check state, repository handles if item exists or not
+    await _shoppingItemRepository.deleteItem(item.id);
+    // The stream will automatically update the UI by removing the item
+    // If direct feedback or error handling specific to this screen is needed,
+    // you might emit a new state or handle errors from the repository call.
   }
 
   Future<void> uncheckAllItems() async {
@@ -103,6 +115,20 @@ class ItemsByStoreCubit extends Cubit<ItemsByStoreState> {
     if (state is ItemsByStoreLoaded) {
       final loadedState = state as ItemsByStoreLoaded;
       emit(loadedState.copyWith(showCompletedItems: !loadedState.showCompletedItems));
+    }
+  }
+
+  void toggleGroupByCategory() {
+    if (state is ItemsByStoreLoaded) {
+      final loadedState = state as ItemsByStoreLoaded;
+      emit(loadedState.copyWith(groupByCategory: !loadedState.groupByCategory, groupByList: !loadedState.groupByCategory ? false : loadedState.groupByList));
+    }
+  }
+
+  void toggleGroupByList() {
+    if (state is ItemsByStoreLoaded) {
+      final loadedState = state as ItemsByStoreLoaded;
+      emit(loadedState.copyWith(groupByList: !loadedState.groupByList, groupByCategory: !loadedState.groupByList ? false : loadedState.groupByCategory));
     }
   }
 

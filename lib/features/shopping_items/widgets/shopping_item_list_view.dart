@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:collection/collection.dart'; // For groupBy
 import 'package:intl/intl.dart'; // For DateFormat
+import 'package:go_router/go_router.dart'; // Added for navigation
 
 import '../../../models/models.dart';
 import '../cubit/shopping_item_cubit.dart';
@@ -102,8 +103,31 @@ class ShoppingItemListView extends StatelessWidget {
                 final storeName = storeIdKey == null ? 'No Specific Store' : storeIdToStoreObject[storeIdKey]!.name;
                 final activeItemsInStore = itemsInStore.where((item) => !item.isCompleted).length;
 
+                List<Widget> titleWidgets = [
+                  Expanded(
+                    child: Text(
+                      '$storeName ($activeItemsInStore)',
+                      style: Theme.of(context).textTheme.titleLarge,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ];
+
+                if (storeIdKey != null) {
+                  titleWidgets.add(
+                    IconButton(
+                      icon: const Icon(Icons.storefront), // Changed to storefront icon
+                      tooltip: 'View all items at $storeName',
+                      onPressed: () {
+                        // Ensure this route matches your GoRouter configuration for ItemsByStoreScreen
+                        GoRouter.of(context).push('/stores/$storeIdKey/items');
+                      },
+                    ),
+                  );
+                }
+
                 return ExpansionTile(
-                  title: Text('$storeName ($activeItemsInStore)', style: Theme.of(context).textTheme.titleLarge),
+                  title: Row(children: titleWidgets), // Changed to Row
                   initiallyExpanded: true,
                   children: itemsInStore.map((item) => _buildItemTile(context, item, state)).toList(),
                 );
