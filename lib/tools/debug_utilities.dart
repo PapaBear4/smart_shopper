@@ -9,6 +9,7 @@ import 'package:smart_shopper/repositories/shopping_list_repository.dart';
 import 'package:smart_shopper/repositories/store_repository.dart';
 import 'package:smart_shopper/service_locator.dart';
 import 'package:smart_shopper/tools/logger.dart'; // Import the logger
+import 'package:smart_shopper/constants/app_constants.dart'; // Import the new constants file
 
 class DebugUtilities {
   static final faker = Faker.instance; // Changed to Faker.instance for faker_dart
@@ -93,7 +94,7 @@ class DebugUtilities {
       final item = ShoppingItem(
         name: itemName,
         quantity: faker.datatype.number(max: 10, min: 1).toDouble(),
-        unit: allBrands.isNotEmpty ? allBrands[_random.nextInt(allBrands.length)].name : 'pcs', // Corrected: Select from list using Random
+        unit: AppConstants.predefinedUnits[_random.nextInt(AppConstants.predefinedUnits.length)], // Select from AppConstants
         category: faker.commerce.department(),
       );
       item.shoppingList.targetId = list.id;
