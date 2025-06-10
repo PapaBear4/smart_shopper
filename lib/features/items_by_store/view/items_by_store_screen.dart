@@ -8,6 +8,7 @@ import '../../../common_widgets/loading_indicator.dart';
 import '../../../common_widgets/error_display.dart';
 import '../../../common_widgets/empty_list_widget.dart';
 import '../../../common_widgets/standard_list_item.dart';
+import '../../shopping_items/widgets/add_edit_shopping_item_dialog.dart'; // Import the dialog
 
 class ItemsByStoreScreen extends StatelessWidget {
   final int storeId;
@@ -150,6 +151,9 @@ class ItemsByStoreView extends StatelessWidget {
                         ),
                         child: StandardListItem<ShoppingItem>(
                           item: item,
+                          onItemTap: (tappedItem) { // Changed onTap to onItemTap
+                            _showEditItemDialog(context, tappedItem, context.read<ItemsByStoreCubit>());
+                          },
                           onToggleCompletion: (toggledItem) {
                             context.read<ItemsByStoreCubit>().toggleItemCompletion(toggledItem);
                           },
@@ -225,6 +229,9 @@ class ItemsByStoreView extends StatelessWidget {
                         ),
                         child: StandardListItem<ShoppingItem>(
                           item: item,
+                          onItemTap: (tappedItem) { // Changed onTap to onItemTap
+                            _showEditItemDialog(context, tappedItem, context.read<ItemsByStoreCubit>());
+                          },
                           onToggleCompletion: (toggledItem) {
                             context.read<ItemsByStoreCubit>().toggleItemCompletion(toggledItem);
                           },
@@ -265,6 +272,9 @@ class ItemsByStoreView extends StatelessWidget {
                     ),
                     child: StandardListItem<ShoppingItem>(
                       item: item,
+                      onItemTap: (tappedItem) { // Changed onTap to onItemTap
+                        _showEditItemDialog(context, tappedItem, context.read<ItemsByStoreCubit>());
+                      },
                       onToggleCompletion: (toggledItem) {
                         context.read<ItemsByStoreCubit>().toggleItemCompletion(toggledItem);
                       },
@@ -278,6 +288,54 @@ class ItemsByStoreView extends StatelessWidget {
           return const EmptyListWidget(message: 'Something went wrong.');
         },
       ),
+      floatingActionButton: BlocBuilder<ItemsByStoreCubit, ItemsByStoreState>( // Added FAB
+        builder: (context, state) {
+          if (state is ItemsByStoreLoaded) {
+            return FloatingActionButton(
+              onPressed: () {
+                // Pass the cubit and the current store from the state
+                _showAddItemDialog(context, context.read<ItemsByStoreCubit>(), state.store);
+              },
+              tooltip: 'Add Item to ${state.store.name}',
+              child: const Icon(Icons.add),
+            );
+          }
+          return const SizedBox.shrink(); // Don't show FAB if not loaded
+        },
+      ),
+    );
+  }
+
+  // Helper method to show the edit item dialog
+  Future<void> _showEditItemDialog(BuildContext context, ShoppingItem item, ItemsByStoreCubit cubit) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // User must tap button!
+      builder: (BuildContext dialogContext) {
+        return AddEditShoppingItemDialog(
+          item: item,
+          onPersistItem: (itemToSave) async {
+            // Use the cubit from ItemsByStoreScreen to update the item
+            await cubit.updateItemDetails(itemToSave);
+          },
+        );
+      },
+    );
+  }
+
+  // Helper method to show the add item dialog
+  Future<void> _showAddItemDialog(BuildContext context, ItemsByStoreCubit cubit, GroceryStore store) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // User must tap button!
+      builder: (BuildContext dialogContext) {
+        return AddEditShoppingItemDialog(
+          initialStore: store, // Pass the store
+          onPersistItem: (itemToSave) async {
+            await cubit.addItem(itemToSave);
+          },
+        );
+      },
     );
   }
 }

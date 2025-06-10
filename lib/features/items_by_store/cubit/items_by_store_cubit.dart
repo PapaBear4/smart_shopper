@@ -78,6 +78,59 @@ class ItemsByStoreCubit extends Cubit<ItemsByStoreState> {
     // you might emit a new state or handle errors from the repository call.
   }
 
+  Future<void> updateItemDetails(ShoppingItem itemToUpdate) async {
+    if (state is ItemsByStoreLoaded) {
+      final currentState = state as ItemsByStoreLoaded;
+      try {
+        await _shoppingItemRepository.updateItem(itemToUpdate); 
+        final index = currentState.items.indexWhere((item) => item.id == itemToUpdate.id);
+        if (index != -1) {
+          final updatedItems = List<ShoppingItem>.from(currentState.items);
+          updatedItems[index] = itemToUpdate;
+          emit(currentState.copyWith(items: updatedItems));
+        } else {
+          await _loadItems(); // Corrected method name
+        }
+      } catch (e) {
+        emit(ItemsByStoreError('Error updating item: \${e.toString()}'));
+      }
+    }
+  }
+
+  Future<void> addItem(ShoppingItem newItem) async {
+    if (state is ItemsByStoreLoaded) {
+      final currentState = state as ItemsByStoreLoaded;
+      try {
+        if (newItem.shoppingList.target == null || newItem.shoppingList.targetId == 0) {
+          emit(const ItemsByStoreError('Cannot add item without a shopping list.')); // Added const
+          return;
+        }
+        final newItemId = await _shoppingItemRepository.addItem(newItem, newItem.shoppingList.targetId);
+        
+        // Manually create a new ShoppingItem instance with the new ID
+        final createdItem = ShoppingItem(
+          id: newItemId,
+          name: newItem.name,
+          category: newItem.category,
+          quantity: newItem.quantity,
+          unit: newItem.unit,
+          isCompleted: newItem.isCompleted,
+          // Ensure relations are preserved if they were set on newItem
+        );
+        createdItem.shoppingList.target = newItem.shoppingList.target;
+        createdItem.brand.target = newItem.brand.target;
+        createdItem.groceryStores.addAll(newItem.groceryStores);
+        createdItem.priceEntries.addAll(newItem.priceEntries);
+
+        final updatedItems = List<ShoppingItem>.from(currentState.items)..add(createdItem);
+        emit(currentState.copyWith(items: updatedItems));
+
+      } catch (e) {
+        emit(ItemsByStoreError('Error adding item: \${e.toString()}'));
+      }
+    }
+  }
+
   Future<void> uncheckAllItems() async {
     if (state is ItemsByStoreLoaded) {
       final loadedState = state as ItemsByStoreLoaded;

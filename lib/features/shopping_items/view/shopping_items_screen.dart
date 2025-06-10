@@ -124,7 +124,10 @@ class ShoppingItemView extends StatelessWidget {
           showDialog(
             context: context,
             builder: (_) => AddEditShoppingItemDialog(
-              shoppingItemCubit: context.read<ShoppingItemCubit>(), // Pass the cubit
+              shoppingListIdForNewItem: context.read<ShoppingItemCubit>().listId, // Pass the current listId
+              onPersistItem: (item) async {
+                await context.read<ShoppingItemCubit>().addItem(item);
+              },
             ),
           );
         },

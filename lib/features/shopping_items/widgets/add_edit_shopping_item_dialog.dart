@@ -6,18 +6,23 @@ import '../../../models/models.dart';
 import '../../../repositories/brand_repository.dart';
 import '../../../repositories/price_entry_repository.dart';
 import '../../../repositories/store_repository.dart';
+import '../../../repositories/shopping_list_repository.dart'; // Added
 import '../../../service_locator.dart';
-import '../cubit/shopping_item_cubit.dart';
 import '../../../constants/app_constants.dart'; // Import AppConstants
 
 class AddEditShoppingItemDialog extends StatefulWidget {
   final ShoppingItem? item;
-  final ShoppingItemCubit shoppingItemCubit; // Add this
+  final Future<void> Function(ShoppingItem itemToSave) onPersistItem;
+  final GroceryStore? initialStore; // Added: For when adding from ItemsByStoreScreen
+  final int? shoppingListIdForNewItem; // Added: For when adding from ShoppingItemsScreen (list is fixed)
+
 
   const AddEditShoppingItemDialog({
     super.key,
     this.item,
-    required this.shoppingItemCubit, // Require in constructor
+    required this.onPersistItem,
+    this.initialStore, // Added
+    this.shoppingListIdForNewItem, // Added
   });
 
   @override
@@ -25,11 +30,10 @@ class AddEditShoppingItemDialog extends StatefulWidget {
 }
 
 class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
-  // Get the necessary cubit and repository instances from the context/DI
-  late final ShoppingItemCubit _cubit;
-  final _storeRepository = getIt<IStoreRepository>(); // To fetch stores
-  final _brandRepository = getIt<IBrandRepository>(); // To fetch brands
-  final _priceEntryRepository = getIt<IPriceEntryRepository>(); // To add price entries
+  final _storeRepository = getIt<IStoreRepository>();
+  final _brandRepository = getIt<IBrandRepository>();
+  final _priceEntryRepository = getIt<IPriceEntryRepository>();
+  final _shoppingListRepository = getIt<IShoppingListRepository>(); // Added
   late bool _isEditing;
 
   // Form key and controllers
@@ -47,6 +51,11 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
   bool _isLoadingStores = true;
   String? _storeError;
 
+  List<ShoppingList>? _allShoppingLists; // Added
+  int? _selectedShoppingListId; // Added
+  bool _isLoadingShoppingLists = true; // Added
+  String? _shoppingListError; // Added
+
   // List<Brand>? _allBrands; // Moved to _BrandSelectionWidget
   int? _selectedBrandId; // Still managed here for _saveForm
   // bool _isLoadingBrands = true; // Moved to _BrandSelectionWidget
@@ -59,7 +68,6 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
   @override
   void initState() {
     super.initState();
-    _cubit = widget.shoppingItemCubit; // Use the passed cubit instance
     _isEditing = widget.item != null;
 
     _nameController = TextEditingController(text: widget.item?.name ?? '');
@@ -69,13 +77,29 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
     _newBrandNameController = TextEditingController();
     _priceController = TextEditingController();
 
-    _selectedStoreId = _isEditing && widget.item!.groceryStores.isNotEmpty
-        ? widget.item!.groceryStores.first.id
-        : null;
+    if (widget.initialStore != null) { // If launched from ItemsByStoreScreen
+      _selectedStoreId = widget.initialStore!.id;
+      // _selectedShoppingListId will be chosen by the user from dropdown
+    } else if (_isEditing && widget.item!.shoppingList.targetId != 0) { // Editing existing item
+        _selectedShoppingListId = widget.item!.shoppingList.targetId;
+        if (widget.item!.groceryStores.isNotEmpty) {
+            _selectedStoreId = widget.item!.groceryStores.first.id;
+        }
+    } else if (!_isEditing && widget.shoppingListIdForNewItem != null) { // Adding new item from a specific list screen
+        _selectedShoppingListId = widget.shoppingListIdForNewItem;
+        // _selectedStoreId can be chosen by user or left null
+    }
+
+
     _selectedBrandId = widget.item?.brand.targetId;
 
-    _fetchStores();
-    // _fetchBrands(); // Moved to _BrandSelectionWidget
+    if (widget.initialStore == null) { // Only fetch all stores if not pre-set
+      _fetchStores();
+    } else {
+      _isLoadingStores = false; // Store is provided, no need to load all
+      _allStores = [widget.initialStore!]; // Populate with the single store
+    }
+    _fetchShoppingLists(); // Added: Fetch shopping lists
   }
 
   @override
@@ -105,6 +129,29 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
         setState(() {
           _storeError = "Error loading stores: $e";
           _isLoadingStores = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _fetchShoppingLists() async { // Added method
+    setState(() {
+      _isLoadingShoppingLists = true;
+      _shoppingListError = null;
+    });
+    try {
+      final lists = await _shoppingListRepository.getAllLists(); // Assuming this method exists
+      if (mounted) {
+        setState(() {
+          _allShoppingLists = lists;
+          _isLoadingShoppingLists = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _shoppingListError = "Error loading shopping lists: $e";
+          _isLoadingShoppingLists = false;
         });
       }
     }
@@ -155,7 +202,9 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
         shoppingItemToSave.category = category;
         shoppingItemToSave.quantity = quantity;
         shoppingItemToSave.unit = unit;
-      } else {
+        // Shopping list for an existing item should not change here
+        // It\'s managed by the cubit that owns the item (e.g. ShoppingItemCubit)
+      } else { // Adding a new item
         shoppingItemToSave = ShoppingItem(
           name: name,
           category: category,
@@ -163,6 +212,18 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
           unit: unit,
           isCompleted: false,
         );
+        // Assign shopping list
+        if (_selectedShoppingListId != null) {
+          shoppingItemToSave.shoppingList.targetId = _selectedShoppingListId;
+        } else {
+          // This case should be prevented by form validation if adding from ItemsByStoreScreen
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Error: Shopping list not selected.")),
+            );
+          }
+          return;
+        }
       }
 
       if (finalBrandId != null) {
@@ -177,13 +238,13 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
         if (storeToAdd != null) {
           shoppingItemToSave.groceryStores.add(storeToAdd);
         }
+      } else if (widget.initialStore != null) { // Ensure initialStore is added if no other store was selected
+         shoppingItemToSave.groceryStores.add(widget.initialStore!);
       }
 
-      if (_isEditing) {
-        await _cubit.updateItem(shoppingItemToSave);
-      } else {
-        await _cubit.addItem(shoppingItemToSave);
-      }
+
+      // Persist the item using the callback
+      await widget.onPersistItem(shoppingItemToSave);
 
       if (_priceController.text.isNotEmpty && _selectedDate != null) {
         final price = double.tryParse(_priceController.text);
@@ -305,42 +366,100 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
                     : null,
               ),
               const Divider(height: 30, thickness: 1),
-              const Text('Store to purchase at:', style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              if (_isLoadingStores)
-                const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-              if (_storeError != null)
-                Text(_storeError!, style: const TextStyle(color: Colors.red)),
-              if (!_isLoadingStores && _storeError == null)
-                (_allStores == null || _allStores!.isEmpty)
-                    ? const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text(
-                          'No stores saved yet.\\nAdd stores via Manage Stores screen first.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
+
+              // Shopping List Selector (if adding from ItemsByStoreScreen or if no list pre-selected for new item)
+              if (!_isEditing && (widget.initialStore != null || widget.shoppingListIdForNewItem == null)) ...[
+                const Text('Add to Shopping List:', style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                if (_isLoadingShoppingLists)
+                  const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                if (_shoppingListError != null)
+                  Text(_shoppingListError!, style: const TextStyle(color: Colors.red)),
+                if (!_isLoadingShoppingLists && _shoppingListError == null)
+                  (_allShoppingLists == null || _allShoppingLists!.isEmpty)
+                      ? const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8.0),
+                          child: Text(
+                            'No shopping lists found.\\nCreate a list first.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
+                          ),
+                        )
+                      : DropdownButtonFormField<int>(
+                          decoration: const InputDecoration(
+                            labelText: 'Select Shopping List*',
+                            border: OutlineInputBorder(),
+                          ),
+                          value: _selectedShoppingListId,
+                          hint: const Text('Choose a list'),
+                          isExpanded: true,
+                          items: _allShoppingLists!.map((list) {
+                            return DropdownMenuItem<int>(
+                              value: list.id,
+                              child: Text(list.name),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedShoppingListId = value;
+                            });
+                          },
+                          validator: (value) {
+                            // Required if adding new item and no list was pre-selected
+                            if (!_isEditing && widget.shoppingListIdForNewItem == null && value == null) {
+                              return 'Please select a shopping list';
+                            }
+                            return null;
+                          },
                         ),
-                      )
-                    : DropdownButtonFormField<int>(
-                        decoration: const InputDecoration(
-                          labelText: 'Select Store',
-                          border: OutlineInputBorder(),
+                const Divider(height: 30, thickness: 1),
+              ],
+
+              // Store Information / Selector
+              if (widget.initialStore != null) ...[ // Launched from ItemsByStoreScreen
+                const Text('Store:', style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                Text(widget.initialStore!.name, style: Theme.of(context).textTheme.titleMedium),
+                // _selectedStoreId is already set in initState
+              ] else ...[ // Standard store selector (not editing, or editing and no initialStore)
+                const Text('Store to purchase at:', style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                if (_isLoadingStores)
+                  const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                if (_storeError != null)
+                  Text(_storeError!, style: const TextStyle(color: Colors.red)),
+                if (!_isLoadingStores && _storeError == null)
+                  (_allStores == null || _allStores!.isEmpty)
+                      ? const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8.0),
+                          child: Text(
+                            'No stores saved yet.\\nAdd stores via Manage Stores screen first.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
+                          ),
+                        )
+                      : DropdownButtonFormField<int>(
+                          decoration: const InputDecoration(
+                            labelText: 'Select Store', // Store is optional if not pre-set
+                            border: OutlineInputBorder(),
+                          ),
+                          value: _selectedStoreId,
+                          hint: const Text('Select a store (optional)'),
+                          isExpanded: true,
+                          items: _allStores!.map((store) {
+                            return DropdownMenuItem<int>(
+                              value: store.id,
+                              child: Text(store.name),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedStoreId = value;
+                            });
+                          },
+                          // No validator, store is optional unless pre-set
                         ),
-                        value: _selectedStoreId,
-                        hint: const Text('Select a store'),
-                        isExpanded: true,
-                        items: _allStores!.map((store) {
-                          return DropdownMenuItem<int>(
-                            value: store.id,
-                            child: Text(store.name),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedStoreId = value;
-                          });
-                        },
-                      ),
+              ],
               const Divider(height: 30, thickness: 1),
               const Text('Brand:', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
