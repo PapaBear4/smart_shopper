@@ -13,6 +13,8 @@ abstract class IShoppingItemRepository {
     int listId,
   ); // Helper to get list details
   Future<void> updateItems(List<ShoppingItem> items); // Add this
+  // Add new method for fetching items by store
+  Stream<List<ShoppingItem>> getItemsForStoreStream(int storeId);
 }
 
 // Implementation using ObjectBox
@@ -20,10 +22,12 @@ class ShoppingItemRepository implements IShoppingItemRepository {
   final ObjectBoxHelper _objectBoxHelper; // Changed type
   late final Box<ShoppingItem> _itemBox;
   late final Box<ShoppingList> _listBox; // Needed to fetch list details
+  late final Box<PriceEntry> _priceEntryBox; // Added for PriceEntry access
 
   ShoppingItemRepository(this._objectBoxHelper) { // Changed parameter type
     _itemBox = _objectBoxHelper.shoppingItemBox; // Changed to use helper
     _listBox = _objectBoxHelper.shoppingListBox; // Changed to use helper
+    _priceEntryBox = _objectBoxHelper.priceEntryBox; // Initialize PriceEntry box
   }
 
   @override
@@ -35,10 +39,23 @@ class ShoppingItemRepository implements IShoppingItemRepository {
     final queryStream = builder.watch(triggerImmediately: true);
 
     // Map the stream of queries to a stream of lists of items
-    // Also apply sorting here: unchecked first, then by name
     return queryStream.map((query) {
       // Find the items for the current query result
       final items = query.find();
+
+      // For each item, fetch its associated price entries
+      for (var item in items) {
+        QueryBuilder<PriceEntry> priceEntryQueryBuilder = _priceEntryBox.query(
+          PriceEntry_.canonicalItemName.equals(item.name, caseSensitive: false)
+        );
+
+        // Conditionally add brand filter
+        // If item.brand.targetId is 0, it means no brand is associated.
+        // If item.brand.targetId is > 0, it's a valid brand ID.
+        priceEntryQueryBuilder.link(PriceEntry_.brand, Brand_.id.equals(item.brand.targetId));
+        
+        item.priceEntries = priceEntryQueryBuilder.build().find();
+      }
 
       // Sort the list IN PLACE using a custom comparison function
       items.sort((a, b) {
@@ -71,6 +88,47 @@ class ShoppingItemRepository implements IShoppingItemRepository {
     });
   }
 
+  // New method to get items for a specific store
+  @override
+  Stream<List<ShoppingItem>> getItemsForStoreStream(int storeId) {
+    final queryBuilder = _itemBox.query();
+    // Link to the GroceryStore entity through the groceryStores ToMany relation
+    // and filter by the store's ID.
+    queryBuilder.linkMany(ShoppingItem_.groceryStores, GroceryStore_.id.equals(storeId));
+
+    final queryStream = queryBuilder.watch(triggerImmediately: true);
+
+    return queryStream.map((query) {
+      final items = query.find();
+      // For each item, fetch its associated price entries (similar to getItemsStream)
+      for (var item in items) {
+        QueryBuilder<PriceEntry> priceEntryQueryBuilder = _priceEntryBox.query(
+          PriceEntry_.canonicalItemName.equals(item.name, caseSensitive: false)
+        );
+        priceEntryQueryBuilder.link(PriceEntry_.brand, Brand_.id.equals(item.brand.targetId));
+        item.priceEntries = priceEntryQueryBuilder.build().find();
+      }
+
+      // Sort items: incomplete first, then by name (same logic as in getItemsStream)
+      items.sort((a, b) {
+        int completedCompare;
+        if (a.isCompleted == b.isCompleted) {
+          completedCompare = 0;
+        } else if (a.isCompleted) {
+          completedCompare = 1;
+        } else {
+          completedCompare = -1;
+        }
+        if (completedCompare != 0) {
+          return completedCompare;
+        } else {
+          return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+        }
+      });
+      return items;
+    });
+  }
+  
   @override
   Future<int> addItem(ShoppingItem item, int listId) async {
     item.shoppingList.targetId = listId;

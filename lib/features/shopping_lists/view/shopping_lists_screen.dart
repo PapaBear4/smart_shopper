@@ -48,14 +48,15 @@ class ShoppingListsView extends StatelessWidget {
               context.push('/stores');
             },
           ),
-          if (kDebugMode) // Only show debug button in debug mode
-            IconButton(
-              icon: const Icon(Icons.bug_report),
-              tooltip: 'Open Debug Menu',
-              onPressed: () {
-                context.push('/debug');
-              },
-            ),
+          // TODO: Hide debug features in release mode before final deployment
+          // if (kDebugMode) // Only show debug button in debug mode
+          IconButton(
+            icon: const Icon(Icons.bug_report),
+            tooltip: 'Open Debug Menu',
+            onPressed: () {
+              context.push('/debug');
+            },
+          ),
         ],
       ),
       
