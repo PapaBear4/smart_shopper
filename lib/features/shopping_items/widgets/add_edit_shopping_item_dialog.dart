@@ -44,6 +44,11 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
   late TextEditingController _unitController;
   late TextEditingController _newBrandNameController;
   late TextEditingController _priceController;
+  late TextEditingController _newStoreNameController; // Added
+  late TextEditingController _newShoppingListNameController; // Added
+
+  // Key for BrandSelectionWidget
+  final GlobalKey<_BrandSelectionWidgetState> _brandSelectionWidgetKey = GlobalKey<_BrandSelectionWidgetState>();
 
   // State needed within the dialog
   List<GroceryStore>? _allStores; // Will hold fetched stores
@@ -56,11 +61,10 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
   bool _isLoadingShoppingLists = true; // Added
   String? _shoppingListError; // Added
 
-  // List<Brand>? _allBrands; // Moved to _BrandSelectionWidget
   int? _selectedBrandId; // Still managed here for _saveForm
-  // bool _isLoadingBrands = true; // Moved to _BrandSelectionWidget
-  // String? _brandError; // Moved to _BrandSelectionWidget
   bool _showNewBrandField = false; // Still managed here
+  bool _showNewStoreField = false; // Added
+  bool _showNewShoppingListField = false; // Added
 
   // MARK: - Lifecycle Methods
   DateTime? _selectedDate = DateTime.now(); // Default to today for PriceEntry
@@ -76,6 +80,8 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
     _unitController = TextEditingController(text: widget.item?.unit ?? '');
     _newBrandNameController = TextEditingController();
     _priceController = TextEditingController();
+    _newStoreNameController = TextEditingController(); // Added
+    _newShoppingListNameController = TextEditingController(); // Added
 
     if (widget.initialStore != null) { // If launched from ItemsByStoreScreen
       _selectedStoreId = widget.initialStore!.id;
@@ -110,11 +116,12 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
     _unitController.dispose();
     _newBrandNameController.dispose();
     _priceController.dispose();
+    _newStoreNameController.dispose(); // Added
+    _newShoppingListNameController.dispose(); // Added
     super.dispose();
   }
 
   // MARK: - Data Fetching
-  // --- Fetch stores function ---
   Future<void> _fetchStores() async {
     try {
       final stores = await _storeRepository.getAllStores();
@@ -174,6 +181,17 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
 
   // MARK: - Form Submission
   Future<void> _saveForm() async {
+    // Ensure new field validators are checked if those fields are visible
+    if (_showNewShoppingListField && _newShoppingListNameController.text.trim().isEmpty) {
+      _formKey.currentState!.validate(); // Trigger validation for the new list name field
+      return;
+    }
+    if (_showNewStoreField && _newStoreNameController.text.trim().isEmpty) {
+      _formKey.currentState!.validate(); // Trigger validation for the new store name field
+      return;
+    }
+    // Brand field validation is handled by _BrandSelectionWidget's internal TextFormField
+
     if (_formKey.currentState!.validate()) {
       final name = _nameController.text.trim();
       final category = _categoryController.text.trim();
@@ -185,6 +203,12 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
         try {
           final newBrand = Brand(name: _newBrandNameController.text.trim());
           finalBrandId = await _brandRepository.addBrand(newBrand);
+          await _brandSelectionWidgetKey.currentState?.refreshBrands(); // Refresh brand list
+          setState(() {
+            _selectedBrandId = finalBrandId; // Ensure the new brand is selected
+            _showNewBrandField = false; // Hide the new brand field
+            _newBrandNameController.clear();
+          });
         } catch (e) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -192,6 +216,52 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
             );
           }
           return; // Don't proceed if brand creation fails
+        }
+      }
+
+      // Handle new Shopping List creation (only for new items or if explicitly adding new)
+      if (_showNewShoppingListField && _newShoppingListNameController.text.isNotEmpty) {
+        try {
+          final newListName = _newShoppingListNameController.text.trim();
+          final newList = ShoppingList(name: newListName);
+          final newListId = await _shoppingListRepository.addList(newList);
+          await _fetchShoppingLists(); // Refresh the list
+          setState(() {
+            _selectedShoppingListId = newListId; // Select the new list
+            _showNewShoppingListField = false; // Hide the new list field
+            _newShoppingListNameController.clear();
+          });
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Error adding new shopping list: $e")),
+            );
+          }
+          return;
+        }
+      }
+
+      // Handle new Store creation
+      int? finalSelectedStoreId = _selectedStoreId;
+      if (_showNewStoreField && _newStoreNameController.text.isNotEmpty) {
+        try {
+          final newStoreName = _newStoreNameController.text.trim();
+          final newStore = GroceryStore(name: newStoreName);
+          final newStoreId = await _storeRepository.addStore(newStore);
+          await _fetchStores(); // Refresh the list
+          setState(() {
+            _selectedStoreId = newStoreId; // Select the new store
+            finalSelectedStoreId = newStoreId;
+            _showNewStoreField = false; // Hide the new store field
+            _newStoreNameController.clear();
+          });
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Error adding new store: $e")),
+            );
+          }
+          return;
         }
       }
 
@@ -203,7 +273,7 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
         shoppingItemToSave.quantity = quantity;
         shoppingItemToSave.unit = unit;
         // Shopping list for an existing item should not change here
-        // It\'s managed by the cubit that owns the item (e.g. ShoppingItemCubit)
+        // It's managed by the cubit that owns the item (e.g. ShoppingItemCubit)
       } else { // Adding a new item
         shoppingItemToSave = ShoppingItem(
           name: name,
@@ -217,7 +287,8 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
           shoppingItemToSave.shoppingList.targetId = _selectedShoppingListId;
         } else {
           // This case should be prevented by form validation if adding from ItemsByStoreScreen
-          if (mounted) {
+          // or if not adding a new list.
+          if (mounted && !_showNewShoppingListField) { // Only show error if not in process of adding new
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("Error: Shopping list not selected.")),
             );
@@ -233,12 +304,12 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
       }
 
       shoppingItemToSave.groceryStores.clear();
-      if (_selectedStoreId != null && _allStores != null) {
-        final storeToAdd = _allStores!.firstWhereOrNull((s) => s.id == _selectedStoreId);
+      if (finalSelectedStoreId != null && _allStores != null) {
+        final storeToAdd = _allStores!.firstWhereOrNull((s) => s.id == finalSelectedStoreId);
         if (storeToAdd != null) {
           shoppingItemToSave.groceryStores.add(storeToAdd);
         }
-      } else if (widget.initialStore != null) { // Ensure initialStore is added if no other store was selected
+      } else if (widget.initialStore != null && finalSelectedStoreId == widget.initialStore!.id) {
          shoppingItemToSave.groceryStores.add(widget.initialStore!);
       }
 
@@ -254,8 +325,8 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
             date: _selectedDate!,
             canonicalItemName: name,
           );
-          if (_selectedStoreId != null) {
-            newPriceEntry.groceryStore.targetId = _selectedStoreId;
+          if (finalSelectedStoreId != null) {
+            newPriceEntry.groceryStore.targetId = finalSelectedStoreId;
           }
           if (finalBrandId != null) {
             newPriceEntry.brand.targetId = finalBrandId;
@@ -376,52 +447,121 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
                 if (_shoppingListError != null)
                   Text(_shoppingListError!, style: const TextStyle(color: Colors.red)),
                 if (!_isLoadingShoppingLists && _shoppingListError == null)
-                  (_allShoppingLists == null || _allShoppingLists!.isEmpty)
-                      ? const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text(
-                            'No shopping lists found.\\nCreate a list first.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
+                  (_allShoppingLists == null || _allShoppingLists!.isEmpty) && !_showNewShoppingListField
+                      ?  Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Column(
+                            children: [
+                              const Text(
+                                'No shopping lists found.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
+                              ),
+                              // Show "Add New Shopping List" button directly here if no lists and not already adding
+                              TextButton.icon(
+                                icon: const Icon(Icons.add_circle_outline),
+                                label: const Text('Add New Shopping List'),
+                                onPressed: () {
+                                  setState(() {
+                                    _showNewShoppingListField = true;
+                                    _selectedShoppingListId = null; 
+                                  });
+                                },
+                              ),
+                            ],
                           ),
                         )
-                      : DropdownButtonFormField<int>(
-                          decoration: const InputDecoration(
-                            labelText: 'Select Shopping List*',
-                            border: OutlineInputBorder(),
-                          ),
-                          value: _selectedShoppingListId,
-                          hint: const Text('Choose a list'),
-                          isExpanded: true,
-                          items: _allShoppingLists!.map((list) {
-                            return DropdownMenuItem<int>(
-                              value: list.id,
-                              child: Text(list.name),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedShoppingListId = value;
-                            });
-                          },
-                          validator: (value) {
-                            // Required if adding new item and no list was pre-selected
-                            if (!_isEditing && widget.shoppingListIdForNewItem == null && value == null) {
-                              return 'Please select a shopping list';
-                            }
-                            return null;
-                          },
+                      : _showNewShoppingListField
+                          ? Column( 
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                TextFormField(
+                                  controller: _newShoppingListNameController,
+                                  autofocus: true,
+                                  decoration: const InputDecoration(
+                                    labelText: 'New Shopping List Name*',
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  validator: (value) {
+                                    if (_showNewShoppingListField && (value == null || value.trim().isEmpty)) {
+                                      return 'Enter a list name';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    TextButton(
+                                      child: const Text('Cancel'),
+                                      onPressed: () {
+                                        setState(() {
+                                          _showNewShoppingListField = false;
+                                          _newShoppingListNameController.clear();
+                                          // Re-select original if available and was for new item
+                                          if (!_isEditing && widget.shoppingListIdForNewItem != null) {
+                                            _selectedShoppingListId = widget.shoppingListIdForNewItem;
+                                          }
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            )
+                          : DropdownButtonFormField<int>(
+                              decoration: const InputDecoration(
+                                labelText: 'Select Shopping List*',
+                                border: OutlineInputBorder(),
+                              ),
+                              value: _selectedShoppingListId,
+                              hint: const Text('Choose a list'),
+                              isExpanded: true,
+                              items: _allShoppingLists?.map((list) {
+                                return DropdownMenuItem<int>(
+                                  value: list.id,
+                                  child: Text(list.name),
+                                );
+                              }).toList() ?? [],
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedShoppingListId = value;
+                                });
+                              },
+                              validator: (value) {
+                                if (!_isEditing && widget.shoppingListIdForNewItem == null && value == null && !_showNewShoppingListField) {
+                                  return 'Please select a shopping list';
+                                }
+                                return null;
+                              },
+                            ),
+                if (!_isLoadingShoppingLists && _shoppingListError == null && !_showNewShoppingListField && !(_allShoppingLists == null || _allShoppingLists!.isEmpty))
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: TextButton.icon(
+                      icon: const Icon(Icons.add_circle_outline),
+                      label: const Text('Add New Shopping List'),
+                      onPressed: () {
+                        setState(() {
+                          _showNewShoppingListField = true;
+                          _selectedShoppingListId = null; 
+                        });
+                      },
+                       style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
+                    ),
+                  ),
                 const Divider(height: 30, thickness: 1),
               ],
 
               // Store Information / Selector
-              if (widget.initialStore != null) ...[ // Launched from ItemsByStoreScreen
+              if (widget.initialStore != null && !_showNewStoreField) ...[
                 const Text('Store:', style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 Text(widget.initialStore!.name, style: Theme.of(context).textTheme.titleMedium),
-                // _selectedStoreId is already set in initState
-              ] else ...[ // Standard store selector (not editing, or editing and no initialStore)
+              ] else ...[ 
                 const Text('Store to purchase at:', style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 if (_isLoadingStores)
@@ -429,41 +569,111 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
                 if (_storeError != null)
                   Text(_storeError!, style: const TextStyle(color: Colors.red)),
                 if (!_isLoadingStores && _storeError == null)
-                  (_allStores == null || _allStores!.isEmpty)
-                      ? const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text(
-                            'No stores saved yet.\\nAdd stores via Manage Stores screen first.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
+                  (_allStores == null || _allStores!.isEmpty) && !_showNewStoreField
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Column(
+                            children: [
+                              const Text(
+                                'No stores saved yet.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
+                              ),
+                              // Show "Add New Store" button directly here if no stores and not already adding
+                              TextButton.icon(
+                                icon: const Icon(Icons.add_circle_outline),
+                                label: const Text('Add New Store'),
+                                onPressed: () {
+                                  setState(() {
+                                    _showNewStoreField = true;
+                                    _selectedStoreId = null; 
+                                  });
+                                },
+                              ),
+                            ],
                           ),
                         )
-                      : DropdownButtonFormField<int>(
-                          decoration: const InputDecoration(
-                            labelText: 'Select Store', // Store is optional if not pre-set
-                            border: OutlineInputBorder(),
-                          ),
-                          value: _selectedStoreId,
-                          hint: const Text('Select a store (optional)'),
-                          isExpanded: true,
-                          items: _allStores!.map((store) {
-                            return DropdownMenuItem<int>(
-                              value: store.id,
-                              child: Text(store.name),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedStoreId = value;
-                            });
-                          },
-                          // No validator, store is optional unless pre-set
-                        ),
+                      : _showNewStoreField
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                TextFormField(
+                                  controller: _newStoreNameController,
+                                  autofocus: true,
+                                  decoration: const InputDecoration(
+                                    labelText: 'New Store Name*',
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  validator: (value) {
+                                    if (_showNewStoreField && (value == null || value.trim().isEmpty)) {
+                                      return 'Enter a store name';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    TextButton(
+                                      child: const Text('Cancel'),
+                                      onPressed: () {
+                                        setState(() {
+                                          _showNewStoreField = false;
+                                          _newStoreNameController.clear();
+                                          if (widget.initialStore != null) {
+                                            _selectedStoreId = widget.initialStore!.id;
+                                          }
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            )
+                          : DropdownButtonFormField<int>(
+                              decoration: const InputDecoration(
+                                labelText: 'Select Store', 
+                                border: OutlineInputBorder(),
+                              ),
+                              value: _selectedStoreId,
+                              hint: const Text('Select a store (optional)'),
+                              isExpanded: true,
+                              items: _allStores?.map((store) {
+                                return DropdownMenuItem<int>(
+                                  value: store.id,
+                                  child: Text(store.name),
+                                );
+                              }).toList() ?? [],
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedStoreId = value;
+                                });
+                              },
+                            ),
+                if (!_isLoadingStores && _storeError == null && !_showNewStoreField && widget.initialStore == null && !(_allStores == null || _allStores!.isEmpty))
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: TextButton.icon(
+                      icon: const Icon(Icons.add_circle_outline),
+                      label: const Text('Add New Store'),
+                      onPressed: () {
+                        setState(() {
+                          _showNewStoreField = true;
+                          _selectedStoreId = null; 
+                        });
+                      },
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ),
+                  ),
               ],
               const Divider(height: 30, thickness: 1),
               const Text('Brand:', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               _BrandSelectionWidget(
+                key: _brandSelectionWidgetKey, // Assign the key here
                 brandRepository: _brandRepository,
                 initialBrandId: _selectedBrandId,
                 newBrandNameController: _newBrandNameController,
@@ -477,15 +687,11 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
                   setState(() {
                     _showNewBrandField = !_showNewBrandField;
                     if (!_showNewBrandField) {
-                      _newBrandNameController.clear(); // Clear text if hiding field
-                      // If a brand was selected before showing new brand field,
-                      // ensure it remains selected or clear _selectedBrandId if new brand was focused.
-                      // This might need more nuanced handling based on exact UX desired.
+                      _newBrandNameController.clear(); 
                     }
                   });
                 },
               ),
-              // --- MOVED BRAND SELECTION UI TO _BrandSelectionWidget ---
               const Divider(height: 30, thickness: 1),
               const Text('Log Price:', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
@@ -551,6 +757,7 @@ class _BrandSelectionWidget extends StatefulWidget {
   final VoidCallback onToggleShowNewBrandField;
 
   const _BrandSelectionWidget({
+    super.key, // Pass the key to the super constructor
     required this.brandRepository,
     this.initialBrandId,
     required this.newBrandNameController,
@@ -569,6 +776,11 @@ class _BrandSelectionWidgetState extends State<_BrandSelectionWidget> {
   String? _brandError;
   int? _currentSelectedBrandId;
 
+  // Method to allow parent to trigger a refresh
+  Future<void> refreshBrands() async {
+    await _fetchBrands();
+  }
+
   // MARK: - Lifecycle Methods (BrandSelectionWidget)
   @override
   void initState() {
@@ -583,15 +795,6 @@ class _BrandSelectionWidgetState extends State<_BrandSelectionWidget> {
     if (widget.initialBrandId != oldWidget.initialBrandId) {
       _currentSelectedBrandId = widget.initialBrandId;
     }
-    // If showNewBrandField becomes false, and it was true,
-    // it means the parent dialog cancelled adding a new brand.
-    // We might want to reset the dropdown if a new brand was being typed.
-    // if (oldWidget.showNewBrandField && !widget.showNewBrandField) {
-        // If nothing was selected from dropdown and new brand field is cancelled,
-        // ensure _currentSelectedBrandId is null or reflects previous valid selection.
-        // This logic depends on how parent wants to manage _selectedBrandId upon cancelling new brand.
-        // For now, we assume parent handles _selectedBrandId correctly.
-    // }
   }
 
   // MARK: - Data Fetching (BrandSelectionWidget)
@@ -685,13 +888,8 @@ class _BrandSelectionWidgetState extends State<_BrandSelectionWidget> {
       }
     }
 
-    // Ensure _currentSelectedBrandId is a valid value present in dropdownItems.
-    // If _currentSelectedBrandId is null, and we use 0 for "No Brand", map null to 0 for consistency if needed.
-    // However, item.brand.targetId defaults to 0, so _currentSelectedBrandId will likely be 0 rather than null for "no brand".
     int? currentValue = _currentSelectedBrandId;
     if (!dropdownItems.any((item) => item.value == currentValue)) {
-      // If current value (e.g. a deleted brand ID) isn't in the list, default to "No Brand" (0)
-      // or null if 0 isn't explicitly handled as "No Brand"
       currentValue = 0; 
     }
     
@@ -704,7 +902,6 @@ class _BrandSelectionWidgetState extends State<_BrandSelectionWidget> {
           decoration: const InputDecoration(
             labelText: 'Select Brand',
             border: OutlineInputBorder(),
-            // contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10), // Adjust padding if needed
           ),
           value: currentValue,
           hint: const Text('Optional'),
@@ -716,10 +913,6 @@ class _BrandSelectionWidgetState extends State<_BrandSelectionWidget> {
             });
             widget.onBrandSelected(value);
           },
-          // validator: (value) { // Optional: if brand selection is mandatory
-          //   if (value == null) return 'Please select a brand';
-          //   return null;
-          // },
         ),
         const SizedBox(height: 8),
         TextButton.icon(
