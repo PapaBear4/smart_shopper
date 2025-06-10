@@ -36,7 +36,7 @@ class ShoppingItemListView extends StatelessWidget {
             // Group items by category
             final groupedByCategory = groupBy<ShoppingItem, String>(
               filteredItems,
-              (item) => item.category.isNotEmpty ? item.category : 'Uncategorized',
+              (item) => item.category?.isNotEmpty == true ? item.category! : 'Uncategorized',
             );
 
             // Sort categories alphabetically
@@ -191,8 +191,8 @@ class ShoppingItemListView extends StatelessWidget {
     // Item Name is handled by StandardListItem title
 
     // Quantity and Unit
-    if (item.quantity != 1 || item.unit.isNotEmpty) {
-      detailsWidgets.add(buildDetailText('${item.quantity} ${item.unit}'));
+    if (item.quantity != 1 || (item.unit?.isNotEmpty == true)) {
+      detailsWidgets.add(buildDetailText('${item.quantity} ${item.unit ?? ""}')); // Added null check for item.unit display
     }
 
     // Determine best price entry
@@ -215,7 +215,7 @@ class ShoppingItemListView extends StatelessWidget {
 
     // Conditional details based on grouping
     if (!currentState.groupByCategory && !currentState.groupByStore) { // UNGROUPED
-      if (item.category.isNotEmpty) {
+      if (item.category?.isNotEmpty == true) {
         detailsWidgets.add(buildDetailText('Category: ${item.category}'));
       }
       if (bestPriceEntry != null) {
@@ -234,7 +234,7 @@ class ShoppingItemListView extends StatelessWidget {
       }
     } else if (currentState.groupByStore) { // GROUPED BY STORE
       // Store is in header
-      if (item.category.isNotEmpty) {
+      if (item.category?.isNotEmpty == true) {
         detailsWidgets.add(buildDetailText('Category: ${item.category}'));
       }
       if (bestPriceEntry != null && bestPriceEntry.groceryStore.target != null) {

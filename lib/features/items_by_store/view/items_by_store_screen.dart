@@ -109,7 +109,7 @@ class ItemsByStoreView extends StatelessWidget {
             if (state.groupByCategory) { // Added grouping logic
               final groupedByCategory = groupBy<ShoppingItem, String>(
                 itemsToDisplay,
-                (item) => item.category.isNotEmpty ? item.category : 'Uncategorized',
+                (item) => item.category?.isNotEmpty == true ? item.category! : 'Uncategorized', // Handled nullable category
               );
               final sortedCategories = groupedByCategory.keys.toList()..sort();
 
@@ -129,7 +129,7 @@ class ItemsByStoreView extends StatelessWidget {
                     children: itemsInCategory.map((item) {
                       final listName = item.shoppingList.target?.name;
                       List<Widget> subtitleTexts = [
-                        buildDetailText('${item.quantity} ${item.unit}'), // Category is in header
+                        buildDetailText('${item.quantity} ${item.unit ?? ""}'), // Handled nullable unit, category is in header
                       ];
                       if (listName != null && listName.isNotEmpty) {
                         subtitleTexts.add(buildDetailText('List: $listName'));
@@ -209,7 +209,7 @@ class ItemsByStoreView extends StatelessWidget {
                     initiallyExpanded: true,
                     children: itemsInList.map((item) {
                       List<Widget> subtitleTexts = [
-                        buildDetailText('${item.quantity} ${item.unit} - ${item.category.isNotEmpty ? item.category : 'Uncategorized'}'),
+                        buildDetailText('${item.quantity} ${item.unit ?? ""} - ${item.category?.isNotEmpty == true ? item.category : 'Uncategorized'}'), // Handled nullable unit and category
                       ];
                       // List name is in header, so no need to add it to subtitle here
                       return Dismissible(
@@ -250,7 +250,7 @@ class ItemsByStoreView extends StatelessWidget {
                   final item = itemsToDisplay[index]; 
                   final listName = item.shoppingList.target?.name;
                   List<Widget> subtitleTexts = [
-                    buildDetailText('${item.quantity} ${item.unit} - ${item.category}'),
+                    buildDetailText('${item.quantity} ${item.unit ?? ""} - ${item.category?.isNotEmpty == true ? item.category : 'Uncategorized'}'), // Handled nullable unit and category
                   ];
                   if (listName != null && listName.isNotEmpty) {
                     subtitleTexts.add(buildDetailText('List: $listName'));

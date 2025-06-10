@@ -13,9 +13,9 @@ class ShoppingItem implements DisplayableItem { // Implemented DisplayableItem
 
   @override // Added
   String name;
-  String category; // We'll use String for simplicity now
-  double quantity; // Use double for quantities like 1.5
-  String unit;
+  String? category; // Made nullable
+  double quantity; // Kept as required for now, will default in constructor or UI
+  String? unit; // Made nullable
   @override // Added
   bool isCompleted = false; // Default value
 
@@ -34,9 +34,9 @@ class ShoppingItem implements DisplayableItem { // Implemented DisplayableItem
   ShoppingItem({
     this.id = 0,
     required this.name,
-    required this.category,
-    required this.quantity,
-    required this.unit,
+    this.category, // No longer required
+    this.quantity = 1.0, // Default quantity to 1
+    this.unit, // No longer required
     this.isCompleted = false,
     // Note: We don't initialize ToOne/ToMany fields in the constructor
   });

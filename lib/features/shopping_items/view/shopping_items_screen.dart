@@ -2,13 +2,15 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:smart_shopper/common_widgets/empty_list_widget.dart'; // Added import
+import 'package:smart_shopper/common_widgets/loading_indicator.dart';
+import 'package:smart_shopper/common_widgets/error_display.dart';
 import 'package:smart_shopper/features/shopping_items/cubit/shopping_item_cubit.dart';
-import 'package:smart_shopper/features/shopping_items/widgets/add_edit_shopping_item_dialog.dart';
 import 'package:smart_shopper/features/shopping_items/widgets/shopping_item_list_view.dart';
-import 'package:smart_shopper/repositories/shopping_item_repository.dart'; // Ensure this import is present
+// import 'package:smart_shopper/features/shopping_items/widgets/add_edit_shopping_item_dialog.dart'; // Removed unused import
+import 'package:smart_shopper/models/shopping_item.dart'; // Added import
 import 'package:smart_shopper/service_locator.dart';
-import '../../../common_widgets/loading_indicator.dart'; 
-import '../../../common_widgets/error_display.dart'; 
+import 'package:smart_shopper/repositories/shopping_item_repository.dart';
 
 class ShoppingItemsScreen extends StatelessWidget {
   final int listId; // Received from the router
@@ -20,41 +22,55 @@ class ShoppingItemsScreen extends StatelessWidget {
     // Provide the Cubit. We create it manually here, passing the listId
     // and fetching the repository from GetIt.
     return BlocProvider(
-      create:
-          (context) => ShoppingItemCubit(
-            repository: getIt<IShoppingItemRepository>(), // Get repo from DI
-            listId: listId, // Pass the listId from the route
-          ),
-      child: ShoppingItemView(), // Use a separate widget for the view content
+      create: (context) => ShoppingItemCubit(
+        repository: getIt<IShoppingItemRepository>(), // Get repo from DI
+        listId: listId, // Pass the listId from the route
+      ),
+      child: const ShoppingItemView(), // Made const
     );
   }
 }
 
 // Separate View widget to easily access the Cubit context below the provider
-class ShoppingItemView extends StatelessWidget {
+class ShoppingItemView extends StatefulWidget { // Changed to StatefulWidget
   const ShoppingItemView({super.key});
+
   @override
-  // WIDGET FOR THE LIST ITSELF
+  State<ShoppingItemView> createState() => _ShoppingItemViewState(); // Create state
+}
+
+class _ShoppingItemViewState extends State<ShoppingItemView> { // State class
+  final TextEditingController _itemController = TextEditingController(); // Controller for the TextField
+  final FocusNode _itemFocusNode = FocusNode(); // FocusNode for the TextField
+
+  @override
+  void dispose() {
+    _itemController.dispose();
+    _itemFocusNode.dispose();
+    super.dispose();
+  }
+
+  void _addItem() {
+    final itemName = _itemController.text.trim();
+    if (itemName.isNotEmpty) {
+      final newItem = ShoppingItem(name: itemName); // Create item with only name
+      context.read<ShoppingItemCubit>().addItem(newItem);
+      _itemController.clear(); // Clear the text field
+      _itemFocusNode.requestFocus(); // Keep focus on the text field
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: BlocBuilder<ShoppingItemCubit, ShoppingItemState>(
           builder: (context, state) {
             if (state is ShoppingItemLoaded) {
-              final uncheckedItems = state.items.where((item) => !item.isCompleted).length;
-              return Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      state.parentList.name, // Display list name
-                      overflow: TextOverflow.ellipsis, // Truncate if too long
-                    ),
-                  ),
-                  Text(' ($uncheckedItems)'), // Display count
-                ],
-              );
+              // Assuming parentList might be null initially or not always present
+              return Text(state.parentList.name); // Removed unnecessary null-aware operator as per error
             }
-            return const Text('Shopping Items'); // Default or loading title
+            return const Text('Shopping Items');
           },
         ),
         actions: [
@@ -109,30 +125,79 @@ class ShoppingItemView extends StatelessWidget {
       ),
       body: BlocBuilder<ShoppingItemCubit, ShoppingItemState>(
         builder: (context, state) {
-          if (state is ShoppingItemLoading) {
-            return const LoadingIndicator(); 
+          if (state is ShoppingItemInitial) {
+            return const LoadingIndicator();
+          } else if (state is ShoppingItemLoading) {
+            return const LoadingIndicator();
           } else if (state is ShoppingItemLoaded) {
-            return const ShoppingItemListView();
+            if (state.items.isEmpty && !state.showCompletedItems) {
+              // Show empty list message only if no items and not showing completed
+              return Column( // Added Column to include TextField
+                children: [
+                  Expanded(
+                    child: EmptyListWidget(
+                      message:
+                          'This list is empty. Add items using the bar below.',
+                    ),
+                  ),
+                  _buildAddItemBar(), // Add the text bar
+                ],
+              );
+            }
+            return Column( // Wrap existing list and new bar in a Column
+              children: [
+                Expanded(child: const ShoppingItemListView()),
+                _buildAddItemBar(), // Add the text bar
+              ],
+            );
           } else if (state is ShoppingItemError) {
-            return ErrorDisplay(message: state.message); 
+            return ErrorDisplay(message: state.message);
           }
-          return const Center(child: Text('Loading items...')); 
+          return const SizedBox.shrink();
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (_) => AddEditShoppingItemDialog(
-              shoppingListIdForNewItem: context.read<ShoppingItemCubit>().listId, // Pass the current listId
-              onPersistItem: (item) async {
-                await context.read<ShoppingItemCubit>().addItem(item);
-              },
+      // floatingActionButton: FloatingActionButton( // REMOVE FloatingActionButton
+      //   onPressed: () {
+      //     showDialog(
+      //       context: context,
+      //       builder: (_) => AddEditShoppingItemDialog(
+      //         shoppingListIdForNewItem: context.read<ShoppingItemCubit>().listId, 
+      //         onPersistItem: (item) async {
+      //           await context.read<ShoppingItemCubit>().addItem(item);
+      //         },
+      //       ),
+      //     );
+      //   },
+      //   tooltip: 'Add Item',
+      //   child: const Icon(Icons.add),
+      // ),
+    );
+  }
+
+  // Helper widget for the persistent add item bar
+  Widget _buildAddItemBar() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _itemController,
+              focusNode: _itemFocusNode,
+              decoration: const InputDecoration(
+                hintText: 'Add item name...',
+                border: OutlineInputBorder(),
+              ),
+              onSubmitted: (_) => _addItem(), // Add item on enter
             ),
-          );
-        },
-        tooltip: 'Add Item',
-        child: const Icon(Icons.add),
+          ),
+          const SizedBox(width: 8),
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: _addItem, // Add item on button tap
+            tooltip: 'Add Item',
+          ),
+        ],
       ),
     );
   }
