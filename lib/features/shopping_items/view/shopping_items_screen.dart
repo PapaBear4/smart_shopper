@@ -63,7 +63,10 @@ class _ShoppingItemViewState extends State<ShoppingItemView> { // State class
 
       final llmService = getIt<LlmService>();
       try {
+        final currentContext = context; // Capture the BuildContext
         String? parsedJsonString = await llmService.parseShoppingListItem(itemName);
+
+        if (!mounted) return; // Ensure the widget is still in the tree
 
         if (parsedJsonString != null) {
           // Improved cleaning logic for Markdown code block delimiters
@@ -89,8 +92,7 @@ class _ShoppingItemViewState extends State<ShoppingItemView> { // State class
               unit: parsedItem.unit, // Assign unit from parsed data
               quantity: parsedItem.quantity ?? 1.0, // Assign quantity, default to 1.0 if null
             );
-            // ignore: use_build_context_synchronously
-            context.read<ShoppingItemCubit>().addItem(newItem);
+            currentContext.read<ShoppingItemCubit>().addItem(newItem);
           } catch (e) {
             logError('Error parsing LLM response: $e. Original response: $parsedJsonString');
             // Fallback to adding the item as is
