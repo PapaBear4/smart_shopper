@@ -85,6 +85,7 @@ class _ShoppingItemViewState extends State<ShoppingItemView> { // State class
 
             final newItem = ShoppingItem(
               name: parsedItem.name,
+              category: parsedItem.category, // Assign category from parsed data
               unit: parsedItem.unit, // Assign unit from parsed data
               quantity: parsedItem.quantity ?? 1.0, // Assign quantity, default to 1.0 if null
             );
@@ -111,7 +112,12 @@ class _ShoppingItemViewState extends State<ShoppingItemView> { // State class
         context.read<ShoppingItemCubit>().addItem(newItem);
       } finally {
         _itemController.clear(); // Clear the text field
-        _itemFocusNode.requestFocus(); // Keep focus on the text field
+        // Delay focus request slightly to ensure UI has settled
+        Future.delayed(const Duration(milliseconds: 50), () {
+          if (mounted) { // Check if the widget is still in the tree
+            _itemFocusNode.requestFocus();
+          }
+        });
         setState(() {
           _isProcessing = false; // End processing
         });

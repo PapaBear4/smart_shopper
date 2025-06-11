@@ -30,10 +30,11 @@ class LlmService {
     // This is a basic prompt. You'll need to refine this to get the desired JSON output structure.
     // Consider providing few-shot examples within the prompt for better results.
     final prompt = '''Parse the following user input for a shopping list item.
-    Identify the item name, a typical unit of measure, and the quantity to purchase.
+    Identify the item name, an item category, a typical unit of measure, and the quantity to purchase.
     If the unit or quantity is not specified, use a typical value.  If you cannot
     parse what the user wants return the user input as is under the name field.
-    Return the information in a JSON format like: {"name": "item", "unit": "unit", "quantity": number}.
+    Return the information in a JSON format like: {"name": "item", "category": "category", 
+    "unit": "unit", "quantity": number}.
     User input: "$userInput"''';
 
     try {
@@ -70,10 +71,11 @@ class LlmService {
 // Example of how you might structure the expected output from the LLM
 class ParsedShoppingItem {
   final String name;
+  final String? category; // Made nullable
   final String? unit; // Made nullable
   final double? quantity; // Made nullable
 
-  ParsedShoppingItem({required this.name, this.unit, this.quantity});
+  ParsedShoppingItem({required this.name, this.category, this.unit, this.quantity});
 
   factory ParsedShoppingItem.fromJson(Map<String, dynamic> json) {
     // Helper to safely parse a number that might be int or double
@@ -87,6 +89,7 @@ class ParsedShoppingItem {
 
     return ParsedShoppingItem(
       name: json['name'] as String, // Assuming name is always present as per prompt
+      category: json['category'] as String?, // Allow null if 'category' is missing or null
       unit: json['unit'] as String?, // Allow null if 'unit' is missing or null
       quantity: parseDouble(json['quantity']), // Allow null if 'quantity' is missing or not a number
     );
@@ -94,6 +97,7 @@ class ParsedShoppingItem {
 
   Map<String, dynamic> toJson() => {
         'name': name,
+        'category': category,
         'unit': unit,
         'quantity': quantity,
       };
