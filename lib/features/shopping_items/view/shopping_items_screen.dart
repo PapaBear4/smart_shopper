@@ -11,6 +11,9 @@ import 'package:smart_shopper/features/shopping_items/widgets/shopping_item_list
 import 'package:smart_shopper/models/shopping_item.dart'; // Added import
 import 'package:smart_shopper/service_locator.dart';
 import 'package:smart_shopper/repositories/shopping_item_repository.dart';
+import 'package:smart_shopper/services/llm_service.dart'; // Import LlmService
+import 'dart:convert'; // Import for jsonDecode
+import 'package:smart_shopper/tools/logger.dart'; // Import logger
 
 class ShoppingItemsScreen extends StatelessWidget {
   final int listId; // Received from the router
@@ -42,6 +45,7 @@ class ShoppingItemView extends StatefulWidget { // Changed to StatefulWidget
 class _ShoppingItemViewState extends State<ShoppingItemView> { // State class
   final TextEditingController _itemController = TextEditingController(); // Controller for the TextField
   final FocusNode _itemFocusNode = FocusNode(); // FocusNode for the TextField
+  bool _isProcessing = false; // State variable to track processing
 
   @override
   void dispose() {
@@ -50,13 +54,68 @@ class _ShoppingItemViewState extends State<ShoppingItemView> { // State class
     super.dispose();
   }
 
-  void _addItem() {
+  Future<void> _addItem() async { // Changed to Future<void> and async
     final itemName = _itemController.text.trim();
     if (itemName.isNotEmpty) {
-      final newItem = ShoppingItem(name: itemName); // Create item with only name
-      context.read<ShoppingItemCubit>().addItem(newItem);
-      _itemController.clear(); // Clear the text field
-      _itemFocusNode.requestFocus(); // Keep focus on the text field
+      setState(() {
+        _isProcessing = true; // Start processing
+      });
+
+      final llmService = getIt<LlmService>();
+      try {
+        String? parsedJsonString = await llmService.parseShoppingListItem(itemName);
+
+        if (parsedJsonString != null) {
+          // Improved cleaning logic for Markdown code block delimiters
+          parsedJsonString = parsedJsonString.trim(); // Trim initial whitespace
+
+          if (parsedJsonString.startsWith("```json")) {
+            // Remove ```json prefix and trim resulting string
+            parsedJsonString = parsedJsonString.substring(7).trim();
+          }
+
+          if (parsedJsonString.endsWith("```")) {
+            // Remove ``` suffix and trim resulting string
+            parsedJsonString = parsedJsonString.substring(0, parsedJsonString.length - 3).trim();
+          }
+
+          try {
+            final parsedData = jsonDecode(parsedJsonString) as Map<String, dynamic>;
+            final parsedItem = ParsedShoppingItem.fromJson(parsedData);
+
+            final newItem = ShoppingItem(
+              name: parsedItem.name,
+              unit: parsedItem.unit, // Assign unit from parsed data
+              quantity: parsedItem.quantity ?? 1.0, // Assign quantity, default to 1.0 if null
+            );
+            // ignore: use_build_context_synchronously
+            context.read<ShoppingItemCubit>().addItem(newItem);
+          } catch (e) {
+            logError('Error parsing LLM response: $e. Original response: $parsedJsonString');
+            // Fallback to adding the item as is
+            final newItem = ShoppingItem(name: itemName);
+            // ignore: use_build_context_synchronously
+            context.read<ShoppingItemCubit>().addItem(newItem);
+          }
+        } else {
+          // Fallback to adding the item as is if LLM parsing fails
+          final newItem = ShoppingItem(name: itemName);
+          // ignore: use_build_context_synchronously
+          context.read<ShoppingItemCubit>().addItem(newItem);
+        }
+      } catch (e) {
+        logError('Error calling LLM service: $e');
+        // Fallback to adding the item as is
+        final newItem = ShoppingItem(name: itemName);
+        // ignore: use_build_context_synchronously
+        context.read<ShoppingItemCubit>().addItem(newItem);
+      } finally {
+        _itemController.clear(); // Clear the text field
+        _itemFocusNode.requestFocus(); // Keep focus on the text field
+        setState(() {
+          _isProcessing = false; // End processing
+        });
+      }
     }
   }
 
@@ -188,15 +247,18 @@ class _ShoppingItemViewState extends State<ShoppingItemView> { // State class
                 hintText: 'Add item name...',
                 border: OutlineInputBorder(),
               ),
-              onSubmitted: (_) => _addItem(), // Add item on enter
+              onSubmitted: (_) => _isProcessing ? null : _addItem(), // Add item on enter, disable if processing
+              enabled: !_isProcessing, // Disable TextField if processing
             ),
           ),
           const SizedBox(width: 8),
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: _addItem, // Add item on button tap
-            tooltip: 'Add Item',
-          ),
+          _isProcessing
+              ? const CircularProgressIndicator() // Show progress indicator
+              : IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: _addItem, // Add item on button tap
+                  tooltip: 'Add Item',
+                ),
         ],
       ),
     );

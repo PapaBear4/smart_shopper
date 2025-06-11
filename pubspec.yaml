@@ -29,7 +29,7 @@ dependencies:
   url_launcher: ^6.3.0      # Launch URLs (websites, phone calls)
   cupertino_icons: ^1.0.6
   collection: ^1.19.1
-  intl: ^0.19.0 # Added for date formatting
+  intl: ^0.20.2 # Added for date formatting
   flutter_launcher_icons: ^0.14.3
   faker_dart: ^0.2.2 # Added faker_dart
   logger: ^2.3.0 # Added logger

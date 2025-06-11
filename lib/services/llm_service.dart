@@ -18,7 +18,7 @@ class LlmService {
       logError('API Key not found. Please set $_apiKeyEnvName in your .env file');
       return;
     }
-    _model = GenerativeModel(model: 'gemini-pro', apiKey: apiKey);
+    _model = GenerativeModel(model: 'gemini-2.0-flash', apiKey: apiKey);
   }
 
   Future<String?> parseShoppingListItem(String userInput) async {
@@ -30,7 +30,9 @@ class LlmService {
     // This is a basic prompt. You'll need to refine this to get the desired JSON output structure.
     // Consider providing few-shot examples within the prompt for better results.
     final prompt = '''Parse the following user input for a shopping list item.
-    Identify the item name, a typical unit of measure, and a common quantity of purchase.
+    Identify the item name, a typical unit of measure, and the quantity to purchase.
+    If the unit or quantity is not specified, use a typical value.  If you cannot
+    parse what the user wants return the user input as is under the name field.
     Return the information in a JSON format like: {"name": "item", "unit": "unit", "quantity": number}.
     User input: "$userInput"''';
 
@@ -68,16 +70,25 @@ class LlmService {
 // Example of how you might structure the expected output from the LLM
 class ParsedShoppingItem {
   final String name;
-  final String unit;
-  final double quantity;
+  final String? unit; // Made nullable
+  final double? quantity; // Made nullable
 
-  ParsedShoppingItem({required this.name, required this.unit, required this.quantity});
+  ParsedShoppingItem({required this.name, this.unit, this.quantity});
 
   factory ParsedShoppingItem.fromJson(Map<String, dynamic> json) {
+    // Helper to safely parse a number that might be int or double
+    double? parseDouble(dynamic value) {
+      if (value == null) return null;
+      if (value is double) return value;
+      if (value is int) return value.toDouble();
+      if (value is String) return double.tryParse(value);
+      return null;
+    }
+
     return ParsedShoppingItem(
-      name: json['name'] as String,
-      unit: json['unit'] as String,
-      quantity: (json['quantity'] as num).toDouble(),
+      name: json['name'] as String, // Assuming name is always present as per prompt
+      unit: json['unit'] as String?, // Allow null if 'unit' is missing or null
+      quantity: parseDouble(json['quantity']), // Allow null if 'quantity' is missing or not a number
     );
   }
 
