@@ -507,8 +507,12 @@ obx_int.ModelDefinition getObjectBoxModel() {
       },
       objectToFB: (ShoppingItem object, fb.Builder fbb) {
         final nameOffset = fbb.writeString(object.name);
-        final categoryOffset = fbb.writeString(object.category);
-        final unitOffset = fbb.writeString(object.unit);
+        final categoryOffset = object.category == null
+            ? null
+            : fbb.writeString(object.category!);
+        final unitOffset = object.unit == null
+            ? null
+            : fbb.writeString(object.unit!);
         fbb.startTable(9);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
@@ -535,7 +539,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
         ).vTableGet(buffer, rootOffset, 6, '');
         final categoryParam = const fb.StringReader(
           asciiOptimization: true,
-        ).vTableGet(buffer, rootOffset, 8, '');
+        ).vTableGetNullable(buffer, rootOffset, 8);
         final quantityParam = const fb.Float64Reader().vTableGet(
           buffer,
           rootOffset,
@@ -544,7 +548,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
         );
         final unitParam = const fb.StringReader(
           asciiOptimization: true,
-        ).vTableGet(buffer, rootOffset, 12, '');
+        ).vTableGetNullable(buffer, rootOffset, 12);
         final isCompletedParam = const fb.BoolReader().vTableGet(
           buffer,
           rootOffset,
