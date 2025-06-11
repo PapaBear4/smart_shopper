@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'objectbox_helper.dart'; // Import the ObjectBox helper class
 import 'service_locator.dart'; // Import the GetIt setup file
 import 'routing/app_router.dart'; // Import the router config
@@ -9,6 +10,7 @@ Future<void> main() async {
   // IMPORTANT: Ensure Flutter bindings are initialized before using plugins.
   // This is required before using any platform channels or plugins
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env"); // Load .env file
 
   // OBJECTBOX SETUP
   // Initialize the ObjectBox database instance
