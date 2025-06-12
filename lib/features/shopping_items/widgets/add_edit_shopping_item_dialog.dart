@@ -323,14 +323,31 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
           final newPriceEntry = PriceEntry(
             price: price,
             date: _selectedDate!,
-            canonicalItemName: name,
           );
           if (finalSelectedStoreId != null) {
             newPriceEntry.groceryStore.targetId = finalSelectedStoreId;
           }
-          if (finalBrandId != null) {
-            newPriceEntry.brand.targetId = finalBrandId;
+          // Brand is on ProductVariant, which is linked to PriceEntry.
+          // If shoppingItemToSave has a preferredVariant, and that variant has a brand,
+          // and PriceEntry needs to be directly associated with that brand for some reason
+          // (even though it's indirectly linked via ProductVariant), this logic would be more complex.
+          // However, PriceEntry model links to ProductVariant, not directly to Brand.
+          // So, we need to link the PriceEntry to the ProductVariant of the ShoppingItem.
+
+          if (shoppingItemToSave.preferredVariant.targetId > 0) {
+            newPriceEntry.productVariant.targetId = shoppingItemToSave.preferredVariant.targetId;
+          } else {
+            // Handle case where shoppingItemToSave might not have a preferredVariant set yet,
+            // or if it was just created and its preferredVariant was not (or could not be) determined.
+            // This might involve creating a default/generic ProductVariant for the item's name
+            // or prompting the user.
+            // For now, if no preferredVariant, we can't link the PriceEntry to one.
+            // Consider if a PriceEntry MUST have a ProductVariant.
+            // Based on current PriceEntry model, productVariant is a ToOne, implying it can be null (targetId=0).
+            // However, if business logic requires it, this needs to be handled.
+            // For this fix, we assume it's okay for productVariant to be unlinked if not available.
           }
+
           try {
             await _priceEntryRepository.addPriceEntry(newPriceEntry);
           } catch (e) {
