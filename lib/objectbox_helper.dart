@@ -16,6 +16,7 @@ class ObjectBoxHelper {
   late final Box<GroceryStore> groceryStoreBox;
   late final Box<ShoppingItem> shoppingItemBox;
   late final Box<ShoppingList> shoppingListBox;
+  late final Box<ProductVariant> productVariantBox; // Added
 
   /// Private constructor to initialize the store and boxes.
   /// This is called by the static `create` method.
@@ -26,6 +27,7 @@ class ObjectBoxHelper {
     groceryStoreBox = _store.box<GroceryStore>();
     shoppingItemBox = _store.box<ShoppingItem>();
     shoppingListBox = _store.box<ShoppingList>();
+    productVariantBox = _store.box<ProductVariant>(); // Added
   }
 
   /// Creates and initializes an ObjectBoxHelper instance.
@@ -52,6 +54,7 @@ class ObjectBoxHelper {
     await shoppingItemBox.removeAllAsync(); // Clear items before lists if items have relations to lists
     await shoppingListBox.removeAllAsync();
     await groceryStoreBox.removeAllAsync(); // Clear stores last if other entities relate to them
+    await productVariantBox.removeAllAsync(); // Added
     
     // Alternatively, ObjectBox provides a way to delete all objects of all types,
     // but it's often safer to be explicit if you want to ensure specific order

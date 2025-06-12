@@ -45,16 +45,16 @@ class ShoppingItemRepository implements IShoppingItemRepository {
 
       // For each item, fetch its associated price entries
       for (var item in items) {
-        QueryBuilder<PriceEntry> priceEntryQueryBuilder = _priceEntryBox.query(
-          PriceEntry_.canonicalItemName.equals(item.name, caseSensitive: false)
-        );
-
-        // Conditionally add brand filter
-        // If item.brand.targetId is 0, it means no brand is associated.
-        // If item.brand.targetId is > 0, it's a valid brand ID.
-        priceEntryQueryBuilder.link(PriceEntry_.brand, Brand_.id.equals(item.brand.targetId));
-        
-        item.priceEntries = priceEntryQueryBuilder.build().find();
+        final preferredVariantId = item.preferredVariant.targetId;
+        // ObjectBox IDs are non-nullable and start from 1. A targetId of 0 means no relation.
+        if (preferredVariantId > 0) { 
+          QueryBuilder<PriceEntry> priceEntryQueryBuilder = _priceEntryBox.query(
+            PriceEntry_.productVariant.equals(preferredVariantId)
+          );
+          item.priceEntries = priceEntryQueryBuilder.build().find();
+        } else {
+          item.priceEntries = []; // No preferred variant, so no specific price entries
+        }
       }
 
       // Sort the list IN PLACE using a custom comparison function
@@ -102,11 +102,15 @@ class ShoppingItemRepository implements IShoppingItemRepository {
       final items = query.find();
       // For each item, fetch its associated price entries (similar to getItemsStream)
       for (var item in items) {
-        QueryBuilder<PriceEntry> priceEntryQueryBuilder = _priceEntryBox.query(
-          PriceEntry_.canonicalItemName.equals(item.name, caseSensitive: false)
-        );
-        priceEntryQueryBuilder.link(PriceEntry_.brand, Brand_.id.equals(item.brand.targetId));
-        item.priceEntries = priceEntryQueryBuilder.build().find();
+        final preferredVariantId = item.preferredVariant.targetId;
+        if (preferredVariantId > 0) { // ObjectBox IDs are non-nullable and start from 1
+          QueryBuilder<PriceEntry> priceEntryQueryBuilder = _priceEntryBox.query(
+            PriceEntry_.productVariant.equals(preferredVariantId)
+          );
+          item.priceEntries = priceEntryQueryBuilder.build().find();
+        } else {
+          item.priceEntries = [];
+        }
       }
 
       // Sort items: incomplete first, then by name (same logic as in getItemsStream)
