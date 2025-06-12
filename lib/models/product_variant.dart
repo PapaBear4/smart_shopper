@@ -98,7 +98,7 @@ class ProductVariant {
     this.subBrand,
     this.productLine,
     List<String>? customAttributes,
-  }) : this.customAttributes = customAttributes ?? [],
-       this.allergenInfo = allergenInfo ?? [],
-       this.secondaryIngredients = secondaryIngredients ?? [];
+  }) : customAttributes = customAttributes ?? [],
+       allergenInfo = allergenInfo ?? [],
+       secondaryIngredients = secondaryIngredients ?? [];
 }
