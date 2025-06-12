@@ -62,6 +62,7 @@ class _ShoppingItemViewState extends State<ShoppingItemView> { // State class
       });
 
       final llmService = getIt<LlmService>();
+      logDebug('Attempting to parse item: "$itemName"'); // Log input to LLM
       try {
         final currentContext = context; // Capture the BuildContext
         String? parsedJsonString = await llmService.parseShoppingListItem(itemName);
@@ -69,6 +70,7 @@ class _ShoppingItemViewState extends State<ShoppingItemView> { // State class
         if (!mounted) return; // Ensure the widget is still in the tree
 
         if (parsedJsonString != null) {
+          logDebug('LLM raw response: "$parsedJsonString"'); // Log raw LLM response
           // Improved cleaning logic for Markdown code block delimiters
           parsedJsonString = parsedJsonString.trim(); // Trim initial whitespace
 
@@ -85,24 +87,30 @@ class _ShoppingItemViewState extends State<ShoppingItemView> { // State class
           try {
             final parsedData = jsonDecode(parsedJsonString) as Map<String, dynamic>;
             final parsedItem = ParsedShoppingItem.fromJson(parsedData);
+            logDebug('Parsed LLM data: ${parsedItem.toJson()}'); // Log parsed data
 
             final newItem = ShoppingItem(
               name: parsedItem.name,
               category: parsedItem.category, // Assign category from parsed data
               unit: parsedItem.unit, // Assign unit from parsed data
               quantity: parsedItem.quantity ?? 1.0, // Assign quantity, default to 1.0 if null
+              desiredAttributes: parsedItem.desiredAttributes ?? [], // Assign desiredAttributes
             );
+            logDebug('Final ShoppingItem object: ${newItem.toJson()}'); // Log final ShoppingItem
             currentContext.read<ShoppingItemCubit>().addItem(newItem);
           } catch (e) {
             logError('Error parsing LLM response: $e. Original response: $parsedJsonString');
             // Fallback to adding the item as is
             final newItem = ShoppingItem(name: itemName);
+            logDebug('Fallback ShoppingItem object (parse error): ${newItem.toJson()}'); // Log fallback ShoppingItem
             // ignore: use_build_context_synchronously
             context.read<ShoppingItemCubit>().addItem(newItem);
           }
         } else {
+          logDebug('LLM parsing returned null for input: "$itemName"'); // Changed logWarn to logDebug for consistency
           // Fallback to adding the item as is if LLM parsing fails
           final newItem = ShoppingItem(name: itemName);
+          logDebug('Fallback ShoppingItem object (null LLM response): ${newItem.toJson()}'); // Log fallback ShoppingItem
           // ignore: use_build_context_synchronously
           context.read<ShoppingItemCubit>().addItem(newItem);
         }
@@ -110,6 +118,7 @@ class _ShoppingItemViewState extends State<ShoppingItemView> { // State class
         logError('Error calling LLM service: $e');
         // Fallback to adding the item as is
         final newItem = ShoppingItem(name: itemName);
+        logDebug('Fallback ShoppingItem object (LLM service error): ${newItem.toJson()}'); // Log fallback ShoppingItem
         // ignore: use_build_context_synchronously
         context.read<ShoppingItemCubit>().addItem(newItem);
       } finally {

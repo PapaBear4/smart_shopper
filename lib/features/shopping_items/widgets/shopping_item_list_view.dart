@@ -57,9 +57,9 @@ class ShoppingItemListView extends StatelessWidget {
               },
             );
           } else if (state.groupByStore) {
-            // Group items by store logic (remains complex and specific here)
-            final Map<int?, List<ShoppingItem>> itemsGroupedByStoreId = {}; 
-            final Map<int, GroceryStore> storeIdToStoreObject = {}; 
+            // Group items by store logic
+            final Map<int?, List<ShoppingItem>> itemsGroupedByStoreId = {};
+            final Map<int, GroceryStore> storeIdToStoreObject = {};
 
             for (var item in filteredItems) {
               GroceryStore? determinedStore;
@@ -69,24 +69,36 @@ class ShoppingItemListView extends StatelessWidget {
                     .toList();
                 if (validPriceEntries.isNotEmpty) {
                   validPriceEntries.sort((a, b) {
-                    // Simplified sorting for example, original logic was more complex
                     return a.price.compareTo(b.price);
                   });
                   determinedStore = validPriceEntries.first.groceryStore.target;
                 }
               }
               if (determinedStore == null && item.groceryStores.isNotEmpty) {
-                determinedStore = item.groceryStores.first; // Simplified
+                determinedStore = item.groceryStores.first;
               }
 
               final storeIdKey = determinedStore?.id;
               if (determinedStore != null) {
                 storeIdToStoreObject.putIfAbsent(determinedStore.id, () => determinedStore!);
               }
+              // The item comes from filteredItems, which is already filtered by showCompletedItems.
+              // So, every item here should be added to its respective store group.
+              // The filtering of store groups themselves (whether to display a store group or not)
+              // happens later with storeKeysWithActiveItems.
               itemsGroupedByStoreId.putIfAbsent(storeIdKey, () => []).add(item);
             }
 
-            final List<int?> sortedStoreIdKeys = itemsGroupedByStoreId.keys.toList()
+            // Filter out store groups that have no active items if showCompletedItems is false
+            final List<int?> storeKeysWithActiveItems = itemsGroupedByStoreId.keys.where((storeIdKey) {
+              final itemsInStore = itemsGroupedByStoreId[storeIdKey]!;
+              final activeItemsCount = itemsInStore.where((item) => !item.isCompleted).length;
+              // If showing completed items, all groups are valid if they have any items at all.
+              // If not showing completed items, only groups with active items are valid.
+              return state.showCompletedItems ? itemsInStore.isNotEmpty : activeItemsCount > 0;
+            }).toList();
+
+            final List<int?> sortedStoreIdKeys = storeKeysWithActiveItems
               ..sort((a, b) {
                 if (a == null) return 1; // Null (No Specific Store) at the end
                 if (b == null) return -1;
@@ -100,8 +112,15 @@ class ShoppingItemListView extends StatelessWidget {
               itemBuilder: (context, index) {
                 final storeIdKey = sortedStoreIdKeys[index];
                 final itemsInStore = itemsGroupedByStoreId[storeIdKey]!;
-                final storeName = storeIdKey == null ? 'No Specific Store' : storeIdToStoreObject[storeIdKey]!.name;
+                // Recalculate activeItemsInStore based on the potentially filtered itemsInStore list for this specific key
                 final activeItemsInStore = itemsInStore.where((item) => !item.isCompleted).length;
+                final storeName = storeIdKey == null ? 'No Specific Store' : storeIdToStoreObject[storeIdKey]!.name;
+
+                // If not showing completed items and this store has no active items, don't build the ExpansionTile
+                // This check is now implicitly handled by `storeKeysWithActiveItems` but an explicit check on activeItemsInStore
+                // before building the ExpansionTile can be an additional safeguard if needed, though ideally
+                // sortedStoreIdKeys should already be filtered correctly.
+                // However, the count in the title ($activeItemsInStore) should reflect the active items.
 
                 List<Widget> titleWidgets = [
                   Expanded(
@@ -157,8 +176,21 @@ class ShoppingItemListView extends StatelessWidget {
   // For this refactor, we assume _buildItemDetailsList will provide the subtitle widgets.
 
   Widget _buildItemTile(BuildContext context, ShoppingItem item, ShoppingItemLoaded currentState) {
+    String titleText = item.name;
+    // Always show quantity and unit if unit is present, or if quantity is not 1.0
+    if (item.unit?.isNotEmpty == true || item.quantity != 1.0) {
+      String qtyString = item.quantity.toStringAsFixed(item.quantity % 1 == 0 ? 0 : 1);
+      String unitString = item.unit?.trim() ?? "";
+      String details = qtyString;
+      if (unitString.isNotEmpty) {
+        details += " $unitString";
+      }
+      titleText += ' ($details)'; // Ensure space is before the parenthesis and not trimmed
+    }
+
     return StandardListItem<ShoppingItem>(
       item: item,
+      titleText: titleText, // Use the new titleText
       onToggleCompletion: (toggledItem) {
         context.read<ShoppingItemCubit>().toggleItemCompletion(toggledItem);
       },
@@ -188,11 +220,11 @@ class ShoppingItemListView extends StatelessWidget {
   List<Widget> _buildItemDetailsList(BuildContext context, ShoppingItem item, ShoppingItemLoaded currentState) {
     List<Widget> detailsWidgets = [];
 
-    // Item Name is handled by StandardListItem title
+    // Item Name, Quantity and Unit are now handled by StandardListItem title
 
-    // Quantity and Unit
-    if (item.quantity != 1 || (item.unit?.isNotEmpty == true)) {
-      detailsWidgets.add(buildDetailText('${item.quantity} ${item.unit ?? ""}')); // Added null check for item.unit display
+    // Desired Attributes
+    if (item.desiredAttributes.isNotEmpty) {
+      detailsWidgets.add(buildDetailText('Wants: ${item.desiredAttributes.join(', ')}'));
     }
 
     // Determine best price entry

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smart_shopper/tools/debug_utilities.dart';
+import 'package:go_router/go_router.dart';
+import 'package:smart_shopper/features/product_variants/screens/product_variants_list_screen.dart';
 
 class DebugScreen extends StatelessWidget {
   const DebugScreen({super.key});
@@ -48,6 +50,13 @@ class DebugScreen extends StatelessWidget {
                   }
                 },
                 child: const Text('Clear App Data'),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  context.push(ProductVariantsListScreen.routeName);
+                },
+                child: const Text('Manage Product Variants'),
               ),
             ],
           ),

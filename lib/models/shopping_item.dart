@@ -50,4 +50,25 @@ class ShoppingItem implements DisplayableItem { // Implemented DisplayableItem
     // preferredVariant ToOne is not initialized in constructor directly
     // brand ToOne is not initialized in constructor directly
   }) : this.desiredAttributes = desiredAttributes ?? [];
+
+  // For debugging and logging
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'category': category,
+        'quantity': quantity,
+        'unit': unit,
+        'isCompleted': isCompleted,
+        'notes': notes,
+        'desiredAttributes': desiredAttributes,
+        'preferredVariant': preferredVariant.target?.id, // Log variant ID if exists
+        'shoppingList': shoppingList.target?.id, // Log list ID if exists
+        'groceryStores': groceryStores.map((s) => s.id).toList(), // Log store IDs
+        'brand': brand.target?.id, // Log brand ID if exists
+      };
+
+  @override
+  String toString() {
+    return 'ShoppingItem{id: $id, name: $name, quantity: $quantity, unit: $unit, isCompleted: $isCompleted, attributes: ${desiredAttributes.join(", ")}}';
+  }
 }

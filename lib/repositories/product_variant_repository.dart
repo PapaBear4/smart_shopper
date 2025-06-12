@@ -12,6 +12,7 @@ abstract class IProductVariantRepository {
   Future<bool> deleteProductVariant(int id);
   Future<List<ProductVariant>> findVariantsByBaseName(String baseProductName);
   Future<List<ProductVariant>> findVariantsByBrand(int brandId);
+  Future<List<ProductVariant>> searchVariants(String searchTerm, {int? brandId});
 }
 
 class ProductVariantRepository implements IProductVariantRepository {
@@ -65,5 +66,40 @@ class ProductVariantRepository implements IProductVariantRepository {
   Future<List<ProductVariant>> findVariantsByBrand(int brandId) async {
     final query = _variantBox.query(ProductVariant_.brand.equals(brandId)).build();
     return query.find();
+  }
+
+  @override
+  Future<List<ProductVariant>> searchVariants(String searchTerm, {int? brandId}) async {
+    final lowerSearchTerm = searchTerm.toLowerCase();
+    
+    QueryBuilder<ProductVariant> queryBuilder = _variantBox.query();
+    Condition<ProductVariant>? searchCondition;
+    Condition<ProductVariant>? brandCondition;
+
+    if (lowerSearchTerm.isNotEmpty) {
+      searchCondition = ProductVariant_.name.contains(lowerSearchTerm, caseSensitive: false)
+          .or(ProductVariant_.baseProductName.contains(lowerSearchTerm, caseSensitive: false));
+          // Add other searchable fields to the `or` condition as needed
+          // e.g., .or(ProductVariant_.flavor.contains(lowerSearchTerm, caseSensitive: false))
+    }
+
+    if (brandId != null) {
+      brandCondition = ProductVariant_.brand.equals(brandId);
+    }
+
+    if (searchCondition != null && brandCondition != null) {
+      queryBuilder = _variantBox.query(searchCondition.and(brandCondition));
+    } else if (searchCondition != null) {
+      queryBuilder = _variantBox.query(searchCondition);
+    } else if (brandCondition != null) {
+      queryBuilder = _variantBox.query(brandCondition);
+    }
+    // If both are null, it queries all, which is equivalent to getAllProductVariants.
+
+    final query = queryBuilder.order(ProductVariant_.name).build();
+    final variants = query.find();
+    // Sorting is now handled by the query order, but can be adjusted if needed.
+    // variants.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    return variants;
   }
 }

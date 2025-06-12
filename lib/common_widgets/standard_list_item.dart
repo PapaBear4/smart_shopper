@@ -12,6 +12,7 @@ typedef OnItemDismissedCallback<T extends DisplayableItem> = void Function(T ite
 
 class StandardListItem<T extends DisplayableItem> extends StatelessWidget {
   final T item;
+  final String? titleText; // Added optional titleText
   final List<Widget> subtitleWidgets;
   final ToggleItemCompletionCallback<T>? onToggleCompletion; // Optional: if the list item itself handles this
   final OnItemTapCallback<T>? onItemTap; // Optional: for tap actions
@@ -21,6 +22,7 @@ class StandardListItem<T extends DisplayableItem> extends StatelessWidget {
   const StandardListItem({
     super.key,
     required this.item,
+    this.titleText, // Added to constructor
     this.subtitleWidgets = const [],
     this.onToggleCompletion,
     this.onItemTap,
@@ -41,7 +43,7 @@ class StandardListItem<T extends DisplayableItem> extends StatelessWidget {
               },
             )
           : null,
-      title: CompletableItemName(name: item.name, isCompleted: item.isCompleted),
+      title: CompletableItemName(name: titleText ?? item.name, isCompleted: item.isCompleted), // Use titleText if provided
       subtitle: subtitleWidgets.isNotEmpty
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,

@@ -12,6 +12,8 @@ import 'features/shopping_lists/cubit/shopping_list_cubit.dart'; // Import cubit
 import 'repositories/brand_repository.dart'; // Import new repository
 import 'repositories/price_entry_repository.dart'; // Import new repository
 import 'package:smart_shopper/services/llm_service.dart'; // Import the LLM Service
+import 'repositories/product_variant_repository.dart'; // Import ProductVariantRepository
+import 'features/product_variants/cubit/product_variant_cubit.dart'; // Import ProductVariantCubit
 
 /// GetIt is a service locator for dependency injection (DI)
 /// It allows you to register classes/objects and retrieve them from anywhere in your app
@@ -67,6 +69,10 @@ void setupLocator(ObjectBoxHelper objectboxHelperInstance) {
   getIt.registerSingleton<IPriceEntryRepository>(PriceEntryRepository(getIt<ObjectBoxHelper>())); // Pass ObjectBoxHelper
   // end PriceEntryRepository
 
+  // --- Initialize ProductVariant Repository ---
+  getIt.registerSingleton<IProductVariantRepository>(ProductVariantRepository(getIt<ObjectBoxHelper>()));
+  // end ProductVariantRepository
+
   // --- Initialize LLM Service ---
   getIt.registerSingleton<LlmService>(LlmService());
   // end LlmService
@@ -103,6 +109,11 @@ void setupLocator(ObjectBoxHelper objectboxHelperInstance) {
   // For now, registering without filters:
   getIt.registerFactory<PriceEntryCubit>(
     () => PriceEntryCubit(repository: getIt<IPriceEntryRepository>()),
+  );
+
+  // Register ProductVariantCubit
+  getIt.registerFactory<ProductVariantCubit>(
+    () => ProductVariantCubit(repository: getIt<IProductVariantRepository>()),
   );
   
   // Note: ShoppingItemCubit is not registered here because:

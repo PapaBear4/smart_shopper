@@ -5,6 +5,9 @@ import '../features/debug/view/debug_screen.dart';
 import '../features/shopping_lists/view/shopping_lists_screen.dart';
 import '../features/shopping_items/view/shopping_items_screen.dart';
 import '../features/items_by_store/view/items_by_store_screen.dart';
+import '../features/product_variants/screens/product_variants_list_screen.dart';
+import '../features/product_variants/screens/product_variant_form_screen.dart';
+import '../models/product_variant.dart'; // Required for casting arguments
 import 'dart:developer';
 import 'package:flutter/foundation.dart';
 
@@ -108,6 +111,24 @@ final GoRouter appRouter = GoRouter(
       builder: (BuildContext context, GoRouterState state) {
         return const DebugScreen();
       },
+    ),
+
+    // === PRODUCT VARIANTS ROUTES (Top-level) ===
+    GoRoute(
+      path: ProductVariantsListScreen.routeName, // '/product-variants'
+      builder: (BuildContext context, GoRouterState state) {
+        return const ProductVariantsListScreen();
+      },
+      routes: <RouteBase>[
+        GoRoute(
+          path: ProductVariantFormScreen.routeName.substring(1), // 'product-variant-form' (relative)
+          name: ProductVariantFormScreen.routeName, // Optional: for named navigation if needed elsewhere
+          builder: (BuildContext context, GoRouterState state) {
+            final ProductVariant? productVariant = state.extra as ProductVariant?;
+            return ProductVariantFormScreen(productVariant: productVariant);
+          },
+        ),
+      ],
     ),
   ],
 

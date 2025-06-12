@@ -30,11 +30,17 @@ class LlmService {
     // This is a basic prompt. You'll need to refine this to get the desired JSON output structure.
     // Consider providing few-shot examples within the prompt for better results.
     final prompt = '''Parse the following user input for a shopping list item.
-    Identify the item name, an item category, a typical unit of measure, and the quantity to purchase.
-    If the unit or quantity is not specified, use a typical value.  If you cannot
-    parse what the user wants return the user input as is under the name field.
-    Return the information in a JSON format like: {"name": "item", "category": "category", 
-    "unit": "unit", "quantity": number}.
+    Identify the item name, an item category, a typical unit of measure, the quantity 
+    to purchase, and any desired attributes (like brand, flavor, organic, gluten-free, 2-pack, etc.).
+    If the unit or quantity is not specified, use a typical value or omit them.
+    If you cannot parse what the user wants, return the user input as is under the name field.
+    Return the information in a JSON format like: {
+      "name": "item", 
+      "category": "category", 
+      "unit": "unit", 
+      "quantity": number, 
+      "desiredAttributes": "attribute1, attribute2, attribute3"
+    }.
     User input: "$userInput"''';
 
     try {
@@ -74,8 +80,15 @@ class ParsedShoppingItem {
   final String? category; // Made nullable
   final String? unit; // Made nullable
   final double? quantity; // Made nullable
+  final List<String>? desiredAttributes; // New field
 
-  ParsedShoppingItem({required this.name, this.category, this.unit, this.quantity});
+  ParsedShoppingItem({
+    required this.name, 
+    this.category, 
+    this.unit, 
+    this.quantity, 
+    this.desiredAttributes, // Added to constructor
+  });
 
   factory ParsedShoppingItem.fromJson(Map<String, dynamic> json) {
     // Helper to safely parse a number that might be int or double
@@ -87,11 +100,24 @@ class ParsedShoppingItem {
       return null;
     }
 
+    List<String>? parseAttributes(dynamic attributesValue) {
+      if (attributesValue == null) return null;
+      if (attributesValue is String) {
+        if (attributesValue.isEmpty) return null;
+        return attributesValue.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+      }
+      if (attributesValue is List) {
+        return attributesValue.map((e) => e.toString().trim()).where((e) => e.isNotEmpty).toList();
+      }
+      return null;
+    }
+
     return ParsedShoppingItem(
       name: json['name'] as String, // Assuming name is always present as per prompt
-      category: json['category'] as String?, // Allow null if 'category' is missing or null
-      unit: json['unit'] as String?, // Allow null if 'unit' is missing or null
-      quantity: parseDouble(json['quantity']), // Allow null if 'quantity' is missing or not a number
+      category: json['category'] as String?,
+      unit: json['unit'] as String?,
+      quantity: parseDouble(json['quantity']),
+      desiredAttributes: parseAttributes(json['desiredAttributes']), // Parse new field
     );
   }
 
@@ -100,5 +126,6 @@ class ParsedShoppingItem {
         'category': category,
         'unit': unit,
         'quantity': quantity,
+        'desiredAttributes': desiredAttributes?.join(', '), // Convert list to comma-separated string for JSON
       };
 }

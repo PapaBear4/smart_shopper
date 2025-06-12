@@ -46,6 +46,7 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
   late TextEditingController _priceController;
   late TextEditingController _newStoreNameController; // Added
   late TextEditingController _newShoppingListNameController; // Added
+  late TextEditingController _desiredAttributesController; // New controller
 
   // Key for BrandSelectionWidget
   final GlobalKey<_BrandSelectionWidgetState> _brandSelectionWidgetKey = GlobalKey<_BrandSelectionWidgetState>();
@@ -82,6 +83,7 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
     _priceController = TextEditingController();
     _newStoreNameController = TextEditingController(); // Added
     _newShoppingListNameController = TextEditingController(); // Added
+    _desiredAttributesController = TextEditingController(text: widget.item?.desiredAttributes.join(', ') ?? ''); // Initialize new controller
 
     if (widget.initialStore != null) { // If launched from ItemsByStoreScreen
       _selectedStoreId = widget.initialStore!.id;
@@ -118,7 +120,13 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
     _priceController.dispose();
     _newStoreNameController.dispose(); // Added
     _newShoppingListNameController.dispose(); // Added
+    _desiredAttributesController.dispose(); // Dispose new controller
     super.dispose();
+  }
+
+  List<String> _parseCommaSeparatedString(String input) {
+    if (input.isEmpty) return [];
+    return input.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
   }
 
   // MARK: - Data Fetching
@@ -197,6 +205,7 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
       final category = _categoryController.text.trim();
       final quantity = double.parse(_quantityController.text);
       final unit = _unitController.text.trim();
+      final desiredAttributes = _parseCommaSeparatedString(_desiredAttributesController.text); // Get value from new controller
 
       int? finalBrandId = _selectedBrandId;
       if (_showNewBrandField && _newBrandNameController.text.isNotEmpty) {
@@ -272,6 +281,7 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
         shoppingItemToSave.category = category;
         shoppingItemToSave.quantity = quantity;
         shoppingItemToSave.unit = unit;
+        shoppingItemToSave.desiredAttributes = desiredAttributes; // Set value
         // Shopping list for an existing item should not change here
         // It's managed by the cubit that owns the item (e.g. ShoppingItemCubit)
       } else { // Adding a new item
@@ -281,6 +291,7 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
           quantity: quantity,
           unit: unit,
           isCompleted: false,
+          desiredAttributes: desiredAttributes, // Set value
         );
         // Assign shopping list
         if (_selectedShoppingListId != null) {
@@ -375,20 +386,30 @@ class _AddEditShoppingItemDialogState extends State<AddEditShoppingItemDialog> {
           key: _formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               TextFormField(
                 controller: _nameController,
-                autofocus: true,
-                decoration: const InputDecoration(
-                  labelText: 'Item Name*',
-                  hintText: 'e.g., Milk',
-                ),
-                validator: (value) => (value == null || value.trim().isEmpty)
-                    ? 'Enter a name'
-                    : null,
+                decoration: const InputDecoration(labelText: 'Item Name'),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please enter item name';
+                  }
+                  return null;
+                },
               ),
-              const SizedBox(height: 8),
+              TextFormField(
+                controller: _desiredAttributesController, // Add TextFormField for desiredAttributes
+                decoration: const InputDecoration(
+                  labelText: 'Desired Attributes (e.g., organic, 2-pack)',
+                  hintText: 'comma-separated, e.g. organic, gluten-free',
+                ),
+                // No validator for now, it's optional
+              ),
+              TextFormField(
+                controller: _categoryController,
+                decoration: const InputDecoration(labelText: 'Category (Optional)'),
+              ),
+              const SizedBox(height: 16),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
