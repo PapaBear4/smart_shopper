@@ -21,7 +21,7 @@ class _ScanListPageState extends State<ScanListPage> {
   final ImageProcessingService _imageProcessingService = getIt<ImageProcessingService>();
 
   bool _isLoading = false;
-  String? _extractedText;
+  List<String>? _parsedListItems; // Changed from _extractedText
   String? _errorMessage;
 
   Future<void> _pickAndProcessImage(ImageSource source) async {
@@ -29,7 +29,7 @@ class _ScanListPageState extends State<ScanListPage> {
       _isLoading = true;
       _selectedXFile = null;
       _selectedImageFile = null;
-      _extractedText = null;
+      _parsedListItems = null; // Clear previous list items
       _errorMessage = null;
     });
 
@@ -46,14 +46,32 @@ class _ScanListPageState extends State<ScanListPage> {
           SnackBar(content: Text('Processing image: ${pickedFile.name}...')),
         );
         
-        final String result = await _imageProcessingService.processImageForText(pickedFile);
-        setState(() {
-          _extractedText = result.isNotEmpty ? result : "No text found in the image.";
-          _isLoading = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(_extractedText!)),
-        );
+        final String rawExtractedText = await _imageProcessingService.processImageForText(pickedFile);
+        
+        if (rawExtractedText.isNotEmpty) {
+          final List<String> lines = rawExtractedText.split('\n');
+          final List<String> processedItems = lines
+              .map((line) => line.trim())
+              .where((line) => line.isNotEmpty)
+              .toList();
+          
+          setState(() {
+            _parsedListItems = processedItems.isNotEmpty ? processedItems : ["No list items found after parsing."];
+            _isLoading = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(processedItems.isNotEmpty ? "Text processed." : "No text found after parsing.")),
+          );
+        } else {
+          setState(() {
+            _parsedListItems = ["No text detected in the image."];
+            _isLoading = false;
+          });
+           ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("No text detected in the image.")),
+          );
+        }
+
       } else {
         setState(() {
           _errorMessage = 'No image selected.';
@@ -80,7 +98,7 @@ class _ScanListPageState extends State<ScanListPage> {
       appBar: AppBar(
         title: const Text('Scan New List'),
       ),
-      body: SingleChildScrollView( // Added SingleChildScrollView for long text
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Center(
           child: Column(
@@ -94,29 +112,48 @@ class _ScanListPageState extends State<ScanListPage> {
               if (_selectedImageFile != null && !_isLoading)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  child: ConstrainedBox( // Limit image height
+                  child: ConstrainedBox(
                     constraints: BoxConstraints(
                       maxHeight: MediaQuery.of(context).size.height * 0.3,
                     ),
                     child: Image.file(_selectedImageFile!),
                   ),
                 ),
-              if (_extractedText != null && !_isLoading)
+              // Display Parsed List Items
+              if (_parsedListItems != null && _parsedListItems!.isNotEmpty && !_isLoading)
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Extracted Text:', style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text('Detected Items:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                       const SizedBox(height: 8),
                       Container(
-                        padding: const EdgeInsets.all(8.0),
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey),
                           borderRadius: BorderRadius.circular(4.0),
                         ),
-                        child: Text(_extractedText!),
+                        child: ListView.builder(
+                          shrinkWrap: true, // Important for ListView inside Column
+                          physics: const NeverScrollableScrollPhysics(), // If inside SingleChildScrollView
+                          itemCount: _parsedListItems!.length,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              dense: true,
+                              title: Text(_parsedListItems![index]),
+                            );
+                          },
+                        ),
                       ),
                     ],
+                  ),
+                ),
+               if (_parsedListItems != null && _parsedListItems!.isEmpty && !_isLoading) // Case where parsing results in empty list but no error
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'No list items found after parsing the image.',
+                     textAlign: TextAlign.center,
                   ),
                 ),
               if (_errorMessage != null && !_isLoading)
@@ -144,7 +181,7 @@ class _ScanListPageState extends State<ScanListPage> {
                     ),
                     const SizedBox(height: 20),
                     const Text(
-                      'Tip: Ensure good lighting, lay the list flat, and hold the camera steady for best results.',
+                      'Tip: Ensure good lighting, lay the list flat, and hold the camera steady for best results. Place on a dark background if possible to avoid text from the other side showing through.',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),
