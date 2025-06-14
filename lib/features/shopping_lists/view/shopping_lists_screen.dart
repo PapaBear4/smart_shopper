@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../models/models.dart';
 import '../../../service_locator.dart'; 
 import '../cubit/shopping_list_cubit.dart';
+import '../../../features/scan_list/presentation/pages/scan_list_page.dart'; // Added for Scan List Page
 import 'dart:developer';
 import 'package:flutter/foundation.dart'; // Added for kDebugMode
 
@@ -190,13 +191,28 @@ class ShoppingListsView extends StatelessWidget {
       
       // === FLOATING ACTION BUTTON ===
       // Button to add a new shopping list
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Show dialog to create a new shopping list
-          _showAddEditListDialog(context);
-        },
-        tooltip: 'Add New List',
-        child: const Icon(Icons.add),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: () {
+              // Show dialog to create a new shopping list
+              _showAddEditListDialog(context);
+            },
+            tooltip: 'Add New List',
+            heroTag: 'addListFab', // Added heroTag
+            child: const Icon(Icons.add),
+          ),
+          const SizedBox(height: 16),
+          FloatingActionButton(
+            onPressed: () {
+              context.push(ScanListPage.routeName); // Navigate to Scan List Page
+            },
+            tooltip: 'Scan New List',
+            heroTag: 'scanListFab', // Added heroTag
+            child: const Icon(Icons.camera_alt),
+          ),
+        ],
       ),
     );
   }

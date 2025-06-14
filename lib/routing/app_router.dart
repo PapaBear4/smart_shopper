@@ -8,6 +8,7 @@ import '../features/items_by_store/view/items_by_store_screen.dart';
 import '../features/product_variants/screens/product_variants_list_screen.dart';
 import '../features/product_variants/screens/product_variant_form_screen.dart';
 import '../models/product_variant.dart'; // Required for casting arguments
+import '../features/scan_list/presentation/pages/scan_list_page.dart'; // Added for Scan List Page
 import 'dart:developer';
 import 'package:flutter/foundation.dart';
 
@@ -129,6 +130,14 @@ final GoRouter appRouter = GoRouter(
           },
         ),
       ],
+    ),
+
+    // === SCAN LIST PAGE ROUTE (Top-level route) ===
+    GoRoute(
+      path: ScanListPage.routeName, // '/scan-list'
+      builder: (BuildContext context, GoRouterState state) {
+        return const ScanListPage();
+      },
     ),
   ],
 
