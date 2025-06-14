@@ -10,8 +10,7 @@ class LlmService {
     _initialize();
   }
 
-  Future<void> _initialize() async {
-    await dotenv.load(fileName: ".env");
+  void _initialize() {
     final apiKey = dotenv.env[_apiKeyEnvName];
     if (apiKey == null) {
       // Consider logging this error or informing the user more gracefully

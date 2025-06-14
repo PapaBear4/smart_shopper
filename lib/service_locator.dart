@@ -14,6 +14,9 @@ import 'repositories/price_entry_repository.dart'; // Import new repository
 import 'package:smart_shopper/services/llm_service.dart'; // Import the LLM Service
 import 'repositories/product_variant_repository.dart'; // Import ProductVariantRepository
 import 'features/product_variants/cubit/product_variant_cubit.dart'; // Import ProductVariantCubit
+import 'features/scan_list/services/image_processing_service.dart'; // Import ImageProcessingService
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // Import flutter_dotenv
+import 'package:smart_shopper/tools/logger.dart'; // Import the logger
 
 /// GetIt is a service locator for dependency injection (DI)
 /// It allows you to register classes/objects and retrieve them from anywhere in your app
@@ -24,58 +27,58 @@ final getIt = GetIt.instance;
 /// This function configures the service locator with all necessary repositories and cubits
 /// @param objectboxInstance - The initialized ObjectBox database instance from main.dart
 void setupLocator(ObjectBoxHelper objectboxHelperInstance) {
-  // Register the ObjectBox helper instance we already created in main() as a Singleton
-  // A Singleton means there will only be ONE instance throughout the app's lifetime
+  // Removed all the detailed API key logging before/after each service registration
+  // logInfo('Entering setupLocator. API Key: ${dotenv.env['GOOGLE_CLOUD_VISION_API_KEY']}'); // Removed
+
   if (!kReleaseMode) {
-    log('GetIt: Registering ObjectBoxHelper instance', name: 'service_locator');
+    logInfo('GetIt: Registering ObjectBoxHelper instance');
   }
   getIt.registerSingleton<ObjectBoxHelper>(objectboxHelperInstance);
+  // logInfo('After ObjectBoxHelper. API Key: ${dotenv.env['GOOGLE_CLOUD_VISION_API_KEY']}'); // Removed
 
-  // --- Register Repositories ---
-  // Repositories are registered as Singletons because we want to reuse the same instance
-  // throughout the app to maintain data consistency
-  // registerSingleton creates the instance immediately (eager initialization)
-  // whereas lazySingleton would defer creation until first use
-  // This ensures they're ready when the app starts
   if (!kReleaseMode) {
-    log('GetIt: Initializing Repositories', name: 'service_locator');
+    logInfo('GetIt: Initializing Repositories');
   }
+
+  // logInfo('Before ShoppingListRepository. API Key: ${dotenv.env['GOOGLE_CLOUD_VISION_API_KEY']}'); // Removed
   getIt.registerSingleton<IShoppingListRepository>(
-    ShoppingListRepository(getIt<ObjectBoxHelper>()), // Pass ObjectBoxHelper
+    ShoppingListRepository(getIt<ObjectBoxHelper>()),
     dispose: (repo) {
-      // This dispose function runs when the GetIt instance is reset or when
-      // this singleton is unregistered, allowing cleanup operations
       if (!kReleaseMode) {
-        log('GetIt: Disposing ShoppingListRepository', name: 'service_locator');
+        logInfo('GetIt: Disposing ShoppingListRepository');
       }
-      // Add any cleanup if needed
     },
-  ); // end ShoppingListRepository
+  );
+  // logInfo('After ShoppingListRepository. API Key: ${dotenv.env['GOOGLE_CLOUD_VISION_API_KEY']}'); // Removed
 
-  // --- Initialize Shopping_Item Repository ---
+  // logInfo('Before ShoppingItemRepository. API Key: ${dotenv.env['GOOGLE_CLOUD_VISION_API_KEY']}'); // Removed
   getIt.registerSingleton<IShoppingItemRepository>(
-    ShoppingItemRepository(getIt<ObjectBoxHelper>()), // Pass ObjectBoxHelper
-  ); // end ShoppingItemRepository
+    ShoppingItemRepository(getIt<ObjectBoxHelper>()),
+  );
+  // logInfo('After ShoppingItemRepository. API Key: ${dotenv.env['GOOGLE_CLOUD_VISION_API_KEY']}'); // Removed
 
-  // --- Initialize Store Repository ---
-  getIt.registerSingleton<IStoreRepository>(StoreRepository(getIt<ObjectBoxHelper>())); // Pass ObjectBoxHelper
-  // end StoreRepository
+  // logInfo('Before StoreRepository. API Key: ${dotenv.env['GOOGLE_CLOUD_VISION_API_KEY']}'); // Removed
+  getIt.registerSingleton<IStoreRepository>(StoreRepository(getIt<ObjectBoxHelper>()));
+  // logInfo('After StoreRepository. API Key: ${dotenv.env['GOOGLE_CLOUD_VISION_API_KEY']}'); // Removed
 
-  // --- Initialize Brand Repository ---
-  getIt.registerSingleton<IBrandRepository>(BrandRepository(getIt<ObjectBoxHelper>())); // Pass ObjectBoxHelper
-  // end BrandRepository
+  // logInfo('Before BrandRepository. API Key: ${dotenv.env['GOOGLE_CLOUD_VISION_API_KEY']}'); // Removed
+  getIt.registerSingleton<IBrandRepository>(BrandRepository(getIt<ObjectBoxHelper>()));
+  // logInfo('After BrandRepository. API Key: ${dotenv.env['GOOGLE_CLOUD_VISION_API_KEY']}'); // Removed
 
-  // --- Initialize PriceEntry Repository ---
-  getIt.registerSingleton<IPriceEntryRepository>(PriceEntryRepository(getIt<ObjectBoxHelper>())); // Pass ObjectBoxHelper
-  // end PriceEntryRepository
+  // logInfo('Before PriceEntryRepository. API Key: ${dotenv.env['GOOGLE_CLOUD_VISION_API_KEY']}'); // Removed
+  getIt.registerSingleton<IPriceEntryRepository>(PriceEntryRepository(getIt<ObjectBoxHelper>()));
+  // logInfo('After PriceEntryRepository. API Key: ${dotenv.env['GOOGLE_CLOUD_VISION_API_KEY']}'); // Removed
 
-  // --- Initialize ProductVariant Repository ---
+  // logInfo('Before ProductVariantRepository. API Key: ${dotenv.env['GOOGLE_CLOUD_VISION_API_KEY']}'); // Removed
   getIt.registerSingleton<IProductVariantRepository>(ProductVariantRepository(getIt<ObjectBoxHelper>()));
-  // end ProductVariantRepository
+  // logInfo('After ProductVariantRepository. API Key: ${dotenv.env['GOOGLE_CLOUD_VISION_API_KEY']}'); // Removed
 
-  // --- Initialize LLM Service ---
+  // logInfo('Before LlmService. API Key: ${dotenv.env['GOOGLE_CLOUD_VISION_API_KEY']}'); // Removed
   getIt.registerSingleton<LlmService>(LlmService());
-  // end LlmService
+  // logInfo('After LlmService. API Key: ${dotenv.env['GOOGLE_CLOUD_VISION_API_KEY']}'); // Removed
+
+  // logInfo('Before ImageProcessingService. API Key: ${dotenv.env['GOOGLE_CLOUD_VISION_API_KEY']}'); // Removed
+  getIt.registerSingleton<ImageProcessingService>(ImageProcessingService());
 
   // --- Register Cubits/Blocs ---
   // Cubits are registered as factories, meaning a NEW instance is created EACH time
@@ -87,7 +90,7 @@ void setupLocator(ObjectBoxHelper objectboxHelperInstance) {
   // - But they all use the SAME repository underneath (singleton)
   // - This prevents state leaks between different parts of your UI
   if (!kReleaseMode) {
-    log('GetIt: Registering Cubit factories', name: 'service_locator');
+    logInfo('GetIt: Registering Cubit factories');
   }
   // Register the ShoppingListCubit with its repository
   getIt.registerFactory<ShoppingListCubit>(
@@ -127,9 +130,8 @@ void setupLocator(ObjectBoxHelper objectboxHelperInstance) {
     // This demonstrates how to retrieve a registered instance using getIt<Type>()
     final repo = getIt<IShoppingListRepository>();
     if (repo is ShoppingListRepository) {
-      log(
+      logInfo(
         'GetIt: ShoppingListRepository initialized with box count: ${(repo).getCount()}',
-        name: 'service_locator',
       );
     }
   }
