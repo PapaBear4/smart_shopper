@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:image_cropper/image_cropper.dart'; // Import image_cropper
+// import 'package:image_cropper/image_cropper.dart'; // Removed
+import 'package:smart_shopper/features/extended_image_utils/screens/extended_image_cropper_screen.dart'; 
 import 'package:smart_shopper/features/scan_list/services/image_processing_service.dart';
 import 'package:smart_shopper/service_locator.dart';
+import 'dart:developer' as developer; 
 
 class ScanListPage extends StatefulWidget {
   const ScanListPage({super.key});
@@ -19,38 +21,60 @@ class _ScanListPageState extends State<ScanListPage> {
   File? _displayImageFile; // This will hold the file for UI display (potentially cropped)
 
   final ImagePicker _picker = ImagePicker();
-  final ImageCropper _cropper = ImageCropper(); // Create an instance of ImageCropper
+  // final ImageCropper _cropper = ImageCropper(); // Removed
   final ImageProcessingService _imageProcessingService = getIt<ImageProcessingService>();
 
   bool _isLoading = false;
   List<String>? _parsedListItems;
   String? _errorMessage;
 
-  Future<CroppedFile?> _cropImage(String sourcePath) async {
-    return await _cropper.cropImage(
-      sourcePath: sourcePath,
-      compressFormat: ImageCompressFormat.jpg, // Or png
-      compressQuality: 90, // Adjust quality as needed
-      uiSettings: [
-        AndroidUiSettings(
-          toolbarTitle: 'Crop Image',
-          toolbarColor: Colors.grey[900], // Use a very dark toolbar
-          toolbarWidgetColor: Colors.white, // White icons and text on the toolbar
-          initAspectRatio: CropAspectRatioPreset.original,
-          lockAspectRatio: false,
-          // All other color/UI properties are reset to default by not specifying them
-        ),
-        IOSUiSettings(
-          title: 'Crop Image',
-          aspectRatioPickerButtonHidden: false,
-          resetAspectRatioEnabled: true,
-          aspectRatioLockEnabled: false,
-        ),
-      ],
+  @override
+  void initState() {
+    super.initState();
+    developer.log('ScanListPage: initState', name: 'ScanListPage');
+  }
+
+  // Future<CroppedFile?> _cropImage(String sourcePath) async {
+  //   return await _cropper.cropImage(
+  //     sourcePath: sourcePath,
+  //     compressFormat: ImageCompressFormat.jpg, // Or png
+  //     compressQuality: 90, // Adjust quality as needed
+  //     uiSettings: [
+  //       AndroidUiSettings(
+  //         toolbarTitle: 'Crop Image',
+  //         toolbarColor: Colors.grey[900], // Use a very dark toolbar
+  //         toolbarWidgetColor: Colors.white, // White icons and text on the toolbar
+  //         initAspectRatio: CropAspectRatioPreset.original,
+  //         lockAspectRatio: false,
+  //         // All other color/UI properties are reset to default by not specifying them
+  //       ),
+  //       IOSUiSettings(
+  //         title: 'Crop Image',
+  //         aspectRatioPickerButtonHidden: false,
+  //         resetAspectRatioEnabled: true,
+  //         aspectRatioLockEnabled: false,
+  //       ),
+  //     ],
+  //   );
+  // }
+
+  Future<File?> _navigateToExtendedCropper(XFile imageFile) async {
+    developer.log('ScanListPage: Navigating to ExtendedImageCropperScreen with ${imageFile.path}', name: 'ScanListPage');
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ExtendedImageCropperScreen(imageFile: imageFile),
+      ),
     );
+    developer.log('ScanListPage: Result from ExtendedImageCropperScreen: $result', name: 'ScanListPage');
+    if (result is File) {
+      return result;
+    }
+    return null;
   }
 
   Future<void> _pickAndProcessImage(ImageSource source) async {
+    developer.log('ScanListPage: _pickAndProcessImage started with source: $source', name: 'ScanListPage');
     setState(() {
       _isLoading = true;
       _processedXFile = null;
@@ -61,26 +85,32 @@ class _ScanListPageState extends State<ScanListPage> {
 
     try {
       final XFile? pickedFile = await _picker.pickImage(source: source);
+      developer.log('ScanListPage: Picked file: ${pickedFile?.path}', name: 'ScanListPage');
 
       if (pickedFile != null) {
         // Show a temporary display of the picked image before cropping
         setState(() {
           _displayImageFile = File(pickedFile.path); 
         });
+        developer.log('ScanListPage: Displaying picked file: ${pickedFile.path}', name: 'ScanListPage');
 
-        // Ask user to crop the image
-        final CroppedFile? croppedFile = await _cropImage(pickedFile.path);
+        // Ask user to crop the image using ExtendedImageCropperScreen
+        final File? croppedImageFile = await _navigateToExtendedCropper(pickedFile);
+        developer.log('ScanListPage: Cropped file from navigator: ${croppedImageFile?.path}', name: 'ScanListPage');
 
-        if (croppedFile != null) {
-          _processedXFile = XFile(croppedFile.path);
-          _displayImageFile = File(croppedFile.path); // Update display image to cropped one
+        if (croppedImageFile != null) {
+          _processedXFile = XFile(croppedImageFile.path);
+          _displayImageFile = croppedImageFile; // Update display image to cropped one
+          developer.log('ScanListPage: Set _processedXFile to ${croppedImageFile.path}', name: 'ScanListPage');
           setState(() {}); // Update UI to show cropped image before processing
 
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Processing cropped image: ${croppedFile.path.split('/').last}...')),
+            SnackBar(content: Text('Processing cropped image: ${croppedImageFile.path.split('/').last}...')),
           );
+          developer.log('ScanListPage: Processing cropped image: ${croppedImageFile.path}', name: 'ScanListPage');
           
           final String rawExtractedText = await _imageProcessingService.processImageForText(_processedXFile!);
+          developer.log('ScanListPage: Raw extracted text length: ${rawExtractedText.length}', name: 'ScanListPage');
           
           if (rawExtractedText.isNotEmpty) {
             final List<String> lines = rawExtractedText.split('\n');
@@ -97,6 +127,7 @@ class _ScanListPageState extends State<ScanListPage> {
               SnackBar(content: Text(processedItems.isNotEmpty ? "Text processed." : "No text found after parsing.")),
             );
           } else {
+            developer.log('ScanListPage: No text detected in the image.', name: 'ScanListPage');
             setState(() {
               _parsedListItems = ["No text detected in the image."];
               _isLoading = false;
@@ -106,17 +137,20 @@ class _ScanListPageState extends State<ScanListPage> {
             );
           }
         } else {
-          // User cancelled cropping
+          // User cancelled cropping or an error occurred in the cropper screen
           setState(() {
             _isLoading = false;
-            _displayImageFile = null; // Clear the initially picked image if cropping is cancelled
-            _errorMessage = 'Image cropping cancelled.';
+            // Keep the initially picked image displayed if cropping is cancelled, 
+            // or clear it if you prefer _displayImageFile = null;
+            _errorMessage = 'Image cropping cancelled or failed.';
           });
+          developer.log('ScanListPage: Image cropping cancelled or failed.', name: 'ScanListPage');
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Image cropping cancelled.')),
+            const SnackBar(content: Text('Image cropping cancelled or failed.')),
           );
         }
       } else {
+        developer.log('ScanListPage: No image selected.', name: 'ScanListPage');
         setState(() {
           _errorMessage = 'No image selected.';
           _isLoading = false;
@@ -125,7 +159,8 @@ class _ScanListPageState extends State<ScanListPage> {
           const SnackBar(content: Text('No image selected.')),
         );
       }
-    } catch (e) {
+    } catch (e, s) { // Added stack trace
+      developer.log('ScanListPage: Error in _pickAndProcessImage: $e\\n$s', name: 'ScanListPage', error: e, stackTrace: s);
       setState(() {
         _errorMessage = 'Error: $e';
         _isLoading = false;
@@ -138,6 +173,7 @@ class _ScanListPageState extends State<ScanListPage> {
 
   @override
   Widget build(BuildContext context) {
+    developer.log('ScanListPage: build method called. _displayImageFile: ${_displayImageFile?.path}, _isLoading: $_isLoading', name: 'ScanListPage');
     return Scaffold(
       appBar: AppBar(
         title: const Text('Scan New List'),
