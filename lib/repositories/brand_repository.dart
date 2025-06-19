@@ -12,6 +12,10 @@ abstract class IBrandRepository {
   Future<bool> deleteBrand(int id);
   // Future<void> addBrandToStore(int brandId, int storeId); // Example if needed
   // Future<void> removeBrandFromStore(int brandId, int storeId); // Example if needed
+
+  // Add methods for sub-brands and product lines if needed
+  Future<List<SubBrand>> getSubBrandsForBrand(int brandId);
+  Future<List<ProductLine>> getProductLinesForBrand(int brandId);
 }
 
 class BrandRepository implements IBrandRepository {
@@ -53,5 +57,19 @@ class BrandRepository implements IBrandRepository {
   @override
   Future<bool> deleteBrand(int id) async {
     return _brandBox.remove(id);
+  }
+
+  @override
+  Future<List<SubBrand>> getSubBrandsForBrand(int brandId) async {
+    // This requires a SubBrandRepository in a real app, but for now, we assume a box exists
+    // return _objectBoxHelper.subBrandBox.query(SubBrand_.brand.equals(brandId)).build().find();
+    throw UnimplementedError('Implement in SubBrandRepository');
+  }
+
+  @override
+  Future<List<ProductLine>> getProductLinesForBrand(int brandId) async {
+    // This requires a ProductLineRepository in a real app, but for now, we assume a box exists
+    // return _objectBoxHelper.productLineBox.query(ProductLine_.brand.equals(brandId)).build().find();
+    throw UnimplementedError('Implement in ProductLineRepository');
   }
 }
