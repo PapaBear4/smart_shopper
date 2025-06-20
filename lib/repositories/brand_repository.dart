@@ -14,6 +14,7 @@ import '../objectbox.g.dart';
 /// This interface defines the contract for brand-related data operations.
 /// Using an interface allows for multiple implementations (e.g., for production,
 /// testing, or different database backends) and promotes loose coupling.
+/// MARK: ABSTRACT
 abstract class IBrandRepository {
   /// Returns a stream of all brands, sorted by name.
   ///
@@ -52,14 +53,9 @@ abstract class IBrandRepository {
   // of the brand repository acknowledges the relationship with SubBrand and ProductLine.
   // However, the actual implementation logic belongs in their respective repositories
   // to maintain separation of concerns.
-
-  /// Fetches all sub-brands associated with a specific brand.
-  Future<List<SubBrand>> getSubBrandsForBrand(int brandId);
-
-  /// Fetches all product lines associated with a specific brand.
-  Future<List<ProductLine>> getProductLinesForBrand(int brandId);
 }
 
+// MARK: OBJECTBOX
 /// Concrete implementation of [IBrandRepository] using ObjectBox.
 ///
 /// This class handles the actual database operations for `Brand` entities.
@@ -72,8 +68,8 @@ class BrandRepository implements IBrandRepository {
   /// Creates an instance of [BrandRepository].
   ///
   /// Requires an [ObjectBoxHelper] to interact with the database.
-  BrandRepository(this._objectBoxHelper) { // Changed parameter type
-    _brandBox = _objectBoxHelper.brandBox; // Changed to use helper
+  BrandRepository(this._objectBoxHelper) {
+    _brandBox = _objectBoxHelper.brandBox;
   }
 
   @override
@@ -82,7 +78,10 @@ class BrandRepository implements IBrandRepository {
     // .watch() turns this into a stream that automatically emits a new list
     // when the underlying data changes. `triggerImmediately: true` ensures that
     // the stream emits the current data as soon as a listener subscribes.
-    final query = _brandBox.query().order(Brand_.name).watch(triggerImmediately: true);
+    final query = _brandBox
+        .query()
+        .order(Brand_.name)
+        .watch(triggerImmediately: true);
     return query.map((query) => query.find());
   }
 
@@ -123,35 +122,5 @@ class BrandRepository implements IBrandRepository {
     // Removes the Brand object with the specified ID from the box.
     // Returns true if an object was successfully removed, false otherwise.
     return _brandBox.remove(id);
-  }
-
-  /// Fetches all sub-brands associated with a specific brand.
-  ///
-  /// **Note:** This is a placeholder implementation. The actual logic for this
-  /// operation should be handled by the `SubBrandRepository` to keep concerns separated.
-  /// This method is included in the `IBrandRepository` to indicate the relationship
-  /// between Brand and SubBrand, but it delegates the call to the appropriate repository.
-  @override
-  Future<List<SubBrand>> getSubBrandsForBrand(int brandId) async {
-    // In a real application, you would inject or locate the SubBrandRepository
-    // and call its method, like so:
-    // `return _subBrandRepository.getSubBrandsForBrand(brandId);`
-    // For now, it throws an error to indicate it's not implemented here.
-    // return _objectBoxHelper.subBrandBox.query(SubBrand_.brand.equals(brandId)).build().find();
-    throw UnimplementedError('This logic should be implemented in SubBrandRepository.');
-  }
-
-  /// Fetches all product lines associated with a specific brand.
-  ///
-  /// **Note:** Similar to `getSubBrandsForBrand`, this is a placeholder.
-  /// The actual logic belongs in the `ProductLineRepository`.
-  @override
-  Future<List<ProductLine>> getProductLinesForBrand(int brandId) async {
-    // In a real application, you would inject or locate the ProductLineRepository
-    // and call its method, like so:
-    // `return _productLineRepository.getProductLinesForBrand(brandId);`
-    // For now, it throws an error to indicate it's not implemented here.
-    // return _objectBoxHelper.productLineBox.query(ProductLine_.brand.equals(brandId)).build().find();
-    throw UnimplementedError('This logic should be implemented in ProductLineRepository.');
   }
 }

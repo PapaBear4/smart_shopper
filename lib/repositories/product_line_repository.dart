@@ -6,6 +6,7 @@ import '../objectbox.g.dart';
 /// Defines the interface for product line data operations.
 /// This abstraction is crucial for decoupling the application logic
 /// from the database implementation, allowing for easier testing and maintenance.
+//MARK: ABSTRACT
 abstract class IProductLineRepository {
   /// Returns a stream of all product lines, sorted by name.
   /// The stream updates automatically when the data changes.
@@ -34,6 +35,7 @@ abstract class IProductLineRepository {
 
 /// Concrete implementation of [IProductLineRepository] using ObjectBox.
 /// This class handles all the CRUD operations for the [ProductLine] entity.
+//MARK: OBJECTBOX
 class ProductLineRepository implements IProductLineRepository {
   final ObjectBoxHelper _objectBoxHelper;
   late final Box<ProductLine> _productLineBox;

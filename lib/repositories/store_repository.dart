@@ -10,6 +10,7 @@ import '../objectbox.g.dart'; // Generated file containing ObjectBox query condi
 /// Using an interface is a best practice that allows for dependency injection and makes
 
 /// the application more testable by enabling mock implementations.
+/// MARK: ABSTRACT
 abstract class IStoreRepository {
   /// Retrieves a reactive stream of all grocery stores.
   ///
@@ -46,11 +47,21 @@ abstract class IStoreRepository {
   /// Returns a [Future] that completes with `true` if the deletion was successful,
   /// and `false` otherwise.
   Future<bool> deleteStore(int id);
+
+  /// Retrieves a list of stores that have a price entry for a product variant
+  /// with a matching base product name or variant name.
+  ///
+  /// Takes a [productName] (which can be a base product name or a variant name)
+  /// and returns a [Future] that completes with a list of [GroceryStore] objects
+  /// that have at least one [PriceEntry] linked to a [ProductVariant]
+  /// whose `baseProductName` or `name` matches the input.
+  Future<List<GroceryStore>> getStoresWithPriceEntryForProduct(String productName);
 }
 
 /// Concrete implementation of [IStoreRepository] using the ObjectBox database.
 ///
 /// This class handles the actual data storage and retrieval logic for [GroceryStore] entities.
+/// MARK: OBJECTBOX
 class StoreRepository implements IStoreRepository {
   final ObjectBoxHelper _objectBoxHelper;
   late final Box<GroceryStore> _storeBox;
@@ -99,7 +110,7 @@ class StoreRepository implements IStoreRepository {
     return _storeBox.put(store);
   }
 
-  /// Updates an existing store in the box.
+  /// Updates an an existing store in the box.
   @override
   Future<void> updateStore(GroceryStore store) async {
      // If the 'id' property of the `store` object is set and exists in the box,
@@ -113,5 +124,56 @@ class StoreRepository implements IStoreRepository {
     // `remove()` deletes the object with the specified ID.
     // It returns `true` if an object was found and removed, `false` otherwise.
     return _storeBox.remove(id);
+  }
+
+  /// Retrieves a list of stores that have a price entry for a product variant
+  /// with a matching base product name or variant name.
+  ///
+  /// This implementation is more efficient than fetching all stores and filtering
+  /// in memory. It uses queries to filter at the database level.
+  @override
+  Future<List<GroceryStore>> getStoresWithPriceEntryForProduct(String productName) async {
+    // 1. Find all product variants that match the given name (case-insensitive).
+    final productVariantBox = _objectBoxHelper.productVariantBox;
+    final matchingVariantsQuery = productVariantBox.query(
+      ProductVariant_.name.equals(productName, caseSensitive: false)
+      .or(ProductVariant_.baseProductName.equals(productName, caseSensitive: false))
+    );
+    final matchingVariantIds = matchingVariantsQuery.build().findIds();
+
+    // If no variants match, no stores will have price entries for them.
+    if (matchingVariantIds.isEmpty) {
+      return [];
+    }
+
+    // 2. Find all price entries linked to these matching variants.
+    final priceEntryBox = _objectBoxHelper.priceEntryBox;
+    final priceEntriesQuery = priceEntryBox.query(
+      PriceEntry_.productVariant.oneOf(matchingVariantIds)
+    );
+    final priceEntries = priceEntriesQuery.build().find();
+
+    // If no price entries exist for these variants, no stores are linked.
+    if (priceEntries.isEmpty) {
+      return [];
+    }
+
+    // 3. Get the unique store IDs from these price entries.
+    // Using a Set ensures that each store ID is listed only once.
+    final storeIds = priceEntries.map((pe) => pe.groceryStore.targetId).toSet();
+    
+    // Remove any invalid store IDs (targetId is 0 if not set).
+    storeIds.removeWhere((id) => id == 0);
+
+    // 4. Fetch the store objects by their unique IDs.
+    final storesWithNulls = _storeBox.getMany(storeIds.toList());
+    
+    // Filter out any nulls before sorting
+    final stores = storesWithNulls.whereType<GroceryStore>().toList();
+
+    // Sort the final list of stores alphabetically by name.
+    stores.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    
+    return stores;
   }
 }

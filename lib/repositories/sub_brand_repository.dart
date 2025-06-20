@@ -6,6 +6,7 @@ import '../objectbox.g.dart';
 /// Defines the interface for sub-brand data operations.
 /// This abstraction is key for a clean architecture, enabling features like
 /// dependency injection and easier unit testing with mock repositories.
+// MARK: ABSTRACT
 abstract class ISubBrandRepository {
   /// Returns a stream of all sub-brands, sorted by name.
   /// The stream automatically emits new data when changes occur in the database.
@@ -35,6 +36,7 @@ abstract class ISubBrandRepository {
 
 /// Concrete implementation of [ISubBrandRepository] using ObjectBox.
 /// This class manages all CRUD operations for the [SubBrand] entity.
+// MARK: OBJECTBOX
 class SubBrandRepository implements ISubBrandRepository {
   final ObjectBoxHelper _objectBoxHelper;
   late final Box<SubBrand> _subBrandBox;

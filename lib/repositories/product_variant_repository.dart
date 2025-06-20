@@ -12,6 +12,7 @@ import '../objectbox.g.dart';
 
 /// Abstract class defining the contract for a product variant repository.
 /// This interface specifies the methods that any class implementing it must provide.
+/// MARK: ABSTRACT
 abstract class IProductVariantRepository {
   /// Returns a stream of all product variants.
   /// The stream will emit a new list of variants whenever the data changes.
@@ -44,11 +45,15 @@ abstract class IProductVariantRepository {
 
   /// Searches for product variants based on a search term and optional brand ID.
   /// The search is case-insensitive and checks the variant's name and base product name.
-  Future<List<ProductVariant>> searchVariants(String searchTerm, {int? brandId});
+  Future<List<ProductVariant>> searchVariants(
+    String searchTerm, {
+    int? brandId,
+  });
 }
 
 /// Concrete implementation of the IProductVariantRepository interface.
 /// This class handles the actual database operations for product variants using ObjectBox.
+/// MARK: OBJECTBOX
 class ProductVariantRepository implements IProductVariantRepository {
   /// Instance of the ObjectBox helper class to interact with the database.
   final ObjectBoxHelper _objectBoxHelper;
@@ -66,7 +71,10 @@ class ProductVariantRepository implements IProductVariantRepository {
   /// The stream is configured to trigger immediately with the current data.
   @override
   Stream<List<ProductVariant>> getProductVariantsStream() {
-    final query = _variantBox.query().order(ProductVariant_.baseProductName).watch(triggerImmediately: true);
+    final query = _variantBox
+        .query()
+        .order(ProductVariant_.baseProductName)
+        .watch(triggerImmediately: true);
     return query.map((query) => query.find());
   }
 
@@ -75,7 +83,16 @@ class ProductVariantRepository implements IProductVariantRepository {
   @override
   Future<List<ProductVariant>> getAllProductVariants() async {
     final variants = _variantBox.getAll();
-    variants.sort((a, b) => a.baseProductName.toLowerCase().compareTo(b.baseProductName.toLowerCase()));
+    variants.sort((a, b) {
+      final baseNameComparison = a.baseProductName.toLowerCase().compareTo(
+        b.baseProductName.toLowerCase(),
+      );
+      if (baseNameComparison != 0) {
+        return baseNameComparison;
+      }
+      // If base names are the same, sort by variant name
+      return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+    });
     return variants;
   }
 
@@ -110,8 +127,13 @@ class ProductVariantRepository implements IProductVariantRepository {
   /// Finds all product variants that have a specific base product name.
   /// This is useful for grouping different variations of the same product.
   @override
-  Future<List<ProductVariant>> findVariantsByBaseName(String baseProductName) async {
-    final query = _variantBox.query(ProductVariant_.baseProductName.equals(baseProductName)).build();
+  Future<List<ProductVariant>> findVariantsByBaseName(
+    String baseProductName,
+  ) async {
+    final query =
+        _variantBox
+            .query(ProductVariant_.baseProductName.equals(baseProductName))
+            .build();
     return query.find();
   }
 
@@ -119,16 +141,20 @@ class ProductVariantRepository implements IProductVariantRepository {
   /// The brand is identified by its ID.
   @override
   Future<List<ProductVariant>> findVariantsByBrand(int brandId) async {
-    final query = _variantBox.query(ProductVariant_.brand.equals(brandId)).build();
+    final query =
+        _variantBox.query(ProductVariant_.brand.equals(brandId)).build();
     return query.find();
   }
 
   /// Searches for product variants using a search term and an optional brand ID.
   /// This allows for flexible filtering of the product variants.
   @override
-  Future<List<ProductVariant>> searchVariants(String searchTerm, {int? brandId}) async {
+  Future<List<ProductVariant>> searchVariants(
+    String searchTerm, {
+    int? brandId,
+  }) async {
     final lowerSearchTerm = searchTerm.toLowerCase();
-    
+
     // Start building a query for ProductVariant objects.
     QueryBuilder<ProductVariant> queryBuilder = _variantBox.query();
     Condition<ProductVariant>? searchCondition;
@@ -136,10 +162,16 @@ class ProductVariantRepository implements IProductVariantRepository {
 
     // If a search term is provided, create a condition to search by name and base product name.
     if (lowerSearchTerm.isNotEmpty) {
-      searchCondition = ProductVariant_.name.contains(lowerSearchTerm, caseSensitive: false)
-          .or(ProductVariant_.baseProductName.contains(lowerSearchTerm, caseSensitive: false));
-          // Additional fields can be added to the search condition if needed.
-          // e.g., .or(ProductVariant_.flavor.contains(lowerSearchTerm, caseSensitive: false))
+      searchCondition = ProductVariant_.name
+          .contains(lowerSearchTerm, caseSensitive: false)
+          .or(
+            ProductVariant_.baseProductName.contains(
+              lowerSearchTerm,
+              caseSensitive: false,
+            ),
+          );
+      // Additional fields can be added to the search condition if needed.
+      // e.g., .or(ProductVariant_.flavor.contains(lowerSearchTerm, caseSensitive: false))
     }
 
     // If a brand ID is provided, create a condition to filter by that brand.
