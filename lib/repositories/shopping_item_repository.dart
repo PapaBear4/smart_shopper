@@ -1,152 +1,169 @@
+// Import necessary async library for Stream support.
 import 'dart:async';
-import '../models/models.dart';
-import '../objectbox_helper.dart'; // Changed from objectbox.dart
-import '../objectbox.g.dart'; // Required for generated query conditions like ShoppingItem_.shoppingList
 
-// Interface definition
+// Import the data models used by this repository.
+import '../models/models.dart';
+
+// Import the ObjectBox helper for database interaction.
+import '../objectbox_helper.dart'; 
+
+// Import the generated ObjectBox file for query builders and conditions.
+import '../objectbox.g.dart'; 
+
+/// Abstract interface for a shopping item repository.
+/// It defines the contract for managing ShoppingItem entities,
+/// decoupling the application logic from the specific database implementation.
 abstract class IShoppingItemRepository {
+  /// Retrieves a stream of shopping items for a specific shopping list.
+  /// The stream updates automatically when items in the list change.
+  /// [listId]: The ID of the shopping list whose items are to be fetched.
   Stream<List<ShoppingItem>> getItemsStream(int listId);
+
+  /// Adds a new shopping item to a specific shopping list.
+  /// [item]: The ShoppingItem object to add.
+  /// [listId]: The ID of the shopping list to which the item should be added.
+  /// Returns the ID of the newly created item.
   Future<int> addItem(ShoppingItem item, int listId);
+
+  /// Updates an existing shopping item.
+  /// [item]: The shopping item with updated information.
   Future<void> updateItem(ShoppingItem item);
+
+  /// Deletes a shopping item by its ID.
+  /// [id]: The unique ID of the item to delete.
+  /// Returns true if the deletion was successful, false otherwise.
   Future<bool> deleteItem(int id);
-  Future<ShoppingList?> getShoppingList(
-    int listId,
-  ); // Helper to get list details
-  Future<void> updateItems(List<ShoppingItem> items); // Add this
-  // Add new method for fetching items by store
+
+  /// Retrieves the parent ShoppingList object.
+  /// This can be useful for displaying list details, like its name.
+  /// [listId]: The ID of the shopping list to retrieve.
+  Future<ShoppingList?> getShoppingList(int listId);
+
+  /// Updates a list of shopping items in a single batch operation.
+  /// [items]: The list of ShoppingItem objects to update.
+  Future<void> updateItems(List<ShoppingItem> items);
+
+  /// Retrieves a stream of shopping items filtered by a specific store.
+  /// This is used to see all items that can be purchased at a given store.
+  /// [storeId]: The ID of the store to filter by.
   Stream<List<ShoppingItem>> getItemsForStoreStream(int storeId);
 }
 
-// Implementation using ObjectBox
+/// Concrete implementation of [IShoppingItemRepository] using ObjectBox.
+/// This class handles all the database operations for ShoppingItem entities.
 class ShoppingItemRepository implements IShoppingItemRepository {
-  final ObjectBoxHelper _objectBoxHelper; // Changed type
+  final ObjectBoxHelper _objectBoxHelper;
   late final Box<ShoppingItem> _itemBox;
-  late final Box<ShoppingList> _listBox; // Needed to fetch list details
+  late final Box<ShoppingList> _listBox;
 
-  ShoppingItemRepository(this._objectBoxHelper) { // Changed parameter type
-    _itemBox = _objectBoxHelper.shoppingItemBox; // Changed to use helper
-    _listBox = _objectBoxHelper.shoppingListBox; // Changed to use helper
+  /// Constructor that takes an [ObjectBoxHelper] instance.
+  /// Initializes the necessary ObjectBox 'boxes' for items and lists.
+  ShoppingItemRepository(this._objectBoxHelper) {
+    _itemBox = _objectBoxHelper.shoppingItemBox;
+    _listBox = _objectBoxHelper.shoppingListBox;
   }
 
+  /// Provides a stream of items for a given shopping list, sorted with incomplete items first.
   @override
   Stream<List<ShoppingItem>> getItemsStream(int listId) {
-    // Query for items where the 'shoppingList' relation targets the given listId
+    // Create a query for ShoppingItems where the 'shoppingList' relation points to the given listId.
     final builder = _itemBox.query(ShoppingItem_.shoppingList.equals(listId));
 
-    // Watch the query for changes, triggering immediately
+    // Watch the query for changes. `triggerImmediately: true` ensures the stream emits the current data right away.
     final queryStream = builder.watch(triggerImmediately: true);
 
-    // Map the stream of queries to a stream of lists of items
+    // Map the stream of Query<ShoppingItem> to a stream of List<ShoppingItem>.
     return queryStream.map((query) {
-      // Find the items for the current query result
+      // Execute the query to get the current list of items.
       final items = query.find();
 
-      // No longer fetch or attach price entries to ShoppingItem
-
-      // Sort the list IN PLACE using a custom comparison function
+      // Sort the list of items in place.
       items.sort((a, b) {
-        // Manually compare boolean 'isCompleted' status
+        // First, compare by completion status.
         int completedCompare;
         if (a.isCompleted == b.isCompleted) {
-          completedCompare = 0; // Both are same (both true or both false)
+          completedCompare = 0; // Both are the same.
         } else if (a.isCompleted) {
-          // 'a' is true (completed), 'b' is false (incomplete)
-          // Completed items should come AFTER incomplete ones.
-          completedCompare = 1; // a > b
+          // 'a' is completed, 'b' is not. Completed items go to the bottom.
+          completedCompare = 1; 
         } else {
-          // 'a' is false (incomplete), 'b' is true (completed)
-          // Incomplete items should come BEFORE completed ones.
-          completedCompare = -1; // a < b
+          // 'a' is incomplete, 'b' is completed. Incomplete items go to the top.
+          completedCompare = -1;
         }
 
-        // If completion status is different, return that result
+        // If completion status is different, sort by it.
         if (completedCompare != 0) {
           return completedCompare;
         } else {
-          // Otherwise (if completion status is the same), sort by name
-          // String DOES have compareTo, so this part is correct.
+          // If completion status is the same, sort alphabetically by name.
           return a.name.toLowerCase().compareTo(b.name.toLowerCase());
         }
       });
 
-      // Return the now-sorted list
       return items;
     });
   }
 
-  // New method to get items for a specific store
+  /// Provides a stream of items available at a specific store, sorted with incomplete items first.
   @override
   Stream<List<ShoppingItem>> getItemsForStoreStream(int storeId) {
     final queryBuilder = _itemBox.query();
-    // Link to the GroceryStore entity through the groceryStores ToMany relation
-    // and filter by the store's ID.
+    // Link from ShoppingItem to GroceryStore via the 'groceryStores' relation
+    // and filter for items linked to the specified storeId.
     queryBuilder.linkMany(ShoppingItem_.groceryStores, GroceryStore_.id.equals(storeId));
 
     final queryStream = queryBuilder.watch(triggerImmediately: true);
 
     return queryStream.map((query) {
       final items = query.find();
-      // No longer fetch or attach price entries to ShoppingItem
-
-      // Sort items: incomplete first, then by name (same logic as in getItemsStream)
+      
+      // Sort items using the same logic as in getItemsStream: incomplete first, then by name.
       items.sort((a, b) {
-        int completedCompare;
         if (a.isCompleted == b.isCompleted) {
-          completedCompare = 0;
-        } else if (a.isCompleted) {
-          completedCompare = 1;
-        } else {
-          completedCompare = -1;
-        }
-        if (completedCompare != 0) {
-          return completedCompare;
-        } else {
           return a.name.toLowerCase().compareTo(b.name.toLowerCase());
         }
+        return a.isCompleted ? 1 : -1;
       });
       return items;
     });
   }
   
+  /// Adds a new item to the database and associates it with a shopping list.
   @override
   Future<int> addItem(ShoppingItem item, int listId) async {
+    // Set the target ID for the ToOne relationship to the shopping list.
     item.shoppingList.targetId = listId;
-    try {
-      final id = _itemBox.put(item);
-      return id;
-    } catch (e) {
-      // Capture stack trace (s)
-      rethrow;
-    }
+    // The `put` method inserts the new item and returns its assigned ID.
+    final id = _itemBox.put(item);
+    return id;
   }
 
+  /// Updates an existing item in the database.
   @override
   Future<void> updateItem(ShoppingItem item) async {
-    // Put handles both inserts and updates based on the ID.
-    // Ensure item.id is correctly set before calling update.
-    // Any changes to the item's fields (name, quantity, isCompleted)
-    // or its ToMany<GroceryStore> link will be persisted.
+    // The `put` method handles both inserts and updates. If the item's ID is set,
+    // ObjectBox will update the existing record.
     _itemBox.put(item);
   }
 
+  /// Deletes an item from the database.
   @override
   Future<bool> deleteItem(int id) async {
-    // remove() returns true if an object with the given ID was found and removed.
+    // The `remove` method returns true if an object with the given ID was found and removed.
     return _itemBox.remove(id);
-    // Note: This doesn't automatically handle cleanup in related objects unless
-    // specifically designed for (e.g., removing item ID from a list elsewhere).
-    // For ObjectBox relations, simply removing the item is usually sufficient.
   }
 
-  // Helper method to get the parent shopping list details if needed (e.g., for AppBar title)
+  /// Retrieves details of the parent shopping list.
   @override
   Future<ShoppingList?> getShoppingList(int listId) async {
+    // The `get` method retrieves a single object by its ID.
     return _listBox.get(listId);
   }
 
+  /// Efficiently updates multiple items in the database.
   @override
   Future<void> updateItems(List<ShoppingItem> items) async {
-    // Use putMany for efficiency if updating multiple items
+    // `putMany` is more efficient for batch operations than calling `put` in a loop.
     _itemBox.putMany(items);
   }
 }

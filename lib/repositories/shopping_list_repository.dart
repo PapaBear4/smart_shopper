@@ -1,169 +1,145 @@
-import 'package:smart_shopper/objectbox.g.dart';
-import '../models/models.dart'; // Uses the barrel file
-import '../objectbox_helper.dart'; // Changed from objectbox.dart
-import 'dart:developer';
-import 'package:flutter/foundation.dart';
-import 'dart:async'; // Import for StreamController
+// Import necessary libraries and files.
+import 'package:smart_shopper/objectbox.g.dart'; // ObjectBox generated file for queries.
+import '../models/models.dart'; // Barrel file for data models.
+import '../objectbox_helper.dart'; // Helper class for ObjectBox initialization and access.
+import 'dart:developer'; // For logging, typically used during development.
+import 'package:flutter/foundation.dart'; // For checking build mode (e.g., kReleaseMode).
+import 'dart:async'; // For asynchronous programming, especially StreamController.
 
-// Define an interface (abstract class) for testability/mocking
+/// Abstract interface for the shopping list repository.
+///
+/// Defines a contract for data operations related to [ShoppingList] entities.
+/// Using an interface allows for easier testing and dependency injection, as the
+/// concrete implementation can be swapped with a mock version.
 abstract class IShoppingListRepository {
-  Stream<List<ShoppingList>> getAllListsStream(); // Get lists reactively
-  Future<List<ShoppingList>> getAllLists(); // Add this non-stream method
-  Future<ShoppingList?> getListById(int id); // Added method
+  /// Retrieves a reactive stream of all shopping lists.
+  /// The stream will automatically emit a new list of [ShoppingList] whenever data changes.
+  Stream<List<ShoppingList>> getAllListsStream();
+
+  /// Retrieves a one-time list of all shopping lists as a [Future].
+  /// This is useful when you need the data once and don't need to listen for changes.
+  Future<List<ShoppingList>> getAllLists();
+
+  /// Retrieves a single shopping list by its unique ID.
+  /// Returns `null` if no list is found with the given [id].
+  Future<ShoppingList?> getListById(int id);
+
+  /// Adds a new [ShoppingList] to the database.
+  /// Returns the ID assigned to the new list.
   Future<int> addList(ShoppingList list);
+
+  /// Deletes a shopping list from the database by its ID.
+  /// Returns `true` if the deletion was successful, `false` otherwise.
   Future<bool> deleteList(int id);
-  Future<void> updateList(ShoppingList list); // For renaming
-  int getCount(); // Add this to interface for consistency
+
+  /// Updates an existing shopping list (e.g., for renaming).
+  Future<void> updateList(ShoppingList list);
+
+  /// Returns the total number of shopping lists in the database.
+  /// Useful for debugging or displaying statistics.
+  int getCount();
 }
 
-// Concrete implementation using ObjectBox
+/// Concrete implementation of [IShoppingListRepository] using ObjectBox as the database.
 class ShoppingListRepository implements IShoppingListRepository {
-  final ObjectBoxHelper _objectBoxHelper; // Changed type
+  final ObjectBoxHelper _objectBoxHelper;
   late final Box<ShoppingList> _listBox;
-  // Track if the box has been initialized properly
-  bool _isReady = false;
+  bool _isReady = false; // Flag to track if the repository is properly initialized.
 
-  ShoppingListRepository(this._objectBoxHelper) { // Changed parameter type
+  /// Constructor for the repository.
+  ///
+  /// Takes an [ObjectBoxHelper] to establish a connection with the database.
+  /// It initializes the [_listBox] and sets the [_isReady] flag.
+  ShoppingListRepository(this._objectBoxHelper) {
     try {
-      _listBox = _objectBoxHelper.shoppingListBox; // Changed to use helper
+      _listBox = _objectBoxHelper.shoppingListBox;
       _isReady = true;
-      
+
       if (!kReleaseMode) {
-        log('ShoppingListRepository: Initialized with box count: ${_listBox.count()}', 
-            name: 'ShoppingListRepository');
+        log('ShoppingListRepository: Initialized with box count: ${_listBox.count()}', name: 'ShoppingListRepository');
       }
-      
-      // Perform an initial query to "warm up" the repository
-      _getInitialLists();
+      _getInitialLists(); // "Warm up" the repository with an initial data fetch.
     } catch (e, s) {
       _isReady = false;
       if (!kReleaseMode) {
-        log('ShoppingListRepository: Error initializing repository', 
-            name: 'ShoppingListRepository', error: e, stackTrace: s);
+        log('ShoppingListRepository: Error initializing repository', name: 'ShoppingListRepository', error: e, stackTrace: s);
       }
     }
   }
   
-  // Method to check the count (used for debugging)
+  /// Returns the current count of lists in the box.
   @override
   int getCount() {
     if (!_isReady) return 0;
-    
     try {
       return _listBox.count();
     } catch (e) {
       if (!kReleaseMode) {
-        log('ShoppingListRepository: Error getting count', 
-            name: 'ShoppingListRepository', error: e);
+        log('ShoppingListRepository: Error getting count', name: 'ShoppingListRepository', error: e);
       }
       return 0;
     }
   }
   
-  // Private helper to query lists initially
+  /// Private helper to perform the initial fetch of lists.
   List<ShoppingList> _getInitialLists() {
     if (!_isReady) return [];
-    
     try {
       final lists = _listBox.getAll();
       if (!kReleaseMode) {
-        log('ShoppingListRepository: Initial query found ${lists.length} lists', 
-            name: 'ShoppingListRepository');
+        log('ShoppingListRepository: Initial query found ${lists.length} lists', name: 'ShoppingListRepository');
       }
       return lists;
     } catch (e) {
       if (!kReleaseMode) {
-        log('ShoppingListRepository: Error getting initial lists', 
-            name: 'ShoppingListRepository', error: e);
+        log('ShoppingListRepository: Error getting initial lists', name: 'ShoppingListRepository', error: e);
       }
       return [];
     }
   }
 
+  /// Provides a stream of all shopping lists.
   @override
   Stream<List<ShoppingList>> getAllListsStream() {
     if (!kReleaseMode) {
-      log('ShoppingListRepository: Creating lists stream',
-          name: 'ShoppingListRepository');
+      log('ShoppingListRepository: Creating lists stream', name: 'ShoppingListRepository');
     }
     
-    // Create a StreamController for more controlled emission
+    // Using a StreamController for more fine-grained control over the stream.
     final controller = StreamController<List<ShoppingList>>();
     
-    // Handle the initial emission
     if (!_isReady) {
       if (!kReleaseMode) {
-        log('ShoppingListRepository: Box not ready, emitting empty list',
-            name: 'ShoppingListRepository');
+        log('ShoppingListRepository: Box not ready, emitting empty list', name: 'ShoppingListRepository');
       }
-      controller.add([]); // Emit empty list if not ready
+      controller.add([]);
     } else {
       try {
-        // Safely get initial data
-        final initialLists = _getInitialLists();
-        controller.add(initialLists);
+        // Add the initial data to the stream immediately.
+        controller.add(_getInitialLists());
         
-        if (!kReleaseMode) {
-          log('ShoppingListRepository: Initial stream emission with ${initialLists.length} lists',
-              name: 'ShoppingListRepository');
-        }
-        
-        // Try to set up the watcher safely
-        try {
-          // Create a query builder
-          final queryBuilder = _listBox.query(); // No build() here yet
-          
-          // Watch the query builder for changes
-          final subscription = queryBuilder.watch(triggerImmediately: true).listen((query) {
+        // Set up the ObjectBox watcher to listen for database changes.
+        final subscription = _listBox.query().watch(triggerImmediately: true).listen((query) {
+          try {
+            final lists = query.find(); 
             if (!kReleaseMode) {
-              log('ShoppingListRepository: Query change detected or initial trigger',
-                  name: 'ShoppingListRepository');
+              log('ShoppingListRepository: Stream emitting ${lists.length} lists', name: 'ShoppingListRepository');
             }
-            
-            try {
-              // Find the results from the latest query state
-              final lists = query.find(); 
-              if (!kReleaseMode) {
-                log('ShoppingListRepository: Stream emitting ${lists.length} lists',
-                    name: 'ShoppingListRepository');
-              }
-              if (!controller.isClosed) {
-                controller.add(lists);
-              }
-            } catch (e) {
-              if (!kReleaseMode) {
-                log('ShoppingListRepository: Error finding lists from query event',
-                    name: 'ShoppingListRepository', error: e);
-              }
-              // Handle error properly in both release and debug builds
-              if (!controller.isClosed) {
-                controller.addError(e);
-              }
+            if (!controller.isClosed) {
+              controller.add(lists);
             }
-          });
-          
-          // Clean up when the stream is done
-          controller.onCancel = () {
-            subscription.cancel();
-            // No need to close the query explicitly here, cancelling the subscription handles it.
-          };
-        } catch (e) {
-          if (!kReleaseMode) {
-            log('ShoppingListRepository: Error setting up watcher',
-                name: 'ShoppingListRepository', error: e);
+          } catch (e) {
+            if (!controller.isClosed) {
+              controller.addError(e);
+            }
           }
-          // Keep the controller alive even if watcher setup fails
-          // We've already added the initial list
-          if (!controller.isClosed) {
-            controller.addError(e);
-          }
-        }
+        });
+        
+        // Clean up the subscription when the listener is cancelled.
+        controller.onCancel = () {
+          subscription.cancel();
+        };
       } catch (e) {
-        if (!kReleaseMode) {
-          log('ShoppingListRepository: Error during stream setup',
-              name: 'ShoppingListRepository', error: e);
-        }
-        controller.add([]);
         if (!controller.isClosed) {
           controller.addError(e);
         }
@@ -173,25 +149,21 @@ class ShoppingListRepository implements IShoppingListRepository {
     return controller.stream;
   }
 
-  /// Gets all shopping lists as a Future
-  /// This provides immediate access to data without stream subscription
+  /// Fetches all shopping lists as a one-time operation.
   @override
   Future<List<ShoppingList>> getAllLists() async {
     if (!_isReady) return [];
     try {
-      final lists = _listBox.getAll();
-      // Optional: sort if needed, though stream already sorts by name
-      // lists.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-      return lists;
+      return _listBox.getAll();
     } catch (e) {
       if (!kReleaseMode) {
-        log('ShoppingListRepository: Error in getAllLists', 
-            name: 'ShoppingListRepository', error: e);
+        log('ShoppingListRepository: Error in getAllLists', name: 'ShoppingListRepository', error: e);
       }
       return [];
     }
   }
 
+  /// Fetches a single shopping list by its ID.
   @override
   Future<ShoppingList?> getListById(int id) async {
     if (!_isReady) return null;
@@ -199,87 +171,70 @@ class ShoppingListRepository implements IShoppingListRepository {
       return _listBox.get(id);
     } catch (e) {
       if (!kReleaseMode) {
-        log('ShoppingListRepository: Error in getListById for id: $id', 
-            name: 'ShoppingListRepository', error: e);
+        log('ShoppingListRepository: Error in getListById for id: $id', name: 'ShoppingListRepository', error: e);
       }
       return null;
     }
   }
 
+  /// Adds a new list to the database.
   @override
   Future<int> addList(ShoppingList list) async {
     if (!_isReady) {
-      if (!kReleaseMode) {
-        log('ShoppingListRepository: Cannot add list, box not ready', 
-            name: 'ShoppingListRepository');
-      }
       throw StateError('Repository not initialized properly');
     }
     
     try {
+      // `put` inserts the new object and returns its ID.
       final id = _listBox.put(list);
       if (!kReleaseMode) {
-        log('ShoppingListRepository: Added list "${list.name}" with ID $id',
-            name: 'ShoppingListRepository');
+        log('ShoppingListRepository: Added list "${list.name}" with ID $id', name: 'ShoppingListRepository');
       }
       return id;
     } catch (e) {
       if (!kReleaseMode) {
-        log('ShoppingListRepository: Error adding list: $e',
-            name: 'ShoppingListRepository');
+        log('ShoppingListRepository: Error adding list: $e', name: 'ShoppingListRepository');
       }
-      rethrow; // Re-throw the error so the Cubit can catch it
+      rethrow; // Re-throw to allow the calling layer (Cubit) to handle the error.
     }
   }
 
+  /// Deletes a list from the database.
   @override
   Future<bool> deleteList(int id) async {
-    if (!_isReady) {
-      if (!kReleaseMode) {
-        log('ShoppingListRepository: Cannot delete list, box not ready', 
-            name: 'ShoppingListRepository');
-      }
-      return false;
-    }
+    if (!_isReady) return false;
     
     try {
-      // remove() returns true if an object was removed
+      // `remove` returns true if an object with the given ID was found and removed.
       final result = _listBox.remove(id);
       if (!kReleaseMode) {
-        log('ShoppingListRepository: Deleted list ID $id, success: $result',
-            name: 'ShoppingListRepository');
+        log('ShoppingListRepository: Deleted list ID $id, success: $result', name: 'ShoppingListRepository');
       }
       return result;
     } catch (e) {
       if (!kReleaseMode) {
-        log('ShoppingListRepository: Error deleting list: $e',
-            name: 'ShoppingListRepository');
+        log('ShoppingListRepository: Error deleting list: $e', name: 'ShoppingListRepository');
       }
       return false;
     }
   }
 
+  /// Updates an existing list in the database.
   @override
   Future<void> updateList(ShoppingList list) async {
     if (!_isReady) {
-      if (!kReleaseMode) {
-        log('ShoppingListRepository: Cannot update list, box not ready', 
-            name: 'ShoppingListRepository');
-      }
       throw StateError('Repository not initialized properly');
     }
     
     try {
-      // put() also updates if the object ID already exists
+      // `put` also updates an object if its ID already exists in the box.
       _listBox.put(list);
       if (!kReleaseMode) {
-        log('ShoppingListRepository: Updated list ID ${list.id}',
-            name: 'ShoppingListRepository');
+        log('ShoppingListRepository: Updated list ID ${list.id}', name: 'ShoppingListRepository');
       }
     } catch (e) {
       if (!kReleaseMode) {
-        log('ShoppingListRepository: Error updating list: $e',
-            name: 'ShoppingListRepository');
+        log('ShoppingListRepository: Error updating list: $e', name: 'ShoppingListRepository');
       }
       rethrow;
     }

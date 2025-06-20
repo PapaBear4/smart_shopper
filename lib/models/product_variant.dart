@@ -1,63 +1,90 @@
+// Import the ObjectBox library for database entity annotations.
 import 'package:objectbox/objectbox.dart';
-import 'brand.dart'; // For ToOne<Brand>
-import 'shopping_list.dart'; // Import for ToMany<ShoppingList>
-import 'price_entry.dart'; // Import for ToMany<PriceEntry>
-import 'grocery_store.dart'; // Import for ToMany<GroceryStore>
+
+// Import related model classes to define relationships.
+import 'brand.dart'; // Required for the ToOne<Brand> relationship.
+import 'shopping_list.dart'; // Required for the ToMany<ShoppingList> backlink.
+import 'price_entry.dart'; // Required for the ToMany<PriceEntry> backlink.
+import 'grocery_store.dart'; // Required for the ToMany<GroceryStore> backlink.
 
 /// Represents a specific version or variant of a product.
 ///
-/// For example, "Welch's Grape Jelly 12oz" is a specific variant of the
-/// base product "Jelly". This class captures detailed attributes of a product
-/// beyond its general name, including size, packaging, dietary information, etc.
+/// This class is an ObjectBox `@Entity`, meaning it's a persistable object in the database.
+/// It's designed to capture the detailed attributes of a product beyond its general name.
+/// For instance, "Welch's Grape Jelly 12oz" would be a `ProductVariant` of the
+/// base product "Jelly". This allows for precise tracking of different sizes,
+/// flavors, packaging, and dietary characteristics.
 @Entity()
 class ProductVariant {
-  /// The unique identifier for the product variant.
-  /// This is automatically assigned by ObjectBox.
+  /// The unique identifier for this product variant in the ObjectBox database.
+  /// The `@Id()` annotation marks this as the primary key.
+  /// It is automatically assigned and managed by ObjectBox when a new variant is added.
   @Id()
   int id = 0;
 
-  /// The full descriptive name of the product variant (e.g., "Welch's Grape Jelly 12oz").
+  /// The full, descriptive name of the product variant.
+  /// This should be specific enough to distinguish it from other variants.
+  /// Example: "Welch's Concord Grape Jelly Squeezable Bottle".
   String name;
 
-  /// The general or base name of the product (e.g., "Jelly", "Peanut Butter").
-  /// This helps in grouping similar variants.
+  /// The general or base category name of the product.
+  /// This field is useful for grouping similar variants together.
+  /// Example: "Jelly", "Peanut Butter", "Soda".
   String baseProductName;
 
-  /// The Universal Product Code (UPC) of the variant, if available
-  // TODO: Consider adding EAN-13 or other barcode formats (and business logic)
+  /// The Universal Product Code (UPC) for this specific variant.
+  /// This is often a scannable barcode number. It is nullable as not all products may have one.
+  // TODO: Consider expanding to support other barcode formats like EAN-13 and adding related business logic.
   String? upcCode;
 
-  // General Product Characteristics
-  /// The form of the product (e.g., "Sliced", "Whole", "Diced", "Powder", "Liquid").
+  // --- General Product Characteristics ---
+
+  /// Describes the physical form of the product.
+  /// Example: "Sliced", "Whole", "Diced", "Powder", "Liquid".
   String? form;
 
-  /// The numeric quantity of the product in this package, used for calculations (e.g., 340.0 for 340g).
+  /// The numeric quantity of the product contained in the package.
+  /// This should be used for precise calculations and comparisons.
+  /// Example: 340.0 (for 340g).
   double? packagedQuantity;
-  /// The standardized unit for packagedQuantity (e.g., "g", "ml", "oz_fl", "oz_wt", "count").
+
+  /// The standardized unit of measurement for the `packagedQuantity`.
+  /// Using a consistent set of units is recommended (e.g., "g", "ml", "oz_fl", "oz_wt", "count").
   String? packagedUnit;
-  /// A user-friendly string describing the package size (e.g., "12oz (340g)", "6-pack", "Family Size").
-  /// This is primarily for display purposes.
+
+  /// A user-friendly string that describes the package size.
+  /// This is primarily intended for display in the user interface.
+  /// Example: "12oz (340g)", "6-pack", "Family Size".
   String? displayPackageSize;
 
-  /// The type of container (e.g., "Bottle", "Can", "Jar", "Box", "Bag").
+  /// The type of container the product comes in.
+  /// Example: "Bottle", "Can", "Jar", "Box", "Bag".
   String? containerType;
-  /// Preparation instructions or type (e.g., "Ready-to-eat", "Cook & Serve", "Frozen").
+
+  /// Instructions or type of preparation required.
+  /// Example: "Ready-to-eat", "Cook & Serve", "Frozen".
   String? preparation;
-  /// Maturity level, typically for produce (e.g., "Ripe", "Green").
+
+  /// The maturity level, typically used for fresh produce.
+  /// Example: "Ripe", "Green".
   String? maturity;
-  /// Grade or quality, often for meats or eggs (e.g., "Grade A", "Choice").
+
+  /// The quality grade, often used for products like meat or eggs.
+  /// Example: "Grade A", "USDA Choice".
   String? grade;
 
-  // Dietary & Health Attributes
+  // --- Dietary & Health Attributes ---
+  // These boolean flags help users filter products based on dietary needs.
+
   /// Indicates if the product is certified organic. Defaults to `false`.
   bool isOrganic = false;
   /// Indicates if the product is gluten-free. Defaults to `false`.
   bool isGlutenFree = false;
   /// Indicates if the product is non-GMO. Defaults to `false`.
   bool isNonGMO = false;
-  /// Indicates if the product is vegan. Defaults to `false`.
+  /// Indicates if the product is suitable for vegans. Defaults to `false`.
   bool isVegan = false;
-  /// Indicates if the product is vegetarian. Defaults to `false`.
+  /// Indicates if the product is suitable for vegetarians. Defaults to `false`.
   bool isVegetarian = false;
   /// Indicates if the product is dairy-free. Defaults to `false`.
   bool isDairyFree = false;
@@ -79,75 +106,84 @@ class ProductVariant {
   bool isLowCarb = false;
   /// Indicates if the product is high in protein. Defaults to `false`.
   bool isHighProtein = false;
-  /// Indicates if the product is whole grain. Defaults to `false`.
+  /// Indicates if the product is made with whole grain. Defaults to `false`.
   bool isWholeGrain = false;
   /// Indicates if the product has no added sugar. Defaults to `false`.
   bool hasNoAddedSugar = false;
   /// Indicates if the product contains artificial sweeteners. Defaults to `false`.
   bool hasArtificialSweeteners = false;
-  /// A list of allergen information strings (e.g., ["Contains Peanuts"]).
 
+  /// A list of strings containing allergen information.
+  /// Example: ["Contains Peanuts", "Processed in a facility with tree nuts"].
   List<String> allergenInfo = [];
 
-  // Flavor & Ingredient Specifics
-  /// The primary flavor of the product (e.g., "Grape", "Strawberry").
+  // --- Flavor & Ingredient Specifics ---
+
+  /// The primary flavor of the product.
+  /// Example: "Grape", "Strawberry", "Original".
   String? flavor;
-  /// The primary scent of the product, if applicable.
+  /// The primary scent of the product, if applicable (e.g., for cleaning supplies).
   String? scent;
-  /// The color of the product, if relevant.
+  /// The color of the product, if it's a relevant attribute.
   String? color;
   /// The main ingredient of the product.
   String? mainIngredient;
-  /// A list of secondary or notable ingredients.
+  /// A list of secondary or otherwise notable ingredients.
   List<String> secondaryIngredients = [];
-  /// The spiciness level, if applicable (e.g., "Mild", "Medium", "Hot").
+  /// The level of spiciness, if applicable.
+  /// Example: "Mild", "Medium", "Hot", "Extra Hot".
   String? spicinessLevel;
-  /// Caffeine content information (e.g., "Caffeinated", "Decaf").
+  /// Information about caffeine content.
+  /// Example: "Caffeinated", "Decaffeinated".
   String? caffeineContent;
-  /// Alcohol content information (e.g., "5% ABV", "Non-alcoholic").
+  /// Information about alcohol content.
+  /// Example: "5% ABV", "Non-alcoholic".
   String? alcoholContent;
 
-  // Brand & Product Line
-  /// A sub-brand name, if applicable (e.g., "Diet Coke" under "Coca-Cola").
+  // --- Brand & Product Line ---
+
+  /// A sub-brand name, which is more specific than the main brand.
+  /// Example: "Diet Coke" is a sub-brand of "Coca-Cola".
   String? subBrand;
-  /// The specific product line this variant belongs to.
+  /// The specific product line this variant belongs to within a brand.
+  /// Example: "Artisan" line of crackers.
   String? productLine;
 
-  /// A list for any other dynamic or custom attributes not covered by specific fields.
+  /// A list for any other dynamic or custom attributes that are not covered by the specific fields above.
+  /// This provides flexibility to add ad-hoc information.
   List<String> customAttributes = [];
 
-  /// A link to the [Brand] of this product variant.
+  // --- ObjectBox Relationships ---
+
+  /// A `ToOne` relationship linking this variant to its [Brand].
+  /// This represents the "owning" side of the one-to-one or one-to-many relationship.
   final brand = ToOne<Brand>();
 
-  /// A list of shopping lists that this product variant is part of.
-  /// This establishes the non-owning side of a many-to-many relationship
-  /// with [ShoppingList]. The `Backlink` annotation refers to the
-  /// `productVariants` field in the [ShoppingList] entity.
+  /// A `ToMany` backlink to [ShoppingList] entities that include this variant.
+  /// The `@Backlink` annotation indicates that this is the non-owning side of a
+  /// many-to-many relationship, managed via the `productVariants` field in the [ShoppingList] class.
   @Backlink('productVariants')
   final shoppingLists = ToMany<ShoppingList>();
 
-  /// A list of price entries associated with this product variant.
-  /// This establishes a one-to-many relationship, where one product variant
-  /// can have multiple price history records.
-  /// The `Backlink` annotation refers to the `productVariant` field in the
-  /// [PriceEntry] entity.
+  /// A `ToMany` backlink to [PriceEntry] entities associated with this variant.
+  /// This creates a one-to-many relationship, allowing one product variant to have a history of many price entries.
+  /// The `Backlink` refers to the `productVariant` field in the [PriceEntry] class.
   @Backlink('productVariant')
   final priceEntries = ToMany<PriceEntry>();
 
-  /// A list of grocery stores where this product variant is available.
-  /// This establishes the non-owning side of a many-to-many relationship
-  /// with [GroceryStore]. The `Backlink` annotation refers to the
-  /// `carriedProductVariants` field in the [GroceryStore] entity.
+  /// A `ToMany` backlink to [GroceryStore] entities where this variant is available.
+  /// This establishes the non-owning side of a many-to-many relationship,
+  /// managed via the `carriedProductVariants` field in the [GroceryStore] class.
   @Backlink('carriedProductVariants')
   final availableInStores = ToMany<GroceryStore>();
 
-  /// Creates a new [ProductVariant] instance.
+  /// Creates a new instance of [ProductVariant].
   ///
   /// The [id] is optional and defaults to 0; it will be assigned by ObjectBox upon saving.
-  /// [name] (full descriptive name) and [baseProductName] are required.
+  /// [name] (the full descriptive name) and [baseProductName] are required.
   /// All other fields are optional and can be provided to specify the variant's characteristics.
   /// List fields like [allergenInfo], [secondaryIngredients], and [customAttributes]
-  /// default to empty lists if not provided.
+  /// are initialized to empty lists if not provided, preventing null reference errors.
   ProductVariant({
     this.id = 0,
     required this.name,
@@ -195,8 +231,9 @@ class ProductVariant {
        allergenInfo = allergenInfo ?? [],
        secondaryIngredients = secondaryIngredients ?? [];
 
-  /// Converts this [ProductVariant] instance to a JSON map.
-  /// Useful for debugging, logging, or serialization.
+  /// Converts this [ProductVariant] instance into a JSON map.
+  /// This is useful for debugging, logging, or serializing the object to a format
+  /// that can be easily read or transmitted.
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
@@ -240,16 +277,17 @@ class ProductVariant {
         'subBrand': subBrand,
         'productLine': productLine,
         'customAttributes': customAttributes,
-        'brand': brand.target?.id, // Log brand ID if exists
+        'brand': brand.target?.id, // Log brand ID if available
         'shoppingLists': shoppingLists.map((sl) => sl.id).toList(), // Log shopping list IDs
         'priceEntries': priceEntries.map((pe) => pe.id).toList(), // Log price entry IDs
         'availableInStores': availableInStores.map((gs) => gs.id).toList(), // Log grocery store IDs
       };
 
-  /// Returns a string representation of the [ProductVariant].
-  /// Useful for debugging and logging.
+  /// Returns a concise string representation of the [ProductVariant].
+  /// This is primarily used for debugging and logging purposes.
   @override
   String toString() {
+    // Provides a clean, readable summary of the variant's key identifiers.
     return 'ProductVariant{id: $id, name: "$name", baseProductName: "$baseProductName", brand: ${brand.target?.name ?? "N/A"}, size: "${displayPackageSize ?? (packagedQuantity?.toString() ?? packagedUnit ?? "")}"}';
   }
 }
