@@ -18,6 +18,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  image_picker: ^1.1.2 # Added for image picking from camera/gallery
+  extended_image: ^10.0.1 # Added for alternative image cropping/editing
+  image_editor: any # Added for native image editing capabilities with extended_image
+  http: ^1.2.1 # Added for making HTTP requests
   flutter_bloc: ^9.1.0        # State Management (BLoC Pattern)
   equatable: ^2.0.5         # Value equality for BLoC states/events
   objectbox: ^4.0.3         # ObjectBox core database library

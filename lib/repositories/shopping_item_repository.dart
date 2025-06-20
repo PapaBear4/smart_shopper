@@ -22,12 +22,10 @@ class ShoppingItemRepository implements IShoppingItemRepository {
   final ObjectBoxHelper _objectBoxHelper; // Changed type
   late final Box<ShoppingItem> _itemBox;
   late final Box<ShoppingList> _listBox; // Needed to fetch list details
-  late final Box<PriceEntry> _priceEntryBox; // Added for PriceEntry access
 
   ShoppingItemRepository(this._objectBoxHelper) { // Changed parameter type
     _itemBox = _objectBoxHelper.shoppingItemBox; // Changed to use helper
     _listBox = _objectBoxHelper.shoppingListBox; // Changed to use helper
-    _priceEntryBox = _objectBoxHelper.priceEntryBox; // Initialize PriceEntry box
   }
 
   @override
@@ -43,19 +41,7 @@ class ShoppingItemRepository implements IShoppingItemRepository {
       // Find the items for the current query result
       final items = query.find();
 
-      // For each item, fetch its associated price entries
-      for (var item in items) {
-        final preferredVariantId = item.preferredVariant.targetId;
-        // ObjectBox IDs are non-nullable and start from 1. A targetId of 0 means no relation.
-        if (preferredVariantId > 0) { 
-          QueryBuilder<PriceEntry> priceEntryQueryBuilder = _priceEntryBox.query(
-            PriceEntry_.productVariant.equals(preferredVariantId)
-          );
-          item.priceEntries = priceEntryQueryBuilder.build().find();
-        } else {
-          item.priceEntries = []; // No preferred variant, so no specific price entries
-        }
-      }
+      // No longer fetch or attach price entries to ShoppingItem
 
       // Sort the list IN PLACE using a custom comparison function
       items.sort((a, b) {
@@ -100,18 +86,7 @@ class ShoppingItemRepository implements IShoppingItemRepository {
 
     return queryStream.map((query) {
       final items = query.find();
-      // For each item, fetch its associated price entries (similar to getItemsStream)
-      for (var item in items) {
-        final preferredVariantId = item.preferredVariant.targetId;
-        if (preferredVariantId > 0) { // ObjectBox IDs are non-nullable and start from 1
-          QueryBuilder<PriceEntry> priceEntryQueryBuilder = _priceEntryBox.query(
-            PriceEntry_.productVariant.equals(preferredVariantId)
-          );
-          item.priceEntries = priceEntryQueryBuilder.build().find();
-        } else {
-          item.priceEntries = [];
-        }
-      }
+      // No longer fetch or attach price entries to ShoppingItem
 
       // Sort items: incomplete first, then by name (same logic as in getItemsStream)
       items.sort((a, b) {

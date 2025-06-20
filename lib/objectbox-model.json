@@ -24,7 +24,7 @@
     },
     {
       "id": "2:5392232521263040000",
-      "lastPropertyId": "5:1326364750653525587",
+      "lastPropertyId": "6:8679451327714616428",
       "name": "GroceryStore",
       "properties": [
         {
@@ -52,6 +52,11 @@
           "id": "5:1326364750653525587",
           "name": "phoneNumber",
           "type": 9
+        },
+        {
+          "id": "6:8679451327714616428",
+          "name": "storeNumber",
+          "type": 9
         }
       ],
       "relations": [
@@ -59,12 +64,17 @@
           "id": "1:1179179430474418289",
           "name": "brands",
           "targetId": "1:1350387564383969056"
+        },
+        {
+          "id": "3:864063591198867751",
+          "name": "carriedProductVariants",
+          "targetId": "6:9125453582779863383"
         }
       ]
     },
     {
       "id": "3:5884021774426625564",
-      "lastPropertyId": "7:5167489257107915554",
+      "lastPropertyId": "11:2321754859430007901",
       "name": "PriceEntry",
       "properties": [
         {
@@ -72,11 +82,6 @@
           "name": "id",
           "type": 6,
           "flags": 1
-        },
-        {
-          "id": "2:8531733499047451153",
-          "name": "price",
-          "type": 8
         },
         {
           "id": "3:4169143285421413535",
@@ -98,6 +103,26 @@
           "flags": 520,
           "indexId": "5:3592818062407922901",
           "relationTarget": "ProductVariant"
+        },
+        {
+          "id": "8:4185484804052965239",
+          "name": "unitPrice",
+          "type": 8
+        },
+        {
+          "id": "9:7425407695711604717",
+          "name": "unit",
+          "type": 9
+        },
+        {
+          "id": "10:1517200741936287104",
+          "name": "quantityPurchased",
+          "type": 8
+        },
+        {
+          "id": "11:2321754859430007901",
+          "name": "totalPricePaid",
+          "type": 8
         }
       ],
       "relations": []
@@ -147,14 +172,6 @@
           "relationTarget": "ShoppingList"
         },
         {
-          "id": "8:557341323890659898",
-          "name": "brandId",
-          "type": 11,
-          "flags": 520,
-          "indexId": "4:1359002738651244461",
-          "relationTarget": "Brand"
-        },
-        {
           "id": "9:4060516909469705996",
           "name": "notes",
           "type": 9
@@ -198,11 +215,17 @@
           "type": 9
         }
       ],
-      "relations": []
+      "relations": [
+        {
+          "id": "4:1197395323065624316",
+          "name": "productVariants",
+          "targetId": "6:9125453582779863383"
+        }
+      ]
     },
     {
       "id": "6:9125453582779863383",
-      "lastPropertyId": "41:8013425193315835219",
+      "lastPropertyId": "44:1322557908948243895",
       "name": "ProductVariant",
       "properties": [
         {
@@ -224,11 +247,6 @@
         {
           "id": "4:4263145842442598438",
           "name": "flavor",
-          "type": 9
-        },
-        {
-          "id": "5:6568078300506651180",
-          "name": "packageSize",
           "type": 9
         },
         {
@@ -413,24 +431,97 @@
           "id": "41:8013425193315835219",
           "name": "productLine",
           "type": 9
+        },
+        {
+          "id": "42:5067747944301530555",
+          "name": "packagedQuantity",
+          "type": 8
+        },
+        {
+          "id": "43:3147298579726600723",
+          "name": "packagedUnit",
+          "type": 9
+        },
+        {
+          "id": "44:1322557908948243895",
+          "name": "displayPackageSize",
+          "type": 9
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "7:3755552543016900288",
+      "lastPropertyId": "3:9208683071544608565",
+      "name": "ProductLine",
+      "properties": [
+        {
+          "id": "1:500599688118940519",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:5837173194662274669",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "3:9208683071544608565",
+          "name": "brandId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "8:3449828798553671784",
+          "relationTarget": "Brand"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "8:6096693989506498973",
+      "lastPropertyId": "3:1983257502895619679",
+      "name": "SubBrand",
+      "properties": [
+        {
+          "id": "1:4246253094833844396",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:8134836252432234869",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "3:1983257502895619679",
+          "name": "brandId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "9:4601353238704180652",
+          "relationTarget": "Brand"
         }
       ],
       "relations": []
     }
   ],
-  "lastEntityId": "6:9125453582779863383",
-  "lastIndexId": "7:1452162414297893229",
-  "lastRelationId": "2:6021917186737555969",
+  "lastEntityId": "8:6096693989506498973",
+  "lastIndexId": "9:4601353238704180652",
+  "lastRelationId": "4:1197395323065624316",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
   "modelVersionParserMinimum": 5,
   "retiredEntityUids": [],
   "retiredIndexUids": [
-    1205661651718775251
+    1205661651718775251,
+    1359002738651244461
   ],
   "retiredPropertyUids": [
     2302950537414718852,
-    1077850470130638092
+    1077850470130638092,
+    8531733499047451153,
+    6568078300506651180,
+    557341323890659898
   ],
   "retiredRelationUids": [],
   "version": 1
