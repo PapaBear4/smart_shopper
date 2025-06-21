@@ -8,12 +8,12 @@ import 'package:smart_shopper/objectbox_helper.dart';
 /// Concrete implementation of [BrandRepository] using ObjectBox.
 ///
 /// This class handles the actual database operations for `Brand` entities.
-class BrandRepositoryImpl implements BrandRepository {
+class BrandBox implements BrandRepository {
   final ObjectBoxHelper _objectBoxHelper;
   late final Box<BrandModel> _brandBox;
 
-  BrandRepositoryImpl(this._objectBoxHelper) {
-    _brandBox = _objectBoxHelper.store.box<BrandModel>();
+  BrandBox(this._objectBoxHelper) {
+    _brandBox = _objectBoxHelper.brandBox;
   }
 
   @override
@@ -40,14 +40,12 @@ class BrandRepositoryImpl implements BrandRepository {
 
   @override
   Future<int> addBrand(Brand brand) async {
-    // ObjectBox will treat an ID of 0 as a new entity.
     final model = BrandModel.fromEntity(brand);
     return _brandBox.put(model);
   }
 
   @override
   Future<void> updateBrand(Brand brand) async {
-    // The `put` method handles both inserts and updates.
     final model = BrandModel.fromEntity(brand);
     _brandBox.put(model);
   }
