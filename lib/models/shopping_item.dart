@@ -1,8 +1,8 @@
 import 'package:objectbox/objectbox.dart';
 import 'shopping_list.dart'; // Import needed for relationships
-import 'grocery_store.dart';       // Import needed for relationships
+import '../domain/entities/grocery_store.dart';       // Import needed for relationships
 import 'displayable_item.dart'; // Added
-import 'product_variant.dart'; // Added for preferredVariant
+import '../domain/entities/product_variant.dart'; // Added for preferredVariant
 
 /// Represents an item on a [ShoppingList].
 ///

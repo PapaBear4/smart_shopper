@@ -1,6 +1,6 @@
 import 'package:objectbox/objectbox.dart';
 import 'package:smart_shopper/domain/entities/brand.dart' as domain;
-import '../../models/grocery_store.dart';
+import 'grocery_store_model.dart';
 import 'sub_brand_model.dart';
 import 'product_line_model.dart';
 
@@ -12,7 +12,7 @@ class BrandModel {
   String name;
 
   @Backlink('brands')
-  final groceryStores = ToMany<GroceryStore>();
+  final groceryStores = ToMany<GroceryStoreModel>();
 
   @Backlink('brand')
   final subBrands = ToMany<SubBrandModel>();

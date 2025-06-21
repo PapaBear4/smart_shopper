@@ -1,6 +1,6 @@
 // This imports the generated file that contains the openStore() function
 // and entity model definitions for ObjectBox.
-import 'objectbox.g.dart'; 
+import 'objectbox.g.dart';
 // Import your models barrel file to make model types known.
 import 'data/models/brand_model.dart';
 import 'data/models/product_line_model.dart';
@@ -15,13 +15,13 @@ class ObjectBoxHelper {
   // Declare Box instances for each of your entities.
   // These will be initialized in the _create private constructor.
   late final Box<BrandModel> brandBox;
+  late final Box<SubBrandModel> subBrandBox;
+  late final Box<ProductLineModel> productLineBox;
   late final Box<PriceEntry> priceEntryBox;
   late final Box<GroceryStore> groceryStoreBox;
   late final Box<ShoppingItem> shoppingItemBox;
   late final Box<ShoppingList> shoppingListBox;
   late final Box<ProductVariant> productVariantBox; // Added
-  late final Box<SubBrandModel> subBrandBox;
-  late final Box<ProductLineModel> productLineBox;
 
   /// Private constructor to initialize the store and boxes.
   /// This is called by the static `create` method.
@@ -38,7 +38,7 @@ class ObjectBoxHelper {
   }
 
   /// Creates and initializes an ObjectBoxHelper instance.
-  /// 
+  ///
   /// This static method should be called once at app startup (e.g., in main.dart)
   /// to set up the database.
   static Future<ObjectBoxHelper> create() async {
@@ -58,9 +58,11 @@ class ObjectBoxHelper {
     // inter-dependencies you need to manage manually (rare).
     await brandBox.removeAllAsync();
     await priceEntryBox.removeAllAsync();
-    await shoppingItemBox.removeAllAsync(); // Clear items before lists if items have relations to lists
+    await shoppingItemBox
+        .removeAllAsync(); // Clear items before lists if items have relations to lists
     await shoppingListBox.removeAllAsync();
-    await groceryStoreBox.removeAllAsync(); // Clear stores last if other entities relate to them
+    await groceryStoreBox
+        .removeAllAsync(); // Clear stores last if other entities relate to them
     await productVariantBox.removeAllAsync(); // Added
     await subBrandBox.removeAllAsync();
     await productLineBox.removeAllAsync();

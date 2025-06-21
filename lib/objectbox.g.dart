@@ -17,9 +17,9 @@ import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 import 'data/models/brand_model.dart';
 import 'data/models/product_line_model.dart';
 import 'data/models/sub_brand_model.dart';
-import 'models/grocery_store.dart';
-import 'models/price_entry.dart';
-import 'models/product_variant.dart';
+import 'domain/entities/grocery_store.dart';
+import 'domain/entities/price_entry.dart';
+import 'domain/entities/product_variant.dart';
 import 'models/shopping_item.dart';
 import 'models/shopping_list.dart';
 
@@ -719,9 +719,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
       model: _entities[0],
       toOneRelations: (GroceryStore object) => [],
       toManyRelations: (GroceryStore object) => {
-        obx_int.RelInfo<GroceryStore>.toMany(1, object.id): object.brands,
+        obx_int.RelInfo<GroceryStore>.toMany(1, object.id): object.hasBrands,
         obx_int.RelInfo<GroceryStore>.toMany(3, object.id):
-            object.carriedProductVariants,
+            object.hasProductVariants,
       },
       getId: (GroceryStore object) => object.id,
       setId: (GroceryStore object, int id) {
@@ -784,12 +784,12 @@ obx_int.ModelDefinition getObjectBoxModel() {
           storeNumber: storeNumberParam,
         );
         obx_int.InternalToManyAccess.setRelInfo<GroceryStore>(
-          object.brands,
+          object.hasBrands,
           store,
           obx_int.RelInfo<GroceryStore>.toMany(1, object.id),
         );
         obx_int.InternalToManyAccess.setRelInfo<GroceryStore>(
-          object.carriedProductVariants,
+          object.hasProductVariants,
           store,
           obx_int.RelInfo<GroceryStore>.toMany(3, object.id),
         );
@@ -1615,12 +1615,12 @@ class GroceryStore_ {
     _entities[0].properties[5],
   );
 
-  /// see [GroceryStore.brands]
+  /// see [GroceryStore.hasBrands]
   static final brands = obx.QueryRelationToMany<GroceryStore, BrandModel>(
     _entities[0].relations[0],
   );
 
-  /// see [GroceryStore.carriedProductVariants]
+  /// see [GroceryStore.hasProductVariants]
   static final carriedProductVariants =
       obx.QueryRelationToMany<GroceryStore, ProductVariant>(
         _entities[0].relations[1],

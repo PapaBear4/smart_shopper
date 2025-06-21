@@ -1,6 +1,6 @@
 import 'package:objectbox/objectbox.dart';
 import 'shopping_item.dart'; // Import needed for the relationship
-import 'product_variant.dart'; // Import for ToMany<ProductVariant>
+import '../domain/entities/product_variant.dart'; // Import for ToMany<ProductVariant>
 
 /// Represents a list of [ShoppingItem]s.
 ///
