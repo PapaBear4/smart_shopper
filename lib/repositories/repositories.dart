@@ -1,4 +1,4 @@
-export 'package:smart_shopper/repositories/brand_repository.dart';
+export 'package:smart_shopper/domain/repositories/brand_repository.dart';
 export 'package:smart_shopper/repositories/price_entry_repository.dart';
 export 'package:smart_shopper/repositories/product_line_repository.dart';
 export 'package:smart_shopper/repositories/product_variant_repository.dart';

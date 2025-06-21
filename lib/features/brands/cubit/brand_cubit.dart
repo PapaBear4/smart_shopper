@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import '../../../models/models.dart';
-import '../../../repositories/brand_repository.dart';
+import '../../../domain/repositories/brand_repository.dart';
 
 part 'brand_state.dart';
 

@@ -4,25 +4,6 @@
   "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
   "entities": [
     {
-      "id": "1:1350387564383969056",
-      "lastPropertyId": "2:7687436088201772380",
-      "name": "Brand",
-      "properties": [
-        {
-          "id": "1:8761874532321917652",
-          "name": "id",
-          "type": 6,
-          "flags": 1
-        },
-        {
-          "id": "2:7687436088201772380",
-          "name": "name",
-          "type": 9
-        }
-      ],
-      "relations": []
-    },
-    {
       "id": "2:5392232521263040000",
       "lastPropertyId": "6:8679451327714616428",
       "name": "GroceryStore",
@@ -63,7 +44,7 @@
         {
           "id": "1:1179179430474418289",
           "name": "brands",
-          "targetId": "1:1350387564383969056"
+          "targetId": "9:5054557870325030450"
         },
         {
           "id": "3:864063591198867751",
@@ -451,67 +432,90 @@
       "relations": []
     },
     {
-      "id": "7:3755552543016900288",
-      "lastPropertyId": "3:9208683071544608565",
-      "name": "ProductLine",
+      "id": "9:5054557870325030450",
+      "lastPropertyId": "2:479704562645481865",
+      "name": "BrandModel",
       "properties": [
         {
-          "id": "1:500599688118940519",
+          "id": "1:5926868428420549839",
           "name": "id",
           "type": 6,
           "flags": 1
         },
         {
-          "id": "2:5837173194662274669",
+          "id": "2:479704562645481865",
           "name": "name",
           "type": 9
-        },
-        {
-          "id": "3:9208683071544608565",
-          "name": "brandId",
-          "type": 11,
-          "flags": 520,
-          "indexId": "8:3449828798553671784",
-          "relationTarget": "Brand"
         }
       ],
       "relations": []
     },
     {
-      "id": "8:6096693989506498973",
-      "lastPropertyId": "3:1983257502895619679",
-      "name": "SubBrand",
+      "id": "10:2236295793362179363",
+      "lastPropertyId": "3:4822859285100740959",
+      "name": "ProductLineModel",
       "properties": [
         {
-          "id": "1:4246253094833844396",
+          "id": "1:2750152057048857865",
           "name": "id",
           "type": 6,
           "flags": 1
         },
         {
-          "id": "2:8134836252432234869",
+          "id": "2:5663728572043206983",
           "name": "name",
           "type": 9
         },
         {
-          "id": "3:1983257502895619679",
+          "id": "3:4822859285100740959",
           "name": "brandId",
           "type": 11,
           "flags": 520,
-          "indexId": "9:4601353238704180652",
-          "relationTarget": "Brand"
+          "indexId": "10:6618123389267314248",
+          "relationTarget": "BrandModel"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "11:6208576256782168743",
+      "lastPropertyId": "3:4579423680935240606",
+      "name": "SubBrandModel",
+      "properties": [
+        {
+          "id": "1:8679373796383174629",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:4266856507806956892",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "3:4579423680935240606",
+          "name": "brandId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "11:5970786985322107571",
+          "relationTarget": "BrandModel"
         }
       ],
       "relations": []
     }
   ],
-  "lastEntityId": "8:6096693989506498973",
-  "lastIndexId": "9:4601353238704180652",
+  "lastEntityId": "11:6208576256782168743",
+  "lastIndexId": "11:5970786985322107571",
   "lastRelationId": "4:1197395323065624316",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
   "modelVersionParserMinimum": 5,
-  "retiredEntityUids": [],
+  "retiredEntityUids": [
+    1350387564383969056,
+    3755552543016900288,
+    6096693989506498973
+  ],
   "retiredIndexUids": [
     1205661651718775251,
     1359002738651244461
@@ -521,7 +525,15 @@
     1077850470130638092,
     8531733499047451153,
     6568078300506651180,
-    557341323890659898
+    557341323890659898,
+    8761874532321917652,
+    7687436088201772380,
+    500599688118940519,
+    5837173194662274669,
+    9208683071544608565,
+    4246253094833844396,
+    8134836252432234869,
+    1983257502895619679
   ],
   "retiredRelationUids": [],
   "version": 1

@@ -7,7 +7,7 @@
 
 // Export each model file from this directory
 export 'grocery_store.dart';
-export 'brand.dart';
+export '../domain/entities/brand.dart';
 export 'price_entry.dart';
 export 'shopping_item.dart';
 export 'shopping_list.dart';

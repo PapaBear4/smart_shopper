@@ -2,7 +2,7 @@ import 'package:faker_dart/faker_dart.dart';
 import 'dart:math';
 import 'package:smart_shopper/models/models.dart';
 import 'package:smart_shopper/objectbox_helper.dart';
-import 'package:smart_shopper/repositories/brand_repository.dart';
+import 'package:smart_shopper/domain/repositories/brand_repository.dart';
 import 'package:smart_shopper/repositories/price_entry_repository.dart';
 import 'package:smart_shopper/repositories/shopping_item_repository.dart';
 import 'package:smart_shopper/repositories/shopping_list_repository.dart';

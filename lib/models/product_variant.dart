@@ -2,7 +2,7 @@
 import 'package:objectbox/objectbox.dart';
 
 // Import related model classes to define relationships.
-import 'brand.dart'; // Required for the ToOne<Brand> relationship.
+import '../domain/entities/brand.dart'; // Required for the ToOne<Brand> relationship.
 import 'shopping_list.dart'; // Required for the ToMany<ShoppingList> backlink.
 import 'price_entry.dart'; // Required for the ToMany<PriceEntry> backlink.
 import 'grocery_store.dart'; // Required for the ToMany<GroceryStore> backlink.

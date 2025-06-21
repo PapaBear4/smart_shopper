@@ -3,7 +3,7 @@ import 'package:intl/intl.dart'; // Required for DateFormat
 import 'package:collection/collection.dart'; // Required for firstWhereOrNull
 
 import '../../../models/models.dart';
-import '../../../repositories/brand_repository.dart';
+import '../../../domain/repositories/brand_repository.dart';
 import '../../../repositories/price_entry_repository.dart';
 import '../../../repositories/store_repository.dart';
 import '../../../repositories/shopping_list_repository.dart'; // Added

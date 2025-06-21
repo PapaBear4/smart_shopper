@@ -1,6 +1,6 @@
 //lib/models/grocery_store.dart
 import 'package:objectbox/objectbox.dart';
-import 'brand.dart'; // Import for ToMany<Brand>
+import 'package:smart_shopper/data/models/brand_model.dart';
 import 'product_variant.dart'; // Import for ToMany<ProductVariant>
 
 /// Represents a grocery store where items can be purchased.
@@ -31,7 +31,7 @@ class GroceryStore {
 
   /// A list of brands available at this grocery store.
   /// This establishes a many-to-many relationship with the [Brand] entity.
-  final brands = ToMany<Brand>();
+  final brands = ToMany<BrandModel>();
 
   /// A list of specific [ProductVariant]s that this grocery store carries.
   /// This establishes the owning side of a many-to-many relationship with [ProductVariant].

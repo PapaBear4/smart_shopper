@@ -2,6 +2,9 @@
 // and entity model definitions for ObjectBox.
 import 'objectbox.g.dart'; 
 // Import your models barrel file to make model types known.
+import 'data/models/brand_model.dart';
+import 'data/models/product_line_model.dart';
+import 'data/models/sub_brand_model.dart';
 import 'models/models.dart';
 
 /// A helper class to manage the ObjectBox store and provide access to entity boxes.
@@ -11,27 +14,27 @@ class ObjectBoxHelper {
 
   // Declare Box instances for each of your entities.
   // These will be initialized in the _create private constructor.
-  late final Box<Brand> brandBox;
+  late final Box<BrandModel> brandBox;
   late final Box<PriceEntry> priceEntryBox;
   late final Box<GroceryStore> groceryStoreBox;
   late final Box<ShoppingItem> shoppingItemBox;
   late final Box<ShoppingList> shoppingListBox;
   late final Box<ProductVariant> productVariantBox; // Added
-  late final Box<SubBrand> subBrandBox;
-  late final Box<ProductLine> productLineBox;
+  late final Box<SubBrandModel> subBrandBox;
+  late final Box<ProductLineModel> productLineBox;
 
   /// Private constructor to initialize the store and boxes.
   /// This is called by the static `create` method.
   ObjectBoxHelper._create(this._store) {
     // Initialize all your entity boxes here
-    brandBox = _store.box<Brand>();
+    brandBox = _store.box<BrandModel>();
     priceEntryBox = _store.box<PriceEntry>();
     groceryStoreBox = _store.box<GroceryStore>();
     shoppingItemBox = _store.box<ShoppingItem>();
     shoppingListBox = _store.box<ShoppingList>();
     productVariantBox = _store.box<ProductVariant>(); // Added
-    subBrandBox = _store.box<SubBrand>();
-    productLineBox = _store.box<ProductLine>();
+    subBrandBox = _store.box<SubBrandModel>();
+    productLineBox = _store.box<ProductLineModel>();
   }
 
   /// Creates and initializes an ObjectBoxHelper instance.
