@@ -15,536 +15,17 @@ import 'package:objectbox/objectbox.dart' as obx;
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
 import 'data/models/brand_model.dart';
+import 'data/models/grocery_store_model.dart';
+import 'data/models/price_entry_model.dart';
 import 'data/models/product_line_model.dart';
+import 'data/models/product_variant_model.dart';
+import 'data/models/shopping_item_model.dart';
+import 'data/models/shopping_list_model.dart';
 import 'data/models/sub_brand_model.dart';
-import 'domain/entities/grocery_store.dart';
-import 'domain/entities/price_entry.dart';
-import 'domain/entities/product_variant.dart';
-import 'models/shopping_item.dart';
-import 'models/shopping_list.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
 
 final _entities = <obx_int.ModelEntity>[
-  obx_int.ModelEntity(
-    id: const obx_int.IdUid(2, 5392232521263040000),
-    name: 'GroceryStore',
-    lastPropertyId: const obx_int.IdUid(6, 8679451327714616428),
-    flags: 0,
-    properties: <obx_int.ModelProperty>[
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(1, 5743311374707640706),
-        name: 'id',
-        type: 6,
-        flags: 1,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(2, 5640327601109155288),
-        name: 'name',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(3, 2458881672330496623),
-        name: 'website',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(4, 2634876967099437326),
-        name: 'address',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(5, 1326364750653525587),
-        name: 'phoneNumber',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(6, 8679451327714616428),
-        name: 'storeNumber',
-        type: 9,
-        flags: 0,
-      ),
-    ],
-    relations: <obx_int.ModelRelation>[
-      obx_int.ModelRelation(
-        id: const obx_int.IdUid(1, 1179179430474418289),
-        name: 'brands',
-        targetId: const obx_int.IdUid(9, 5054557870325030450),
-      ),
-      obx_int.ModelRelation(
-        id: const obx_int.IdUid(3, 864063591198867751),
-        name: 'carriedProductVariants',
-        targetId: const obx_int.IdUid(6, 9125453582779863383),
-      ),
-    ],
-    backlinks: <obx_int.ModelBacklink>[],
-  ),
-  obx_int.ModelEntity(
-    id: const obx_int.IdUid(3, 5884021774426625564),
-    name: 'PriceEntry',
-    lastPropertyId: const obx_int.IdUid(11, 2321754859430007901),
-    flags: 0,
-    properties: <obx_int.ModelProperty>[
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(1, 4053898171902608147),
-        name: 'id',
-        type: 6,
-        flags: 1,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(3, 4169143285421413535),
-        name: 'date',
-        type: 10,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(5, 4935364066352572488),
-        name: 'groceryStoreId',
-        type: 11,
-        flags: 520,
-        indexId: const obx_int.IdUid(1, 1020527030735291276),
-        relationTarget: 'GroceryStore',
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(7, 5167489257107915554),
-        name: 'productVariantId',
-        type: 11,
-        flags: 520,
-        indexId: const obx_int.IdUid(5, 3592818062407922901),
-        relationTarget: 'ProductVariant',
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(8, 4185484804052965239),
-        name: 'unitPrice',
-        type: 8,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(9, 7425407695711604717),
-        name: 'unit',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(10, 1517200741936287104),
-        name: 'quantityPurchased',
-        type: 8,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(11, 2321754859430007901),
-        name: 'totalPricePaid',
-        type: 8,
-        flags: 0,
-      ),
-    ],
-    relations: <obx_int.ModelRelation>[],
-    backlinks: <obx_int.ModelBacklink>[],
-  ),
-  obx_int.ModelEntity(
-    id: const obx_int.IdUid(4, 6701175573460648360),
-    name: 'ShoppingItem',
-    lastPropertyId: const obx_int.IdUid(11, 7384634165614092262),
-    flags: 0,
-    properties: <obx_int.ModelProperty>[
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(1, 1433682486671584200),
-        name: 'id',
-        type: 6,
-        flags: 1,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(2, 6183159279299876135),
-        name: 'name',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(3, 6531799950927374350),
-        name: 'category',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(4, 2406488466200381600),
-        name: 'quantity',
-        type: 8,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(5, 3924568137145655625),
-        name: 'unit',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(6, 4620948759756646472),
-        name: 'isCompleted',
-        type: 1,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(7, 803727051165036413),
-        name: 'shoppingListId',
-        type: 11,
-        flags: 520,
-        indexId: const obx_int.IdUid(3, 4104004541648570195),
-        relationTarget: 'ShoppingList',
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(9, 4060516909469705996),
-        name: 'notes',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(10, 5590610874088685524),
-        name: 'desiredAttributes',
-        type: 30,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(11, 7384634165614092262),
-        name: 'preferredVariantId',
-        type: 11,
-        flags: 520,
-        indexId: const obx_int.IdUid(7, 1452162414297893229),
-        relationTarget: 'ProductVariant',
-      ),
-    ],
-    relations: <obx_int.ModelRelation>[
-      obx_int.ModelRelation(
-        id: const obx_int.IdUid(2, 6021917186737555969),
-        name: 'groceryStores',
-        targetId: const obx_int.IdUid(2, 5392232521263040000),
-      ),
-    ],
-    backlinks: <obx_int.ModelBacklink>[],
-  ),
-  obx_int.ModelEntity(
-    id: const obx_int.IdUid(5, 1820958202328536689),
-    name: 'ShoppingList',
-    lastPropertyId: const obx_int.IdUid(2, 9103335636842345087),
-    flags: 0,
-    properties: <obx_int.ModelProperty>[
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(1, 6299104716667177880),
-        name: 'id',
-        type: 6,
-        flags: 1,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(2, 9103335636842345087),
-        name: 'name',
-        type: 9,
-        flags: 0,
-      ),
-    ],
-    relations: <obx_int.ModelRelation>[
-      obx_int.ModelRelation(
-        id: const obx_int.IdUid(4, 1197395323065624316),
-        name: 'productVariants',
-        targetId: const obx_int.IdUid(6, 9125453582779863383),
-      ),
-    ],
-    backlinks: <obx_int.ModelBacklink>[
-      obx_int.ModelBacklink(
-        name: 'items',
-        srcEntity: 'ShoppingItem',
-        srcField: 'shoppingList',
-      ),
-    ],
-  ),
-  obx_int.ModelEntity(
-    id: const obx_int.IdUid(6, 9125453582779863383),
-    name: 'ProductVariant',
-    lastPropertyId: const obx_int.IdUid(44, 1322557908948243895),
-    flags: 0,
-    properties: <obx_int.ModelProperty>[
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(1, 8256650373857533366),
-        name: 'id',
-        type: 6,
-        flags: 1,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(2, 496491443493904640),
-        name: 'name',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(3, 7505990523085777365),
-        name: 'baseProductName',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(4, 4263145842442598438),
-        name: 'flavor',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(6, 494061646670888266),
-        name: 'isOrganic',
-        type: 1,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(7, 6393508022193581249),
-        name: 'isGlutenFree',
-        type: 1,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(8, 1750734653340309613),
-        name: 'upcCode',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(9, 9094648843191831429),
-        name: 'customAttributes',
-        type: 30,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(10, 4540736083573214785),
-        name: 'brandId',
-        type: 11,
-        flags: 520,
-        indexId: const obx_int.IdUid(6, 3022673742405067456),
-        relationTarget: 'Brand',
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(11, 1283912408213000354),
-        name: 'form',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(12, 8526117574851558435),
-        name: 'containerType',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(13, 5730091907303705034),
-        name: 'preparation',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(14, 4127569866953332163),
-        name: 'maturity',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(15, 1484820910353940200),
-        name: 'grade',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(16, 1412366170076418600),
-        name: 'isNonGMO',
-        type: 1,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(17, 7282236726265154570),
-        name: 'isVegan',
-        type: 1,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(18, 5452471868582992806),
-        name: 'isVegetarian',
-        type: 1,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(19, 2309145336124724371),
-        name: 'isDairyFree',
-        type: 1,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(20, 9189637219533242919),
-        name: 'isNutFree',
-        type: 1,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(21, 1191468069703047315),
-        name: 'isSoyFree',
-        type: 1,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(22, 6987917760159328793),
-        name: 'isKosher',
-        type: 1,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(23, 6579103782426902767),
-        name: 'isHalal',
-        type: 1,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(24, 3648157497315526927),
-        name: 'isSugarFree',
-        type: 1,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(25, 3727851636902858405),
-        name: 'isLowSodium',
-        type: 1,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(26, 7840656964303796260),
-        name: 'isLowFat',
-        type: 1,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(27, 3555872595033659757),
-        name: 'isLowCarb',
-        type: 1,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(28, 3442117152883599825),
-        name: 'isHighProtein',
-        type: 1,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(29, 8565814710604168179),
-        name: 'isWholeGrain',
-        type: 1,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(30, 5677410942254802687),
-        name: 'hasNoAddedSugar',
-        type: 1,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(31, 8447875324182344270),
-        name: 'hasArtificialSweeteners',
-        type: 1,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(32, 9039879816845286933),
-        name: 'allergenInfo',
-        type: 30,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(33, 4184585622445500019),
-        name: 'scent',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(34, 3069975963098773088),
-        name: 'color',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(35, 4963746361523164467),
-        name: 'mainIngredient',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(36, 3744774468374888429),
-        name: 'secondaryIngredients',
-        type: 30,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(37, 3209074063036490479),
-        name: 'spicinessLevel',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(38, 6302940555737560459),
-        name: 'caffeineContent',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(39, 8953011148806672386),
-        name: 'alcoholContent',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(40, 6255481921219461051),
-        name: 'subBrand',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(41, 8013425193315835219),
-        name: 'productLine',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(42, 5067747944301530555),
-        name: 'packagedQuantity',
-        type: 8,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(43, 3147298579726600723),
-        name: 'packagedUnit',
-        type: 9,
-        flags: 0,
-      ),
-      obx_int.ModelProperty(
-        id: const obx_int.IdUid(44, 1322557908948243895),
-        name: 'displayPackageSize',
-        type: 9,
-        flags: 0,
-      ),
-    ],
-    relations: <obx_int.ModelRelation>[],
-    backlinks: <obx_int.ModelBacklink>[
-      obx_int.ModelBacklink(
-        name: 'shoppingLists',
-        srcEntity: 'ShoppingList',
-        srcField: 'productVariants',
-      ),
-      obx_int.ModelBacklink(
-        name: 'priceEntries',
-        srcEntity: 'PriceEntry',
-        srcField: 'productVariant',
-      ),
-      obx_int.ModelBacklink(
-        name: 'availableInStores',
-        srcEntity: 'GroceryStore',
-        srcField: 'carriedProductVariants',
-      ),
-    ],
-  ),
   obx_int.ModelEntity(
     id: const obx_int.IdUid(9, 5054557870325030450),
     name: 'BrandModel',
@@ -568,7 +49,7 @@ final _entities = <obx_int.ModelEntity>[
     backlinks: <obx_int.ModelBacklink>[
       obx_int.ModelBacklink(
         name: 'groceryStores',
-        srcEntity: 'GroceryStore',
+        srcEntity: 'GroceryStoreModel',
         srcField: 'brands',
       ),
       obx_int.ModelBacklink(
@@ -643,6 +124,526 @@ final _entities = <obx_int.ModelEntity>[
     relations: <obx_int.ModelRelation>[],
     backlinks: <obx_int.ModelBacklink>[],
   ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(12, 5466436912549686832),
+    name: 'GroceryStoreModel',
+    lastPropertyId: const obx_int.IdUid(6, 660464549204647733),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 3999838654953913894),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 8373525347976191701),
+        name: 'name',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 4946733505805489420),
+        name: 'website',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 6591856296529069236),
+        name: 'address',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(5, 263591912260059635),
+        name: 'phoneNumber',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(6, 660464549204647733),
+        name: 'storeNumber',
+        type: 9,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[
+      obx_int.ModelRelation(
+        id: const obx_int.IdUid(5, 2487585551705182990),
+        name: 'brands',
+        targetId: const obx_int.IdUid(9, 5054557870325030450),
+      ),
+    ],
+    backlinks: <obx_int.ModelBacklink>[
+      obx_int.ModelBacklink(
+        name: 'priceEntries',
+        srcEntity: 'PriceEntryModel',
+        srcField: 'groceryStore',
+      ),
+    ],
+  ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(13, 7373670811870390451),
+    name: 'PriceEntryModel',
+    lastPropertyId: const obx_int.IdUid(9, 9192739168960299039),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 1031397992440859108),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 7315089728117584612),
+        name: 'unitPrice',
+        type: 8,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 897908574552235949),
+        name: 'unit',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 2372798618879320918),
+        name: 'date',
+        type: 10,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(5, 261723628402797542),
+        name: 'isPurchase',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(6, 7747353593911521454),
+        name: 'quantityPurchased',
+        type: 8,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(7, 6114115922224134554),
+        name: 'totalPricePaid',
+        type: 8,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(8, 916752428681004735),
+        name: 'groceryStoreId',
+        type: 11,
+        flags: 520,
+        indexId: const obx_int.IdUid(12, 4335606915910180215),
+        relationTarget: 'GroceryStoreModel',
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(9, 9192739168960299039),
+        name: 'productVariantId',
+        type: 11,
+        flags: 520,
+        indexId: const obx_int.IdUid(13, 8698204969543010742),
+        relationTarget: 'ProductVariant',
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(14, 7700695824589981925),
+    name: 'ProductVariantModel',
+    lastPropertyId: const obx_int.IdUid(43, 5093985904323785718),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 6718421007068763448),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 2268744370679644685),
+        name: 'name',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 8561525759270470777),
+        name: 'baseProductName',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 4444810804871820847),
+        name: 'upcCode',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(5, 7949350274618225859),
+        name: 'form',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(6, 4832987721420232747),
+        name: 'packagedQuantity',
+        type: 8,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(7, 4709538771455082713),
+        name: 'packagedUnit',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(8, 1067364272772357345),
+        name: 'displayPackageSize',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(9, 4082333079196459471),
+        name: 'containerType',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(10, 8055534701324129415),
+        name: 'preparation',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(11, 6463656710797821124),
+        name: 'maturity',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(12, 7730300758190607118),
+        name: 'grade',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(13, 893001462098440078),
+        name: 'isOrganic',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(14, 514602925222762854),
+        name: 'isGlutenFree',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(15, 8733346421796226141),
+        name: 'isNonGMO',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(16, 1307309955662862148),
+        name: 'isVegan',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(17, 4374844280541807512),
+        name: 'isVegetarian',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(18, 7080316368236384899),
+        name: 'isDairyFree',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(19, 5714173392998099790),
+        name: 'isNutFree',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(20, 2607659024071318873),
+        name: 'isSoyFree',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(21, 897125133856547503),
+        name: 'isKosher',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(22, 479693856988762235),
+        name: 'isHalal',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(23, 1115547146632255156),
+        name: 'isSugarFree',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(24, 1070316509254288952),
+        name: 'isLowSodium',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(25, 6118815943378664601),
+        name: 'isLowFat',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(26, 6764512328228267460),
+        name: 'isLowCarb',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(27, 2766802761087782842),
+        name: 'isHighProtein',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(28, 329490515152578650),
+        name: 'isWholeGrain',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(29, 3139927320945936097),
+        name: 'hasNoAddedSugar',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(30, 1300533483791053944),
+        name: 'hasArtificialSweeteners',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(31, 2752458498658183378),
+        name: 'allergenInfo',
+        type: 30,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(32, 9108581444963056622),
+        name: 'flavor',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(33, 8178485517812508351),
+        name: 'scent',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(34, 5905608713595630731),
+        name: 'color',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(35, 1892639023420204727),
+        name: 'mainIngredient',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(36, 7178551207734521459),
+        name: 'secondaryIngredients',
+        type: 30,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(37, 4056087194034269397),
+        name: 'spicinessLevel',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(38, 62678839711314566),
+        name: 'caffeineContent',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(39, 6791131931899139152),
+        name: 'alcoholContent',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(40, 3484166959615612526),
+        name: 'customAttributes',
+        type: 30,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(41, 4004652781073512575),
+        name: 'brandId',
+        type: 11,
+        flags: 520,
+        indexId: const obx_int.IdUid(14, 7246199662111870703),
+        relationTarget: 'BrandModel',
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(42, 6557390099656805706),
+        name: 'subBrandId',
+        type: 11,
+        flags: 520,
+        indexId: const obx_int.IdUid(15, 7478852080088659254),
+        relationTarget: 'SubBrandModel',
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(43, 5093985904323785718),
+        name: 'productLineId',
+        type: 11,
+        flags: 520,
+        indexId: const obx_int.IdUid(16, 8129314466893131578),
+        relationTarget: 'ProductLineModel',
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[],
+    backlinks: <obx_int.ModelBacklink>[
+      obx_int.ModelBacklink(
+        name: 'priceEntries',
+        srcEntity: 'PriceEntryModel',
+        srcField: 'productVariant',
+      ),
+    ],
+  ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(15, 2275531944208405572),
+    name: 'ShoppingItemModel',
+    lastPropertyId: const obx_int.IdUid(10, 4068881331739700410),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 6443943207529505042),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 5661509588775964550),
+        name: 'name',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(3, 2312044780787062709),
+        name: 'category',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(4, 3413614424535588059),
+        name: 'quantity',
+        type: 8,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(5, 366129699451673064),
+        name: 'unit',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(6, 6058721043711078435),
+        name: 'isCompleted',
+        type: 1,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(7, 4789788807470817597),
+        name: 'notes',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(8, 4946623643967223057),
+        name: 'desiredAttributes',
+        type: 30,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(9, 8633499647747104887),
+        name: 'preferredVariantId',
+        type: 11,
+        flags: 520,
+        indexId: const obx_int.IdUid(17, 206844275059034671),
+        relationTarget: 'ProductVariantModel',
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(10, 4068881331739700410),
+        name: 'shoppingListId',
+        type: 11,
+        flags: 520,
+        indexId: const obx_int.IdUid(18, 2495979357601344269),
+        relationTarget: 'ShoppingListModel',
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[
+      obx_int.ModelRelation(
+        id: const obx_int.IdUid(6, 1175027082995003754),
+        name: 'groceryStores',
+        targetId: const obx_int.IdUid(12, 5466436912549686832),
+      ),
+    ],
+    backlinks: <obx_int.ModelBacklink>[],
+  ),
+  obx_int.ModelEntity(
+    id: const obx_int.IdUid(16, 1552901816325247219),
+    name: 'ShoppingListModel',
+    lastPropertyId: const obx_int.IdUid(2, 3141049273777775436),
+    flags: 0,
+    properties: <obx_int.ModelProperty>[
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(1, 5787185260168585500),
+        name: 'id',
+        type: 6,
+        flags: 1,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(2, 3141049273777775436),
+        name: 'name',
+        type: 9,
+        flags: 0,
+      ),
+    ],
+    relations: <obx_int.ModelRelation>[
+      obx_int.ModelRelation(
+        id: const obx_int.IdUid(7, 8622276223178279816),
+        name: 'productVariants',
+        targetId: const obx_int.IdUid(14, 7700695824589981925),
+      ),
+    ],
+    backlinks: <obx_int.ModelBacklink>[
+      obx_int.ModelBacklink(
+        name: 'items',
+        srcEntity: 'ShoppingItemModel',
+        srcField: 'shoppingList',
+      ),
+    ],
+  ),
 ];
 
 /// Shortcut for [obx.Store.new] that passes [getObjectBoxModel] and for Flutter
@@ -683,14 +684,19 @@ Future<obx.Store> openStore({
 obx_int.ModelDefinition getObjectBoxModel() {
   final model = obx_int.ModelInfo(
     entities: _entities,
-    lastEntityId: const obx_int.IdUid(11, 6208576256782168743),
-    lastIndexId: const obx_int.IdUid(11, 5970786985322107571),
-    lastRelationId: const obx_int.IdUid(4, 1197395323065624316),
+    lastEntityId: const obx_int.IdUid(16, 1552901816325247219),
+    lastIndexId: const obx_int.IdUid(18, 2495979357601344269),
+    lastRelationId: const obx_int.IdUid(7, 8622276223178279816),
     lastSequenceId: const obx_int.IdUid(0, 0),
     retiredEntityUids: const [
       1350387564383969056,
       3755552543016900288,
       6096693989506498973,
+      5392232521263040000,
+      5884021774426625564,
+      6701175573460648360,
+      1820958202328536689,
+      9125453582779863383,
     ],
     retiredIndexUids: const [1205661651718775251, 1359002738651244461],
     retiredPropertyUids: const [
@@ -707,6 +713,75 @@ obx_int.ModelDefinition getObjectBoxModel() {
       4246253094833844396,
       8134836252432234869,
       1983257502895619679,
+      5743311374707640706,
+      5640327601109155288,
+      2458881672330496623,
+      2634876967099437326,
+      1326364750653525587,
+      8679451327714616428,
+      4053898171902608147,
+      4169143285421413535,
+      4935364066352572488,
+      5167489257107915554,
+      4185484804052965239,
+      7425407695711604717,
+      1517200741936287104,
+      2321754859430007901,
+      1433682486671584200,
+      6183159279299876135,
+      6531799950927374350,
+      2406488466200381600,
+      3924568137145655625,
+      4620948759756646472,
+      803727051165036413,
+      4060516909469705996,
+      5590610874088685524,
+      7384634165614092262,
+      6299104716667177880,
+      9103335636842345087,
+      8256650373857533366,
+      496491443493904640,
+      7505990523085777365,
+      4263145842442598438,
+      494061646670888266,
+      6393508022193581249,
+      1750734653340309613,
+      9094648843191831429,
+      4540736083573214785,
+      1283912408213000354,
+      8526117574851558435,
+      5730091907303705034,
+      4127569866953332163,
+      1484820910353940200,
+      1412366170076418600,
+      7282236726265154570,
+      5452471868582992806,
+      2309145336124724371,
+      9189637219533242919,
+      1191468069703047315,
+      6987917760159328793,
+      6579103782426902767,
+      3648157497315526927,
+      3727851636902858405,
+      7840656964303796260,
+      3555872595033659757,
+      3442117152883599825,
+      8565814710604168179,
+      5677410942254802687,
+      8447875324182344270,
+      9039879816845286933,
+      4184585622445500019,
+      3069975963098773088,
+      4963746361523164467,
+      3744774468374888429,
+      3209074063036490479,
+      6302940555737560459,
+      8953011148806672386,
+      6255481921219461051,
+      8013425193315835219,
+      5067747944301530555,
+      3147298579726600723,
+      1322557908948243895,
     ],
     retiredRelationUids: const [],
     modelVersion: 5,
@@ -715,19 +790,170 @@ obx_int.ModelDefinition getObjectBoxModel() {
   );
 
   final bindings = <Type, obx_int.EntityDefinition>{
-    GroceryStore: obx_int.EntityDefinition<GroceryStore>(
+    BrandModel: obx_int.EntityDefinition<BrandModel>(
       model: _entities[0],
-      toOneRelations: (GroceryStore object) => [],
-      toManyRelations: (GroceryStore object) => {
-        obx_int.RelInfo<GroceryStore>.toMany(1, object.id): object.hasBrands,
-        obx_int.RelInfo<GroceryStore>.toMany(3, object.id):
-            object.hasProductVariants,
+      toOneRelations: (BrandModel object) => [],
+      toManyRelations: (BrandModel object) => {
+        obx_int.RelInfo<GroceryStoreModel>.toManyBacklink(5, object.id):
+            object.groceryStores,
+        obx_int.RelInfo<SubBrandModel>.toOneBacklink(
+          3,
+          object.id,
+          (SubBrandModel srcObject) => srcObject.brand,
+        ): object.subBrands,
+        obx_int.RelInfo<ProductLineModel>.toOneBacklink(
+          3,
+          object.id,
+          (ProductLineModel srcObject) => srcObject.brand,
+        ): object.productLines,
       },
-      getId: (GroceryStore object) => object.id,
-      setId: (GroceryStore object, int id) {
+      getId: (BrandModel object) => object.id,
+      setId: (BrandModel object, int id) {
         object.id = id;
       },
-      objectToFB: (GroceryStore object, fb.Builder fbb) {
+      objectToFB: (BrandModel object, fb.Builder fbb) {
+        final nameOffset = fbb.writeString(object.name);
+        fbb.startTable(3);
+        fbb.addInt64(0, object.id);
+        fbb.addOffset(1, nameOffset);
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final idParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          4,
+          0,
+        );
+        final nameParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 6, '');
+        final object = BrandModel(id: idParam, name: nameParam);
+        obx_int.InternalToManyAccess.setRelInfo<BrandModel>(
+          object.groceryStores,
+          store,
+          obx_int.RelInfo<GroceryStoreModel>.toManyBacklink(5, object.id),
+        );
+        obx_int.InternalToManyAccess.setRelInfo<BrandModel>(
+          object.subBrands,
+          store,
+          obx_int.RelInfo<SubBrandModel>.toOneBacklink(
+            3,
+            object.id,
+            (SubBrandModel srcObject) => srcObject.brand,
+          ),
+        );
+        obx_int.InternalToManyAccess.setRelInfo<BrandModel>(
+          object.productLines,
+          store,
+          obx_int.RelInfo<ProductLineModel>.toOneBacklink(
+            3,
+            object.id,
+            (ProductLineModel srcObject) => srcObject.brand,
+          ),
+        );
+        return object;
+      },
+    ),
+    ProductLineModel: obx_int.EntityDefinition<ProductLineModel>(
+      model: _entities[1],
+      toOneRelations: (ProductLineModel object) => [object.brand],
+      toManyRelations: (ProductLineModel object) => {},
+      getId: (ProductLineModel object) => object.id,
+      setId: (ProductLineModel object, int id) {
+        object.id = id;
+      },
+      objectToFB: (ProductLineModel object, fb.Builder fbb) {
+        final nameOffset = fbb.writeString(object.name);
+        fbb.startTable(4);
+        fbb.addInt64(0, object.id);
+        fbb.addOffset(1, nameOffset);
+        fbb.addInt64(2, object.brand.targetId);
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final idParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          4,
+          0,
+        );
+        final nameParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 6, '');
+        final object = ProductLineModel(id: idParam, name: nameParam);
+        object.brand.targetId = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          8,
+          0,
+        );
+        object.brand.attach(store);
+        return object;
+      },
+    ),
+    SubBrandModel: obx_int.EntityDefinition<SubBrandModel>(
+      model: _entities[2],
+      toOneRelations: (SubBrandModel object) => [object.brand],
+      toManyRelations: (SubBrandModel object) => {},
+      getId: (SubBrandModel object) => object.id,
+      setId: (SubBrandModel object, int id) {
+        object.id = id;
+      },
+      objectToFB: (SubBrandModel object, fb.Builder fbb) {
+        final nameOffset = fbb.writeString(object.name);
+        fbb.startTable(4);
+        fbb.addInt64(0, object.id);
+        fbb.addOffset(1, nameOffset);
+        fbb.addInt64(2, object.brand.targetId);
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final idParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          4,
+          0,
+        );
+        final nameParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 6, '');
+        final object = SubBrandModel(id: idParam, name: nameParam);
+        object.brand.targetId = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          8,
+          0,
+        );
+        object.brand.attach(store);
+        return object;
+      },
+    ),
+    GroceryStoreModel: obx_int.EntityDefinition<GroceryStoreModel>(
+      model: _entities[3],
+      toOneRelations: (GroceryStoreModel object) => [],
+      toManyRelations: (GroceryStoreModel object) => {
+        obx_int.RelInfo<GroceryStoreModel>.toMany(5, object.id): object.brands,
+        obx_int.RelInfo<PriceEntryModel>.toOneBacklink(
+          8,
+          object.id,
+          (PriceEntryModel srcObject) => srcObject.groceryStore,
+        ): object.priceEntries,
+      },
+      getId: (GroceryStoreModel object) => object.id,
+      setId: (GroceryStoreModel object, int id) {
+        object.id = id;
+      },
+      objectToFB: (GroceryStoreModel object, fb.Builder fbb) {
         final nameOffset = fbb.writeString(object.name);
         final websiteOffset = object.website == null
             ? null
@@ -775,7 +1001,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final storeNumberParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGetNullable(buffer, rootOffset, 14);
-        final object = GroceryStore(
+        final object = GroceryStoreModel(
           id: idParam,
           name: nameParam,
           website: websiteParam,
@@ -783,41 +1009,46 @@ obx_int.ModelDefinition getObjectBoxModel() {
           phoneNumber: phoneNumberParam,
           storeNumber: storeNumberParam,
         );
-        obx_int.InternalToManyAccess.setRelInfo<GroceryStore>(
-          object.hasBrands,
+        obx_int.InternalToManyAccess.setRelInfo<GroceryStoreModel>(
+          object.brands,
           store,
-          obx_int.RelInfo<GroceryStore>.toMany(1, object.id),
+          obx_int.RelInfo<GroceryStoreModel>.toMany(5, object.id),
         );
-        obx_int.InternalToManyAccess.setRelInfo<GroceryStore>(
-          object.hasProductVariants,
+        obx_int.InternalToManyAccess.setRelInfo<GroceryStoreModel>(
+          object.priceEntries,
           store,
-          obx_int.RelInfo<GroceryStore>.toMany(3, object.id),
+          obx_int.RelInfo<PriceEntryModel>.toOneBacklink(
+            8,
+            object.id,
+            (PriceEntryModel srcObject) => srcObject.groceryStore,
+          ),
         );
         return object;
       },
     ),
-    PriceEntry: obx_int.EntityDefinition<PriceEntry>(
-      model: _entities[1],
-      toOneRelations: (PriceEntry object) => [
+    PriceEntryModel: obx_int.EntityDefinition<PriceEntryModel>(
+      model: _entities[4],
+      toOneRelations: (PriceEntryModel object) => [
         object.groceryStore,
         object.productVariant,
       ],
-      toManyRelations: (PriceEntry object) => {},
-      getId: (PriceEntry object) => object.id,
-      setId: (PriceEntry object, int id) {
+      toManyRelations: (PriceEntryModel object) => {},
+      getId: (PriceEntryModel object) => object.id,
+      setId: (PriceEntryModel object, int id) {
         object.id = id;
       },
-      objectToFB: (PriceEntry object, fb.Builder fbb) {
+      objectToFB: (PriceEntryModel object, fb.Builder fbb) {
         final unitOffset = fbb.writeString(object.unit);
-        fbb.startTable(12);
+        fbb.startTable(10);
         fbb.addInt64(0, object.id);
-        fbb.addInt64(2, object.date.millisecondsSinceEpoch);
-        fbb.addInt64(4, object.groceryStore.targetId);
-        fbb.addInt64(6, object.productVariant.targetId);
-        fbb.addFloat64(7, object.unitPrice);
-        fbb.addOffset(8, unitOffset);
-        fbb.addFloat64(9, object.quantityPurchased);
-        fbb.addFloat64(10, object.totalPricePaid);
+        fbb.addFloat64(1, object.unitPrice);
+        fbb.addOffset(2, unitOffset);
+        fbb.addInt64(3, object.date.millisecondsSinceEpoch);
+        fbb.addBool(4, object.isPurchase);
+        fbb.addFloat64(5, object.quantityPurchased);
+        fbb.addFloat64(6, object.totalPricePaid);
+        fbb.addInt64(7, object.groceryStore.targetId);
+        fbb.addInt64(8, object.productVariant.targetId);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -833,62 +1064,450 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final unitPriceParam = const fb.Float64Reader().vTableGet(
           buffer,
           rootOffset,
-          18,
+          6,
           0,
         );
         final unitParam = const fb.StringReader(
           asciiOptimization: true,
-        ).vTableGet(buffer, rootOffset, 20, '');
+        ).vTableGet(buffer, rootOffset, 8, '');
         final dateParam = DateTime.fromMillisecondsSinceEpoch(
-          const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0),
+          const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0),
+        );
+        final isPurchaseParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          12,
+          false,
         );
         final quantityPurchasedParam = const fb.Float64Reader()
-            .vTableGetNullable(buffer, rootOffset, 22);
+            .vTableGetNullable(buffer, rootOffset, 14);
         final totalPricePaidParam = const fb.Float64Reader().vTableGetNullable(
           buffer,
           rootOffset,
-          24,
+          16,
         );
-        final object = PriceEntry(
+        final object = PriceEntryModel(
           id: idParam,
           unitPrice: unitPriceParam,
           unit: unitParam,
           date: dateParam,
+          isPurchase: isPurchaseParam,
           quantityPurchased: quantityPurchasedParam,
           totalPricePaid: totalPricePaidParam,
         );
         object.groceryStore.targetId = const fb.Int64Reader().vTableGet(
           buffer,
           rootOffset,
-          12,
+          18,
           0,
         );
         object.groceryStore.attach(store);
         object.productVariant.targetId = const fb.Int64Reader().vTableGet(
           buffer,
           rootOffset,
-          16,
+          20,
           0,
         );
         object.productVariant.attach(store);
         return object;
       },
     ),
-    ShoppingItem: obx_int.EntityDefinition<ShoppingItem>(
-      model: _entities[2],
-      toOneRelations: (ShoppingItem object) => [
-        object.shoppingList,
-        object.preferredVariant,
+    ProductVariantModel: obx_int.EntityDefinition<ProductVariantModel>(
+      model: _entities[5],
+      toOneRelations: (ProductVariantModel object) => [
+        object.brand,
+        object.subBrand,
+        object.productLine,
       ],
-      toManyRelations: (ShoppingItem object) => {
-        obx_int.RelInfo<ShoppingItem>.toMany(2, object.id):
-            object.groceryStores,
+      toManyRelations: (ProductVariantModel object) => {
+        obx_int.RelInfo<PriceEntryModel>.toOneBacklink(
+          9,
+          object.id,
+          (PriceEntryModel srcObject) => srcObject.productVariant,
+        ): object.priceEntries,
       },
-      getId: (ShoppingItem object) => object.id,
-      setId: (ShoppingItem object, int id) {
+      getId: (ProductVariantModel object) => object.id,
+      setId: (ProductVariantModel object, int id) {
         object.id = id;
       },
-      objectToFB: (ShoppingItem object, fb.Builder fbb) {
+      objectToFB: (ProductVariantModel object, fb.Builder fbb) {
+        final nameOffset = fbb.writeString(object.name);
+        final baseProductNameOffset = fbb.writeString(object.baseProductName);
+        final upcCodeOffset = object.upcCode == null
+            ? null
+            : fbb.writeString(object.upcCode!);
+        final formOffset = object.form == null
+            ? null
+            : fbb.writeString(object.form!);
+        final packagedUnitOffset = object.packagedUnit == null
+            ? null
+            : fbb.writeString(object.packagedUnit!);
+        final displayPackageSizeOffset = object.displayPackageSize == null
+            ? null
+            : fbb.writeString(object.displayPackageSize!);
+        final containerTypeOffset = object.containerType == null
+            ? null
+            : fbb.writeString(object.containerType!);
+        final preparationOffset = object.preparation == null
+            ? null
+            : fbb.writeString(object.preparation!);
+        final maturityOffset = object.maturity == null
+            ? null
+            : fbb.writeString(object.maturity!);
+        final gradeOffset = object.grade == null
+            ? null
+            : fbb.writeString(object.grade!);
+        final allergenInfoOffset = fbb.writeList(
+          object.allergenInfo.map(fbb.writeString).toList(growable: false),
+        );
+        final flavorOffset = object.flavor == null
+            ? null
+            : fbb.writeString(object.flavor!);
+        final scentOffset = object.scent == null
+            ? null
+            : fbb.writeString(object.scent!);
+        final colorOffset = object.color == null
+            ? null
+            : fbb.writeString(object.color!);
+        final mainIngredientOffset = object.mainIngredient == null
+            ? null
+            : fbb.writeString(object.mainIngredient!);
+        final secondaryIngredientsOffset = fbb.writeList(
+          object.secondaryIngredients
+              .map(fbb.writeString)
+              .toList(growable: false),
+        );
+        final spicinessLevelOffset = object.spicinessLevel == null
+            ? null
+            : fbb.writeString(object.spicinessLevel!);
+        final caffeineContentOffset = object.caffeineContent == null
+            ? null
+            : fbb.writeString(object.caffeineContent!);
+        final alcoholContentOffset = object.alcoholContent == null
+            ? null
+            : fbb.writeString(object.alcoholContent!);
+        final customAttributesOffset = fbb.writeList(
+          object.customAttributes.map(fbb.writeString).toList(growable: false),
+        );
+        fbb.startTable(44);
+        fbb.addInt64(0, object.id);
+        fbb.addOffset(1, nameOffset);
+        fbb.addOffset(2, baseProductNameOffset);
+        fbb.addOffset(3, upcCodeOffset);
+        fbb.addOffset(4, formOffset);
+        fbb.addFloat64(5, object.packagedQuantity);
+        fbb.addOffset(6, packagedUnitOffset);
+        fbb.addOffset(7, displayPackageSizeOffset);
+        fbb.addOffset(8, containerTypeOffset);
+        fbb.addOffset(9, preparationOffset);
+        fbb.addOffset(10, maturityOffset);
+        fbb.addOffset(11, gradeOffset);
+        fbb.addBool(12, object.isOrganic);
+        fbb.addBool(13, object.isGlutenFree);
+        fbb.addBool(14, object.isNonGMO);
+        fbb.addBool(15, object.isVegan);
+        fbb.addBool(16, object.isVegetarian);
+        fbb.addBool(17, object.isDairyFree);
+        fbb.addBool(18, object.isNutFree);
+        fbb.addBool(19, object.isSoyFree);
+        fbb.addBool(20, object.isKosher);
+        fbb.addBool(21, object.isHalal);
+        fbb.addBool(22, object.isSugarFree);
+        fbb.addBool(23, object.isLowSodium);
+        fbb.addBool(24, object.isLowFat);
+        fbb.addBool(25, object.isLowCarb);
+        fbb.addBool(26, object.isHighProtein);
+        fbb.addBool(27, object.isWholeGrain);
+        fbb.addBool(28, object.hasNoAddedSugar);
+        fbb.addBool(29, object.hasArtificialSweeteners);
+        fbb.addOffset(30, allergenInfoOffset);
+        fbb.addOffset(31, flavorOffset);
+        fbb.addOffset(32, scentOffset);
+        fbb.addOffset(33, colorOffset);
+        fbb.addOffset(34, mainIngredientOffset);
+        fbb.addOffset(35, secondaryIngredientsOffset);
+        fbb.addOffset(36, spicinessLevelOffset);
+        fbb.addOffset(37, caffeineContentOffset);
+        fbb.addOffset(38, alcoholContentOffset);
+        fbb.addOffset(39, customAttributesOffset);
+        fbb.addInt64(40, object.brand.targetId);
+        fbb.addInt64(41, object.subBrand.targetId);
+        fbb.addInt64(42, object.productLine.targetId);
+        fbb.finish(fbb.endTable());
+        return object.id;
+      },
+      objectFromFB: (obx.Store store, ByteData fbData) {
+        final buffer = fb.BufferContext(fbData);
+        final rootOffset = buffer.derefObject(0);
+        final idParam = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          4,
+          0,
+        );
+        final nameParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 6, '');
+        final baseProductNameParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGet(buffer, rootOffset, 8, '');
+        final upcCodeParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 10);
+        final formParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 12);
+        final packagedQuantityParam = const fb.Float64Reader()
+            .vTableGetNullable(buffer, rootOffset, 14);
+        final packagedUnitParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 16);
+        final displayPackageSizeParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 18);
+        final containerTypeParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 20);
+        final preparationParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 22);
+        final maturityParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 24);
+        final gradeParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 26);
+        final isOrganicParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          28,
+          false,
+        );
+        final isGlutenFreeParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          30,
+          false,
+        );
+        final isNonGMOParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          32,
+          false,
+        );
+        final isVeganParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          34,
+          false,
+        );
+        final isVegetarianParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          36,
+          false,
+        );
+        final isDairyFreeParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          38,
+          false,
+        );
+        final isNutFreeParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          40,
+          false,
+        );
+        final isSoyFreeParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          42,
+          false,
+        );
+        final isKosherParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          44,
+          false,
+        );
+        final isHalalParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          46,
+          false,
+        );
+        final isSugarFreeParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          48,
+          false,
+        );
+        final isLowSodiumParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          50,
+          false,
+        );
+        final isLowFatParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          52,
+          false,
+        );
+        final isLowCarbParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          54,
+          false,
+        );
+        final isHighProteinParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          56,
+          false,
+        );
+        final isWholeGrainParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          58,
+          false,
+        );
+        final hasNoAddedSugarParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          60,
+          false,
+        );
+        final hasArtificialSweetenersParam = const fb.BoolReader().vTableGet(
+          buffer,
+          rootOffset,
+          62,
+          false,
+        );
+        final allergenInfoParam = const fb.ListReader<String>(
+          fb.StringReader(asciiOptimization: true),
+          lazy: false,
+        ).vTableGet(buffer, rootOffset, 64, []);
+        final flavorParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 66);
+        final scentParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 68);
+        final colorParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 70);
+        final mainIngredientParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 72);
+        final secondaryIngredientsParam = const fb.ListReader<String>(
+          fb.StringReader(asciiOptimization: true),
+          lazy: false,
+        ).vTableGet(buffer, rootOffset, 74, []);
+        final spicinessLevelParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 76);
+        final caffeineContentParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 78);
+        final alcoholContentParam = const fb.StringReader(
+          asciiOptimization: true,
+        ).vTableGetNullable(buffer, rootOffset, 80);
+        final customAttributesParam = const fb.ListReader<String>(
+          fb.StringReader(asciiOptimization: true),
+          lazy: false,
+        ).vTableGet(buffer, rootOffset, 82, []);
+        final object = ProductVariantModel(
+          id: idParam,
+          name: nameParam,
+          baseProductName: baseProductNameParam,
+          upcCode: upcCodeParam,
+          form: formParam,
+          packagedQuantity: packagedQuantityParam,
+          packagedUnit: packagedUnitParam,
+          displayPackageSize: displayPackageSizeParam,
+          containerType: containerTypeParam,
+          preparation: preparationParam,
+          maturity: maturityParam,
+          grade: gradeParam,
+          isOrganic: isOrganicParam,
+          isGlutenFree: isGlutenFreeParam,
+          isNonGMO: isNonGMOParam,
+          isVegan: isVeganParam,
+          isVegetarian: isVegetarianParam,
+          isDairyFree: isDairyFreeParam,
+          isNutFree: isNutFreeParam,
+          isSoyFree: isSoyFreeParam,
+          isKosher: isKosherParam,
+          isHalal: isHalalParam,
+          isSugarFree: isSugarFreeParam,
+          isLowSodium: isLowSodiumParam,
+          isLowFat: isLowFatParam,
+          isLowCarb: isLowCarbParam,
+          isHighProtein: isHighProteinParam,
+          isWholeGrain: isWholeGrainParam,
+          hasNoAddedSugar: hasNoAddedSugarParam,
+          hasArtificialSweeteners: hasArtificialSweetenersParam,
+          allergenInfo: allergenInfoParam,
+          flavor: flavorParam,
+          scent: scentParam,
+          color: colorParam,
+          mainIngredient: mainIngredientParam,
+          secondaryIngredients: secondaryIngredientsParam,
+          spicinessLevel: spicinessLevelParam,
+          caffeineContent: caffeineContentParam,
+          alcoholContent: alcoholContentParam,
+          customAttributes: customAttributesParam,
+        );
+        object.brand.targetId = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          84,
+          0,
+        );
+        object.brand.attach(store);
+        object.subBrand.targetId = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          86,
+          0,
+        );
+        object.subBrand.attach(store);
+        object.productLine.targetId = const fb.Int64Reader().vTableGet(
+          buffer,
+          rootOffset,
+          88,
+          0,
+        );
+        object.productLine.attach(store);
+        obx_int.InternalToManyAccess.setRelInfo<ProductVariantModel>(
+          object.priceEntries,
+          store,
+          obx_int.RelInfo<PriceEntryModel>.toOneBacklink(
+            9,
+            object.id,
+            (PriceEntryModel srcObject) => srcObject.productVariant,
+          ),
+        );
+        return object;
+      },
+    ),
+    ShoppingItemModel: obx_int.EntityDefinition<ShoppingItemModel>(
+      model: _entities[6],
+      toOneRelations: (ShoppingItemModel object) => [
+        object.preferredVariant,
+        object.shoppingList,
+      ],
+      toManyRelations: (ShoppingItemModel object) => {
+        obx_int.RelInfo<ShoppingItemModel>.toMany(6, object.id):
+            object.groceryStores,
+      },
+      getId: (ShoppingItemModel object) => object.id,
+      setId: (ShoppingItemModel object, int id) {
+        object.id = id;
+      },
+      objectToFB: (ShoppingItemModel object, fb.Builder fbb) {
         final nameOffset = fbb.writeString(object.name);
         final categoryOffset = object.category == null
             ? null
@@ -902,17 +1521,17 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final desiredAttributesOffset = fbb.writeList(
           object.desiredAttributes.map(fbb.writeString).toList(growable: false),
         );
-        fbb.startTable(12);
+        fbb.startTable(11);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, nameOffset);
         fbb.addOffset(2, categoryOffset);
         fbb.addFloat64(3, object.quantity);
         fbb.addOffset(4, unitOffset);
         fbb.addBool(5, object.isCompleted);
-        fbb.addInt64(6, object.shoppingList.targetId);
-        fbb.addOffset(8, notesOffset);
-        fbb.addOffset(9, desiredAttributesOffset);
-        fbb.addInt64(10, object.preferredVariant.targetId);
+        fbb.addOffset(6, notesOffset);
+        fbb.addOffset(7, desiredAttributesOffset);
+        fbb.addInt64(8, object.preferredVariant.targetId);
+        fbb.addInt64(9, object.shoppingList.targetId);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -948,12 +1567,12 @@ obx_int.ModelDefinition getObjectBoxModel() {
         );
         final notesParam = const fb.StringReader(
           asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 20);
+        ).vTableGetNullable(buffer, rootOffset, 16);
         final desiredAttributesParam = const fb.ListReader<String>(
           fb.StringReader(asciiOptimization: true),
           lazy: false,
-        ).vTableGet(buffer, rootOffset, 22, []);
-        final object = ShoppingItem(
+        ).vTableGet(buffer, rootOffset, 18, []);
+        final object = ShoppingItemModel(
           id: idParam,
           name: nameParam,
           category: categoryParam,
@@ -963,495 +1582,45 @@ obx_int.ModelDefinition getObjectBoxModel() {
           notes: notesParam,
           desiredAttributes: desiredAttributesParam,
         );
-        object.shoppingList.targetId = const fb.Int64Reader().vTableGet(
-          buffer,
-          rootOffset,
-          16,
-          0,
-        );
-        object.shoppingList.attach(store);
         object.preferredVariant.targetId = const fb.Int64Reader().vTableGet(
           buffer,
           rootOffset,
-          24,
+          20,
           0,
         );
         object.preferredVariant.attach(store);
-        obx_int.InternalToManyAccess.setRelInfo<ShoppingItem>(
-          object.groceryStores,
-          store,
-          obx_int.RelInfo<ShoppingItem>.toMany(2, object.id),
-        );
-        return object;
-      },
-    ),
-    ShoppingList: obx_int.EntityDefinition<ShoppingList>(
-      model: _entities[3],
-      toOneRelations: (ShoppingList object) => [],
-      toManyRelations: (ShoppingList object) => {
-        obx_int.RelInfo<ShoppingList>.toMany(4, object.id):
-            object.productVariants,
-        obx_int.RelInfo<ShoppingItem>.toOneBacklink(
-          7,
-          object.id,
-          (ShoppingItem srcObject) => srcObject.shoppingList,
-        ): object.items,
-      },
-      getId: (ShoppingList object) => object.id,
-      setId: (ShoppingList object, int id) {
-        object.id = id;
-      },
-      objectToFB: (ShoppingList object, fb.Builder fbb) {
-        final nameOffset = fbb.writeString(object.name);
-        fbb.startTable(3);
-        fbb.addInt64(0, object.id);
-        fbb.addOffset(1, nameOffset);
-        fbb.finish(fbb.endTable());
-        return object.id;
-      },
-      objectFromFB: (obx.Store store, ByteData fbData) {
-        final buffer = fb.BufferContext(fbData);
-        final rootOffset = buffer.derefObject(0);
-        final idParam = const fb.Int64Reader().vTableGet(
-          buffer,
-          rootOffset,
-          4,
-          0,
-        );
-        final nameParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGet(buffer, rootOffset, 6, '');
-        final object = ShoppingList(id: idParam, name: nameParam);
-        obx_int.InternalToManyAccess.setRelInfo<ShoppingList>(
-          object.productVariants,
-          store,
-          obx_int.RelInfo<ShoppingList>.toMany(4, object.id),
-        );
-        obx_int.InternalToManyAccess.setRelInfo<ShoppingList>(
-          object.items,
-          store,
-          obx_int.RelInfo<ShoppingItem>.toOneBacklink(
-            7,
-            object.id,
-            (ShoppingItem srcObject) => srcObject.shoppingList,
-          ),
-        );
-        return object;
-      },
-    ),
-    ProductVariant: obx_int.EntityDefinition<ProductVariant>(
-      model: _entities[4],
-      toOneRelations: (ProductVariant object) => [object.brand],
-      toManyRelations: (ProductVariant object) => {
-        obx_int.RelInfo<ShoppingList>.toManyBacklink(4, object.id):
-            object.shoppingLists,
-        obx_int.RelInfo<PriceEntry>.toOneBacklink(
-          7,
-          object.id,
-          (PriceEntry srcObject) => srcObject.productVariant,
-        ): object.priceEntries,
-        obx_int.RelInfo<GroceryStore>.toManyBacklink(3, object.id):
-            object.availableInStores,
-      },
-      getId: (ProductVariant object) => object.id,
-      setId: (ProductVariant object, int id) {
-        object.id = id;
-      },
-      objectToFB: (ProductVariant object, fb.Builder fbb) {
-        final nameOffset = fbb.writeString(object.name);
-        final baseProductNameOffset = fbb.writeString(object.baseProductName);
-        final flavorOffset = object.flavor == null
-            ? null
-            : fbb.writeString(object.flavor!);
-        final upcCodeOffset = object.upcCode == null
-            ? null
-            : fbb.writeString(object.upcCode!);
-        final customAttributesOffset = fbb.writeList(
-          object.customAttributes.map(fbb.writeString).toList(growable: false),
-        );
-        final formOffset = object.form == null
-            ? null
-            : fbb.writeString(object.form!);
-        final containerTypeOffset = object.containerType == null
-            ? null
-            : fbb.writeString(object.containerType!);
-        final preparationOffset = object.preparation == null
-            ? null
-            : fbb.writeString(object.preparation!);
-        final maturityOffset = object.maturity == null
-            ? null
-            : fbb.writeString(object.maturity!);
-        final gradeOffset = object.grade == null
-            ? null
-            : fbb.writeString(object.grade!);
-        final allergenInfoOffset = fbb.writeList(
-          object.allergenInfo.map(fbb.writeString).toList(growable: false),
-        );
-        final scentOffset = object.scent == null
-            ? null
-            : fbb.writeString(object.scent!);
-        final colorOffset = object.color == null
-            ? null
-            : fbb.writeString(object.color!);
-        final mainIngredientOffset = object.mainIngredient == null
-            ? null
-            : fbb.writeString(object.mainIngredient!);
-        final secondaryIngredientsOffset = fbb.writeList(
-          object.secondaryIngredients
-              .map(fbb.writeString)
-              .toList(growable: false),
-        );
-        final spicinessLevelOffset = object.spicinessLevel == null
-            ? null
-            : fbb.writeString(object.spicinessLevel!);
-        final caffeineContentOffset = object.caffeineContent == null
-            ? null
-            : fbb.writeString(object.caffeineContent!);
-        final alcoholContentOffset = object.alcoholContent == null
-            ? null
-            : fbb.writeString(object.alcoholContent!);
-        final subBrandOffset = object.subBrand == null
-            ? null
-            : fbb.writeString(object.subBrand!);
-        final productLineOffset = object.productLine == null
-            ? null
-            : fbb.writeString(object.productLine!);
-        final packagedUnitOffset = object.packagedUnit == null
-            ? null
-            : fbb.writeString(object.packagedUnit!);
-        final displayPackageSizeOffset = object.displayPackageSize == null
-            ? null
-            : fbb.writeString(object.displayPackageSize!);
-        fbb.startTable(45);
-        fbb.addInt64(0, object.id);
-        fbb.addOffset(1, nameOffset);
-        fbb.addOffset(2, baseProductNameOffset);
-        fbb.addOffset(3, flavorOffset);
-        fbb.addBool(5, object.isOrganic);
-        fbb.addBool(6, object.isGlutenFree);
-        fbb.addOffset(7, upcCodeOffset);
-        fbb.addOffset(8, customAttributesOffset);
-        fbb.addInt64(9, object.brand.targetId);
-        fbb.addOffset(10, formOffset);
-        fbb.addOffset(11, containerTypeOffset);
-        fbb.addOffset(12, preparationOffset);
-        fbb.addOffset(13, maturityOffset);
-        fbb.addOffset(14, gradeOffset);
-        fbb.addBool(15, object.isNonGMO);
-        fbb.addBool(16, object.isVegan);
-        fbb.addBool(17, object.isVegetarian);
-        fbb.addBool(18, object.isDairyFree);
-        fbb.addBool(19, object.isNutFree);
-        fbb.addBool(20, object.isSoyFree);
-        fbb.addBool(21, object.isKosher);
-        fbb.addBool(22, object.isHalal);
-        fbb.addBool(23, object.isSugarFree);
-        fbb.addBool(24, object.isLowSodium);
-        fbb.addBool(25, object.isLowFat);
-        fbb.addBool(26, object.isLowCarb);
-        fbb.addBool(27, object.isHighProtein);
-        fbb.addBool(28, object.isWholeGrain);
-        fbb.addBool(29, object.hasNoAddedSugar);
-        fbb.addBool(30, object.hasArtificialSweeteners);
-        fbb.addOffset(31, allergenInfoOffset);
-        fbb.addOffset(32, scentOffset);
-        fbb.addOffset(33, colorOffset);
-        fbb.addOffset(34, mainIngredientOffset);
-        fbb.addOffset(35, secondaryIngredientsOffset);
-        fbb.addOffset(36, spicinessLevelOffset);
-        fbb.addOffset(37, caffeineContentOffset);
-        fbb.addOffset(38, alcoholContentOffset);
-        fbb.addOffset(39, subBrandOffset);
-        fbb.addOffset(40, productLineOffset);
-        fbb.addFloat64(41, object.packagedQuantity);
-        fbb.addOffset(42, packagedUnitOffset);
-        fbb.addOffset(43, displayPackageSizeOffset);
-        fbb.finish(fbb.endTable());
-        return object.id;
-      },
-      objectFromFB: (obx.Store store, ByteData fbData) {
-        final buffer = fb.BufferContext(fbData);
-        final rootOffset = buffer.derefObject(0);
-        final idParam = const fb.Int64Reader().vTableGet(
-          buffer,
-          rootOffset,
-          4,
-          0,
-        );
-        final nameParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGet(buffer, rootOffset, 6, '');
-        final baseProductNameParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGet(buffer, rootOffset, 8, '');
-        final flavorParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 10);
-        final packagedQuantityParam = const fb.Float64Reader()
-            .vTableGetNullable(buffer, rootOffset, 86);
-        final packagedUnitParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 88);
-        final displayPackageSizeParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 90);
-        final isOrganicParam = const fb.BoolReader().vTableGet(
-          buffer,
-          rootOffset,
-          14,
-          false,
-        );
-        final isGlutenFreeParam = const fb.BoolReader().vTableGet(
-          buffer,
-          rootOffset,
-          16,
-          false,
-        );
-        final upcCodeParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 18);
-        final formParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 24);
-        final containerTypeParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 26);
-        final preparationParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 28);
-        final maturityParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 30);
-        final gradeParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 32);
-        final isNonGMOParam = const fb.BoolReader().vTableGet(
-          buffer,
-          rootOffset,
-          34,
-          false,
-        );
-        final isVeganParam = const fb.BoolReader().vTableGet(
-          buffer,
-          rootOffset,
-          36,
-          false,
-        );
-        final isVegetarianParam = const fb.BoolReader().vTableGet(
-          buffer,
-          rootOffset,
-          38,
-          false,
-        );
-        final isDairyFreeParam = const fb.BoolReader().vTableGet(
-          buffer,
-          rootOffset,
-          40,
-          false,
-        );
-        final isNutFreeParam = const fb.BoolReader().vTableGet(
-          buffer,
-          rootOffset,
-          42,
-          false,
-        );
-        final isSoyFreeParam = const fb.BoolReader().vTableGet(
-          buffer,
-          rootOffset,
-          44,
-          false,
-        );
-        final isKosherParam = const fb.BoolReader().vTableGet(
-          buffer,
-          rootOffset,
-          46,
-          false,
-        );
-        final isHalalParam = const fb.BoolReader().vTableGet(
-          buffer,
-          rootOffset,
-          48,
-          false,
-        );
-        final isSugarFreeParam = const fb.BoolReader().vTableGet(
-          buffer,
-          rootOffset,
-          50,
-          false,
-        );
-        final isLowSodiumParam = const fb.BoolReader().vTableGet(
-          buffer,
-          rootOffset,
-          52,
-          false,
-        );
-        final isLowFatParam = const fb.BoolReader().vTableGet(
-          buffer,
-          rootOffset,
-          54,
-          false,
-        );
-        final isLowCarbParam = const fb.BoolReader().vTableGet(
-          buffer,
-          rootOffset,
-          56,
-          false,
-        );
-        final isHighProteinParam = const fb.BoolReader().vTableGet(
-          buffer,
-          rootOffset,
-          58,
-          false,
-        );
-        final isWholeGrainParam = const fb.BoolReader().vTableGet(
-          buffer,
-          rootOffset,
-          60,
-          false,
-        );
-        final hasNoAddedSugarParam = const fb.BoolReader().vTableGet(
-          buffer,
-          rootOffset,
-          62,
-          false,
-        );
-        final hasArtificialSweetenersParam = const fb.BoolReader().vTableGet(
-          buffer,
-          rootOffset,
-          64,
-          false,
-        );
-        final allergenInfoParam = const fb.ListReader<String>(
-          fb.StringReader(asciiOptimization: true),
-          lazy: false,
-        ).vTableGet(buffer, rootOffset, 66, []);
-        final scentParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 68);
-        final colorParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 70);
-        final mainIngredientParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 72);
-        final secondaryIngredientsParam = const fb.ListReader<String>(
-          fb.StringReader(asciiOptimization: true),
-          lazy: false,
-        ).vTableGet(buffer, rootOffset, 74, []);
-        final spicinessLevelParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 76);
-        final caffeineContentParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 78);
-        final alcoholContentParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 80);
-        final subBrandParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 82);
-        final productLineParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGetNullable(buffer, rootOffset, 84);
-        final customAttributesParam = const fb.ListReader<String>(
-          fb.StringReader(asciiOptimization: true),
-          lazy: false,
-        ).vTableGet(buffer, rootOffset, 20, []);
-        final object = ProductVariant(
-          id: idParam,
-          name: nameParam,
-          baseProductName: baseProductNameParam,
-          flavor: flavorParam,
-          packagedQuantity: packagedQuantityParam,
-          packagedUnit: packagedUnitParam,
-          displayPackageSize: displayPackageSizeParam,
-          isOrganic: isOrganicParam,
-          isGlutenFree: isGlutenFreeParam,
-          upcCode: upcCodeParam,
-          form: formParam,
-          containerType: containerTypeParam,
-          preparation: preparationParam,
-          maturity: maturityParam,
-          grade: gradeParam,
-          isNonGMO: isNonGMOParam,
-          isVegan: isVeganParam,
-          isVegetarian: isVegetarianParam,
-          isDairyFree: isDairyFreeParam,
-          isNutFree: isNutFreeParam,
-          isSoyFree: isSoyFreeParam,
-          isKosher: isKosherParam,
-          isHalal: isHalalParam,
-          isSugarFree: isSugarFreeParam,
-          isLowSodium: isLowSodiumParam,
-          isLowFat: isLowFatParam,
-          isLowCarb: isLowCarbParam,
-          isHighProtein: isHighProteinParam,
-          isWholeGrain: isWholeGrainParam,
-          hasNoAddedSugar: hasNoAddedSugarParam,
-          hasArtificialSweeteners: hasArtificialSweetenersParam,
-          allergenInfo: allergenInfoParam,
-          scent: scentParam,
-          color: colorParam,
-          mainIngredient: mainIngredientParam,
-          secondaryIngredients: secondaryIngredientsParam,
-          spicinessLevel: spicinessLevelParam,
-          caffeineContent: caffeineContentParam,
-          alcoholContent: alcoholContentParam,
-          subBrand: subBrandParam,
-          productLine: productLineParam,
-          customAttributes: customAttributesParam,
-        );
-        object.brand.targetId = const fb.Int64Reader().vTableGet(
+        object.shoppingList.targetId = const fb.Int64Reader().vTableGet(
           buffer,
           rootOffset,
           22,
           0,
         );
-        object.brand.attach(store);
-        obx_int.InternalToManyAccess.setRelInfo<ProductVariant>(
-          object.shoppingLists,
+        object.shoppingList.attach(store);
+        obx_int.InternalToManyAccess.setRelInfo<ShoppingItemModel>(
+          object.groceryStores,
           store,
-          obx_int.RelInfo<ShoppingList>.toManyBacklink(4, object.id),
-        );
-        obx_int.InternalToManyAccess.setRelInfo<ProductVariant>(
-          object.priceEntries,
-          store,
-          obx_int.RelInfo<PriceEntry>.toOneBacklink(
-            7,
-            object.id,
-            (PriceEntry srcObject) => srcObject.productVariant,
-          ),
-        );
-        obx_int.InternalToManyAccess.setRelInfo<ProductVariant>(
-          object.availableInStores,
-          store,
-          obx_int.RelInfo<GroceryStore>.toManyBacklink(3, object.id),
+          obx_int.RelInfo<ShoppingItemModel>.toMany(6, object.id),
         );
         return object;
       },
     ),
-    BrandModel: obx_int.EntityDefinition<BrandModel>(
-      model: _entities[5],
-      toOneRelations: (BrandModel object) => [],
-      toManyRelations: (BrandModel object) => {
-        obx_int.RelInfo<GroceryStore>.toManyBacklink(1, object.id):
-            object.groceryStores,
-        obx_int.RelInfo<SubBrandModel>.toOneBacklink(
-          3,
+    ShoppingListModel: obx_int.EntityDefinition<ShoppingListModel>(
+      model: _entities[7],
+      toOneRelations: (ShoppingListModel object) => [],
+      toManyRelations: (ShoppingListModel object) => {
+        obx_int.RelInfo<ShoppingListModel>.toMany(7, object.id):
+            object.productVariants,
+        obx_int.RelInfo<ShoppingItemModel>.toOneBacklink(
+          10,
           object.id,
-          (SubBrandModel srcObject) => srcObject.brand,
-        ): object.subBrands,
-        obx_int.RelInfo<ProductLineModel>.toOneBacklink(
-          3,
-          object.id,
-          (ProductLineModel srcObject) => srcObject.brand,
-        ): object.productLines,
+          (ShoppingItemModel srcObject) => srcObject.shoppingList,
+        ): object.items,
       },
-      getId: (BrandModel object) => object.id,
-      setId: (BrandModel object, int id) {
+      getId: (ShoppingListModel object) => object.id,
+      setId: (ShoppingListModel object, int id) {
         object.id = id;
       },
-      objectToFB: (BrandModel object, fb.Builder fbb) {
+      objectToFB: (ShoppingListModel object, fb.Builder fbb) {
         final nameOffset = fbb.writeString(object.name);
         fbb.startTable(3);
         fbb.addInt64(0, object.id);
@@ -1471,110 +1640,21 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final nameParam = const fb.StringReader(
           asciiOptimization: true,
         ).vTableGet(buffer, rootOffset, 6, '');
-        final object = BrandModel(id: idParam, name: nameParam);
-        obx_int.InternalToManyAccess.setRelInfo<BrandModel>(
-          object.groceryStores,
+        final object = ShoppingListModel(id: idParam, name: nameParam);
+        obx_int.InternalToManyAccess.setRelInfo<ShoppingListModel>(
+          object.productVariants,
           store,
-          obx_int.RelInfo<GroceryStore>.toManyBacklink(1, object.id),
+          obx_int.RelInfo<ShoppingListModel>.toMany(7, object.id),
         );
-        obx_int.InternalToManyAccess.setRelInfo<BrandModel>(
-          object.subBrands,
+        obx_int.InternalToManyAccess.setRelInfo<ShoppingListModel>(
+          object.items,
           store,
-          obx_int.RelInfo<SubBrandModel>.toOneBacklink(
-            3,
+          obx_int.RelInfo<ShoppingItemModel>.toOneBacklink(
+            10,
             object.id,
-            (SubBrandModel srcObject) => srcObject.brand,
+            (ShoppingItemModel srcObject) => srcObject.shoppingList,
           ),
         );
-        obx_int.InternalToManyAccess.setRelInfo<BrandModel>(
-          object.productLines,
-          store,
-          obx_int.RelInfo<ProductLineModel>.toOneBacklink(
-            3,
-            object.id,
-            (ProductLineModel srcObject) => srcObject.brand,
-          ),
-        );
-        return object;
-      },
-    ),
-    ProductLineModel: obx_int.EntityDefinition<ProductLineModel>(
-      model: _entities[6],
-      toOneRelations: (ProductLineModel object) => [object.brand],
-      toManyRelations: (ProductLineModel object) => {},
-      getId: (ProductLineModel object) => object.id,
-      setId: (ProductLineModel object, int id) {
-        object.id = id;
-      },
-      objectToFB: (ProductLineModel object, fb.Builder fbb) {
-        final nameOffset = fbb.writeString(object.name);
-        fbb.startTable(4);
-        fbb.addInt64(0, object.id);
-        fbb.addOffset(1, nameOffset);
-        fbb.addInt64(2, object.brand.targetId);
-        fbb.finish(fbb.endTable());
-        return object.id;
-      },
-      objectFromFB: (obx.Store store, ByteData fbData) {
-        final buffer = fb.BufferContext(fbData);
-        final rootOffset = buffer.derefObject(0);
-        final idParam = const fb.Int64Reader().vTableGet(
-          buffer,
-          rootOffset,
-          4,
-          0,
-        );
-        final nameParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGet(buffer, rootOffset, 6, '');
-        final object = ProductLineModel(id: idParam, name: nameParam);
-        object.brand.targetId = const fb.Int64Reader().vTableGet(
-          buffer,
-          rootOffset,
-          8,
-          0,
-        );
-        object.brand.attach(store);
-        return object;
-      },
-    ),
-    SubBrandModel: obx_int.EntityDefinition<SubBrandModel>(
-      model: _entities[7],
-      toOneRelations: (SubBrandModel object) => [object.brand],
-      toManyRelations: (SubBrandModel object) => {},
-      getId: (SubBrandModel object) => object.id,
-      setId: (SubBrandModel object, int id) {
-        object.id = id;
-      },
-      objectToFB: (SubBrandModel object, fb.Builder fbb) {
-        final nameOffset = fbb.writeString(object.name);
-        fbb.startTable(4);
-        fbb.addInt64(0, object.id);
-        fbb.addOffset(1, nameOffset);
-        fbb.addInt64(2, object.brand.targetId);
-        fbb.finish(fbb.endTable());
-        return object.id;
-      },
-      objectFromFB: (obx.Store store, ByteData fbData) {
-        final buffer = fb.BufferContext(fbData);
-        final rootOffset = buffer.derefObject(0);
-        final idParam = const fb.Int64Reader().vTableGet(
-          buffer,
-          rootOffset,
-          4,
-          0,
-        );
-        final nameParam = const fb.StringReader(
-          asciiOptimization: true,
-        ).vTableGet(buffer, rootOffset, 6, '');
-        final object = SubBrandModel(id: idParam, name: nameParam);
-        object.brand.targetId = const fb.Int64Reader().vTableGet(
-          buffer,
-          rootOffset,
-          8,
-          0,
-        );
-        object.brand.attach(store);
         return object;
       },
     ),
@@ -1583,413 +1663,16 @@ obx_int.ModelDefinition getObjectBoxModel() {
   return obx_int.ModelDefinition(model, bindings);
 }
 
-/// [GroceryStore] entity fields to define ObjectBox queries.
-class GroceryStore_ {
-  /// See [GroceryStore.id].
-  static final id = obx.QueryIntegerProperty<GroceryStore>(
-    _entities[0].properties[0],
-  );
-
-  /// See [GroceryStore.name].
-  static final name = obx.QueryStringProperty<GroceryStore>(
-    _entities[0].properties[1],
-  );
-
-  /// See [GroceryStore.website].
-  static final website = obx.QueryStringProperty<GroceryStore>(
-    _entities[0].properties[2],
-  );
-
-  /// See [GroceryStore.address].
-  static final address = obx.QueryStringProperty<GroceryStore>(
-    _entities[0].properties[3],
-  );
-
-  /// See [GroceryStore.phoneNumber].
-  static final phoneNumber = obx.QueryStringProperty<GroceryStore>(
-    _entities[0].properties[4],
-  );
-
-  /// See [GroceryStore.storeNumber].
-  static final storeNumber = obx.QueryStringProperty<GroceryStore>(
-    _entities[0].properties[5],
-  );
-
-  /// see [GroceryStore.hasBrands]
-  static final brands = obx.QueryRelationToMany<GroceryStore, BrandModel>(
-    _entities[0].relations[0],
-  );
-
-  /// see [GroceryStore.hasProductVariants]
-  static final carriedProductVariants =
-      obx.QueryRelationToMany<GroceryStore, ProductVariant>(
-        _entities[0].relations[1],
-      );
-}
-
-/// [PriceEntry] entity fields to define ObjectBox queries.
-class PriceEntry_ {
-  /// See [PriceEntry.id].
-  static final id = obx.QueryIntegerProperty<PriceEntry>(
-    _entities[1].properties[0],
-  );
-
-  /// See [PriceEntry.date].
-  static final date = obx.QueryDateProperty<PriceEntry>(
-    _entities[1].properties[1],
-  );
-
-  /// See [PriceEntry.groceryStore].
-  static final groceryStore = obx.QueryRelationToOne<PriceEntry, GroceryStore>(
-    _entities[1].properties[2],
-  );
-
-  /// See [PriceEntry.productVariant].
-  static final productVariant =
-      obx.QueryRelationToOne<PriceEntry, ProductVariant>(
-        _entities[1].properties[3],
-      );
-
-  /// See [PriceEntry.unitPrice].
-  static final unitPrice = obx.QueryDoubleProperty<PriceEntry>(
-    _entities[1].properties[4],
-  );
-
-  /// See [PriceEntry.unit].
-  static final unit = obx.QueryStringProperty<PriceEntry>(
-    _entities[1].properties[5],
-  );
-
-  /// See [PriceEntry.quantityPurchased].
-  static final quantityPurchased = obx.QueryDoubleProperty<PriceEntry>(
-    _entities[1].properties[6],
-  );
-
-  /// See [PriceEntry.totalPricePaid].
-  static final totalPricePaid = obx.QueryDoubleProperty<PriceEntry>(
-    _entities[1].properties[7],
-  );
-}
-
-/// [ShoppingItem] entity fields to define ObjectBox queries.
-class ShoppingItem_ {
-  /// See [ShoppingItem.id].
-  static final id = obx.QueryIntegerProperty<ShoppingItem>(
-    _entities[2].properties[0],
-  );
-
-  /// See [ShoppingItem.name].
-  static final name = obx.QueryStringProperty<ShoppingItem>(
-    _entities[2].properties[1],
-  );
-
-  /// See [ShoppingItem.category].
-  static final category = obx.QueryStringProperty<ShoppingItem>(
-    _entities[2].properties[2],
-  );
-
-  /// See [ShoppingItem.quantity].
-  static final quantity = obx.QueryDoubleProperty<ShoppingItem>(
-    _entities[2].properties[3],
-  );
-
-  /// See [ShoppingItem.unit].
-  static final unit = obx.QueryStringProperty<ShoppingItem>(
-    _entities[2].properties[4],
-  );
-
-  /// See [ShoppingItem.isCompleted].
-  static final isCompleted = obx.QueryBooleanProperty<ShoppingItem>(
-    _entities[2].properties[5],
-  );
-
-  /// See [ShoppingItem.shoppingList].
-  static final shoppingList =
-      obx.QueryRelationToOne<ShoppingItem, ShoppingList>(
-        _entities[2].properties[6],
-      );
-
-  /// See [ShoppingItem.notes].
-  static final notes = obx.QueryStringProperty<ShoppingItem>(
-    _entities[2].properties[7],
-  );
-
-  /// See [ShoppingItem.desiredAttributes].
-  static final desiredAttributes = obx.QueryStringVectorProperty<ShoppingItem>(
-    _entities[2].properties[8],
-  );
-
-  /// See [ShoppingItem.preferredVariant].
-  static final preferredVariant =
-      obx.QueryRelationToOne<ShoppingItem, ProductVariant>(
-        _entities[2].properties[9],
-      );
-
-  /// see [ShoppingItem.groceryStores]
-  static final groceryStores =
-      obx.QueryRelationToMany<ShoppingItem, GroceryStore>(
-        _entities[2].relations[0],
-      );
-}
-
-/// [ShoppingList] entity fields to define ObjectBox queries.
-class ShoppingList_ {
-  /// See [ShoppingList.id].
-  static final id = obx.QueryIntegerProperty<ShoppingList>(
-    _entities[3].properties[0],
-  );
-
-  /// See [ShoppingList.name].
-  static final name = obx.QueryStringProperty<ShoppingList>(
-    _entities[3].properties[1],
-  );
-
-  /// see [ShoppingList.productVariants]
-  static final productVariants =
-      obx.QueryRelationToMany<ShoppingList, ProductVariant>(
-        _entities[3].relations[0],
-      );
-
-  /// see [ShoppingList.items]
-  static final items = obx.QueryBacklinkToMany<ShoppingItem, ShoppingList>(
-    ShoppingItem_.shoppingList,
-  );
-}
-
-/// [ProductVariant] entity fields to define ObjectBox queries.
-class ProductVariant_ {
-  /// See [ProductVariant.id].
-  static final id = obx.QueryIntegerProperty<ProductVariant>(
-    _entities[4].properties[0],
-  );
-
-  /// See [ProductVariant.name].
-  static final name = obx.QueryStringProperty<ProductVariant>(
-    _entities[4].properties[1],
-  );
-
-  /// See [ProductVariant.baseProductName].
-  static final baseProductName = obx.QueryStringProperty<ProductVariant>(
-    _entities[4].properties[2],
-  );
-
-  /// See [ProductVariant.flavor].
-  static final flavor = obx.QueryStringProperty<ProductVariant>(
-    _entities[4].properties[3],
-  );
-
-  /// See [ProductVariant.isOrganic].
-  static final isOrganic = obx.QueryBooleanProperty<ProductVariant>(
-    _entities[4].properties[4],
-  );
-
-  /// See [ProductVariant.isGlutenFree].
-  static final isGlutenFree = obx.QueryBooleanProperty<ProductVariant>(
-    _entities[4].properties[5],
-  );
-
-  /// See [ProductVariant.upcCode].
-  static final upcCode = obx.QueryStringProperty<ProductVariant>(
-    _entities[4].properties[6],
-  );
-
-  /// See [ProductVariant.customAttributes].
-  static final customAttributes = obx.QueryStringVectorProperty<ProductVariant>(
-    _entities[4].properties[7],
-  );
-
-  /// See [ProductVariant.brand].
-  static final brand = obx.QueryRelationToOne<ProductVariant, Brand>(
-    _entities[4].properties[8],
-  );
-
-  /// See [ProductVariant.form].
-  static final form = obx.QueryStringProperty<ProductVariant>(
-    _entities[4].properties[9],
-  );
-
-  /// See [ProductVariant.containerType].
-  static final containerType = obx.QueryStringProperty<ProductVariant>(
-    _entities[4].properties[10],
-  );
-
-  /// See [ProductVariant.preparation].
-  static final preparation = obx.QueryStringProperty<ProductVariant>(
-    _entities[4].properties[11],
-  );
-
-  /// See [ProductVariant.maturity].
-  static final maturity = obx.QueryStringProperty<ProductVariant>(
-    _entities[4].properties[12],
-  );
-
-  /// See [ProductVariant.grade].
-  static final grade = obx.QueryStringProperty<ProductVariant>(
-    _entities[4].properties[13],
-  );
-
-  /// See [ProductVariant.isNonGMO].
-  static final isNonGMO = obx.QueryBooleanProperty<ProductVariant>(
-    _entities[4].properties[14],
-  );
-
-  /// See [ProductVariant.isVegan].
-  static final isVegan = obx.QueryBooleanProperty<ProductVariant>(
-    _entities[4].properties[15],
-  );
-
-  /// See [ProductVariant.isVegetarian].
-  static final isVegetarian = obx.QueryBooleanProperty<ProductVariant>(
-    _entities[4].properties[16],
-  );
-
-  /// See [ProductVariant.isDairyFree].
-  static final isDairyFree = obx.QueryBooleanProperty<ProductVariant>(
-    _entities[4].properties[17],
-  );
-
-  /// See [ProductVariant.isNutFree].
-  static final isNutFree = obx.QueryBooleanProperty<ProductVariant>(
-    _entities[4].properties[18],
-  );
-
-  /// See [ProductVariant.isSoyFree].
-  static final isSoyFree = obx.QueryBooleanProperty<ProductVariant>(
-    _entities[4].properties[19],
-  );
-
-  /// See [ProductVariant.isKosher].
-  static final isKosher = obx.QueryBooleanProperty<ProductVariant>(
-    _entities[4].properties[20],
-  );
-
-  /// See [ProductVariant.isHalal].
-  static final isHalal = obx.QueryBooleanProperty<ProductVariant>(
-    _entities[4].properties[21],
-  );
-
-  /// See [ProductVariant.isSugarFree].
-  static final isSugarFree = obx.QueryBooleanProperty<ProductVariant>(
-    _entities[4].properties[22],
-  );
-
-  /// See [ProductVariant.isLowSodium].
-  static final isLowSodium = obx.QueryBooleanProperty<ProductVariant>(
-    _entities[4].properties[23],
-  );
-
-  /// See [ProductVariant.isLowFat].
-  static final isLowFat = obx.QueryBooleanProperty<ProductVariant>(
-    _entities[4].properties[24],
-  );
-
-  /// See [ProductVariant.isLowCarb].
-  static final isLowCarb = obx.QueryBooleanProperty<ProductVariant>(
-    _entities[4].properties[25],
-  );
-
-  /// See [ProductVariant.isHighProtein].
-  static final isHighProtein = obx.QueryBooleanProperty<ProductVariant>(
-    _entities[4].properties[26],
-  );
-
-  /// See [ProductVariant.isWholeGrain].
-  static final isWholeGrain = obx.QueryBooleanProperty<ProductVariant>(
-    _entities[4].properties[27],
-  );
-
-  /// See [ProductVariant.hasNoAddedSugar].
-  static final hasNoAddedSugar = obx.QueryBooleanProperty<ProductVariant>(
-    _entities[4].properties[28],
-  );
-
-  /// See [ProductVariant.hasArtificialSweeteners].
-  static final hasArtificialSweeteners =
-      obx.QueryBooleanProperty<ProductVariant>(_entities[4].properties[29]);
-
-  /// See [ProductVariant.allergenInfo].
-  static final allergenInfo = obx.QueryStringVectorProperty<ProductVariant>(
-    _entities[4].properties[30],
-  );
-
-  /// See [ProductVariant.scent].
-  static final scent = obx.QueryStringProperty<ProductVariant>(
-    _entities[4].properties[31],
-  );
-
-  /// See [ProductVariant.color].
-  static final color = obx.QueryStringProperty<ProductVariant>(
-    _entities[4].properties[32],
-  );
-
-  /// See [ProductVariant.mainIngredient].
-  static final mainIngredient = obx.QueryStringProperty<ProductVariant>(
-    _entities[4].properties[33],
-  );
-
-  /// See [ProductVariant.secondaryIngredients].
-  static final secondaryIngredients =
-      obx.QueryStringVectorProperty<ProductVariant>(
-        _entities[4].properties[34],
-      );
-
-  /// See [ProductVariant.spicinessLevel].
-  static final spicinessLevel = obx.QueryStringProperty<ProductVariant>(
-    _entities[4].properties[35],
-  );
-
-  /// See [ProductVariant.caffeineContent].
-  static final caffeineContent = obx.QueryStringProperty<ProductVariant>(
-    _entities[4].properties[36],
-  );
-
-  /// See [ProductVariant.alcoholContent].
-  static final alcoholContent = obx.QueryStringProperty<ProductVariant>(
-    _entities[4].properties[37],
-  );
-
-  /// See [ProductVariant.subBrand].
-  static final subBrand = obx.QueryStringProperty<ProductVariant>(
-    _entities[4].properties[38],
-  );
-
-  /// See [ProductVariant.productLine].
-  static final productLine = obx.QueryStringProperty<ProductVariant>(
-    _entities[4].properties[39],
-  );
-
-  /// See [ProductVariant.packagedQuantity].
-  static final packagedQuantity = obx.QueryDoubleProperty<ProductVariant>(
-    _entities[4].properties[40],
-  );
-
-  /// See [ProductVariant.packagedUnit].
-  static final packagedUnit = obx.QueryStringProperty<ProductVariant>(
-    _entities[4].properties[41],
-  );
-
-  /// See [ProductVariant.displayPackageSize].
-  static final displayPackageSize = obx.QueryStringProperty<ProductVariant>(
-    _entities[4].properties[42],
-  );
-
-  /// see [ProductVariant.priceEntries]
-  static final priceEntries =
-      obx.QueryBacklinkToMany<PriceEntry, ProductVariant>(
-        PriceEntry_.productVariant,
-      );
-}
-
 /// [BrandModel] entity fields to define ObjectBox queries.
 class BrandModel_ {
   /// See [BrandModel.id].
   static final id = obx.QueryIntegerProperty<BrandModel>(
-    _entities[5].properties[0],
+    _entities[0].properties[0],
   );
 
   /// See [BrandModel.name].
   static final name = obx.QueryStringProperty<BrandModel>(
-    _entities[5].properties[1],
+    _entities[0].properties[1],
   );
 
   /// see [BrandModel.subBrands]
@@ -2008,17 +1691,17 @@ class BrandModel_ {
 class ProductLineModel_ {
   /// See [ProductLineModel.id].
   static final id = obx.QueryIntegerProperty<ProductLineModel>(
-    _entities[6].properties[0],
+    _entities[1].properties[0],
   );
 
   /// See [ProductLineModel.name].
   static final name = obx.QueryStringProperty<ProductLineModel>(
-    _entities[6].properties[1],
+    _entities[1].properties[1],
   );
 
   /// See [ProductLineModel.brand].
   static final brand = obx.QueryRelationToOne<ProductLineModel, BrandModel>(
-    _entities[6].properties[2],
+    _entities[1].properties[2],
   );
 }
 
@@ -2026,16 +1709,426 @@ class ProductLineModel_ {
 class SubBrandModel_ {
   /// See [SubBrandModel.id].
   static final id = obx.QueryIntegerProperty<SubBrandModel>(
-    _entities[7].properties[0],
+    _entities[2].properties[0],
   );
 
   /// See [SubBrandModel.name].
   static final name = obx.QueryStringProperty<SubBrandModel>(
-    _entities[7].properties[1],
+    _entities[2].properties[1],
   );
 
   /// See [SubBrandModel.brand].
   static final brand = obx.QueryRelationToOne<SubBrandModel, BrandModel>(
-    _entities[7].properties[2],
+    _entities[2].properties[2],
   );
+}
+
+/// [GroceryStoreModel] entity fields to define ObjectBox queries.
+class GroceryStoreModel_ {
+  /// See [GroceryStoreModel.id].
+  static final id = obx.QueryIntegerProperty<GroceryStoreModel>(
+    _entities[3].properties[0],
+  );
+
+  /// See [GroceryStoreModel.name].
+  static final name = obx.QueryStringProperty<GroceryStoreModel>(
+    _entities[3].properties[1],
+  );
+
+  /// See [GroceryStoreModel.website].
+  static final website = obx.QueryStringProperty<GroceryStoreModel>(
+    _entities[3].properties[2],
+  );
+
+  /// See [GroceryStoreModel.address].
+  static final address = obx.QueryStringProperty<GroceryStoreModel>(
+    _entities[3].properties[3],
+  );
+
+  /// See [GroceryStoreModel.phoneNumber].
+  static final phoneNumber = obx.QueryStringProperty<GroceryStoreModel>(
+    _entities[3].properties[4],
+  );
+
+  /// See [GroceryStoreModel.storeNumber].
+  static final storeNumber = obx.QueryStringProperty<GroceryStoreModel>(
+    _entities[3].properties[5],
+  );
+
+  /// see [GroceryStoreModel.brands]
+  static final brands = obx.QueryRelationToMany<GroceryStoreModel, BrandModel>(
+    _entities[3].relations[0],
+  );
+
+  /// see [GroceryStoreModel.priceEntries]
+  static final priceEntries =
+      obx.QueryBacklinkToMany<PriceEntryModel, GroceryStoreModel>(
+        PriceEntryModel_.groceryStore,
+      );
+}
+
+/// [PriceEntryModel] entity fields to define ObjectBox queries.
+class PriceEntryModel_ {
+  /// See [PriceEntryModel.id].
+  static final id = obx.QueryIntegerProperty<PriceEntryModel>(
+    _entities[4].properties[0],
+  );
+
+  /// See [PriceEntryModel.unitPrice].
+  static final unitPrice = obx.QueryDoubleProperty<PriceEntryModel>(
+    _entities[4].properties[1],
+  );
+
+  /// See [PriceEntryModel.unit].
+  static final unit = obx.QueryStringProperty<PriceEntryModel>(
+    _entities[4].properties[2],
+  );
+
+  /// See [PriceEntryModel.date].
+  static final date = obx.QueryDateProperty<PriceEntryModel>(
+    _entities[4].properties[3],
+  );
+
+  /// See [PriceEntryModel.isPurchase].
+  static final isPurchase = obx.QueryBooleanProperty<PriceEntryModel>(
+    _entities[4].properties[4],
+  );
+
+  /// See [PriceEntryModel.quantityPurchased].
+  static final quantityPurchased = obx.QueryDoubleProperty<PriceEntryModel>(
+    _entities[4].properties[5],
+  );
+
+  /// See [PriceEntryModel.totalPricePaid].
+  static final totalPricePaid = obx.QueryDoubleProperty<PriceEntryModel>(
+    _entities[4].properties[6],
+  );
+
+  /// See [PriceEntryModel.groceryStore].
+  static final groceryStore =
+      obx.QueryRelationToOne<PriceEntryModel, GroceryStoreModel>(
+        _entities[4].properties[7],
+      );
+
+  /// See [PriceEntryModel.productVariant].
+  static final productVariant =
+      obx.QueryRelationToOne<PriceEntryModel, ProductVariant>(
+        _entities[4].properties[8],
+      );
+}
+
+/// [ProductVariantModel] entity fields to define ObjectBox queries.
+class ProductVariantModel_ {
+  /// See [ProductVariantModel.id].
+  static final id = obx.QueryIntegerProperty<ProductVariantModel>(
+    _entities[5].properties[0],
+  );
+
+  /// See [ProductVariantModel.name].
+  static final name = obx.QueryStringProperty<ProductVariantModel>(
+    _entities[5].properties[1],
+  );
+
+  /// See [ProductVariantModel.baseProductName].
+  static final baseProductName = obx.QueryStringProperty<ProductVariantModel>(
+    _entities[5].properties[2],
+  );
+
+  /// See [ProductVariantModel.upcCode].
+  static final upcCode = obx.QueryStringProperty<ProductVariantModel>(
+    _entities[5].properties[3],
+  );
+
+  /// See [ProductVariantModel.form].
+  static final form = obx.QueryStringProperty<ProductVariantModel>(
+    _entities[5].properties[4],
+  );
+
+  /// See [ProductVariantModel.packagedQuantity].
+  static final packagedQuantity = obx.QueryDoubleProperty<ProductVariantModel>(
+    _entities[5].properties[5],
+  );
+
+  /// See [ProductVariantModel.packagedUnit].
+  static final packagedUnit = obx.QueryStringProperty<ProductVariantModel>(
+    _entities[5].properties[6],
+  );
+
+  /// See [ProductVariantModel.displayPackageSize].
+  static final displayPackageSize =
+      obx.QueryStringProperty<ProductVariantModel>(_entities[5].properties[7]);
+
+  /// See [ProductVariantModel.containerType].
+  static final containerType = obx.QueryStringProperty<ProductVariantModel>(
+    _entities[5].properties[8],
+  );
+
+  /// See [ProductVariantModel.preparation].
+  static final preparation = obx.QueryStringProperty<ProductVariantModel>(
+    _entities[5].properties[9],
+  );
+
+  /// See [ProductVariantModel.maturity].
+  static final maturity = obx.QueryStringProperty<ProductVariantModel>(
+    _entities[5].properties[10],
+  );
+
+  /// See [ProductVariantModel.grade].
+  static final grade = obx.QueryStringProperty<ProductVariantModel>(
+    _entities[5].properties[11],
+  );
+
+  /// See [ProductVariantModel.isOrganic].
+  static final isOrganic = obx.QueryBooleanProperty<ProductVariantModel>(
+    _entities[5].properties[12],
+  );
+
+  /// See [ProductVariantModel.isGlutenFree].
+  static final isGlutenFree = obx.QueryBooleanProperty<ProductVariantModel>(
+    _entities[5].properties[13],
+  );
+
+  /// See [ProductVariantModel.isNonGMO].
+  static final isNonGMO = obx.QueryBooleanProperty<ProductVariantModel>(
+    _entities[5].properties[14],
+  );
+
+  /// See [ProductVariantModel.isVegan].
+  static final isVegan = obx.QueryBooleanProperty<ProductVariantModel>(
+    _entities[5].properties[15],
+  );
+
+  /// See [ProductVariantModel.isVegetarian].
+  static final isVegetarian = obx.QueryBooleanProperty<ProductVariantModel>(
+    _entities[5].properties[16],
+  );
+
+  /// See [ProductVariantModel.isDairyFree].
+  static final isDairyFree = obx.QueryBooleanProperty<ProductVariantModel>(
+    _entities[5].properties[17],
+  );
+
+  /// See [ProductVariantModel.isNutFree].
+  static final isNutFree = obx.QueryBooleanProperty<ProductVariantModel>(
+    _entities[5].properties[18],
+  );
+
+  /// See [ProductVariantModel.isSoyFree].
+  static final isSoyFree = obx.QueryBooleanProperty<ProductVariantModel>(
+    _entities[5].properties[19],
+  );
+
+  /// See [ProductVariantModel.isKosher].
+  static final isKosher = obx.QueryBooleanProperty<ProductVariantModel>(
+    _entities[5].properties[20],
+  );
+
+  /// See [ProductVariantModel.isHalal].
+  static final isHalal = obx.QueryBooleanProperty<ProductVariantModel>(
+    _entities[5].properties[21],
+  );
+
+  /// See [ProductVariantModel.isSugarFree].
+  static final isSugarFree = obx.QueryBooleanProperty<ProductVariantModel>(
+    _entities[5].properties[22],
+  );
+
+  /// See [ProductVariantModel.isLowSodium].
+  static final isLowSodium = obx.QueryBooleanProperty<ProductVariantModel>(
+    _entities[5].properties[23],
+  );
+
+  /// See [ProductVariantModel.isLowFat].
+  static final isLowFat = obx.QueryBooleanProperty<ProductVariantModel>(
+    _entities[5].properties[24],
+  );
+
+  /// See [ProductVariantModel.isLowCarb].
+  static final isLowCarb = obx.QueryBooleanProperty<ProductVariantModel>(
+    _entities[5].properties[25],
+  );
+
+  /// See [ProductVariantModel.isHighProtein].
+  static final isHighProtein = obx.QueryBooleanProperty<ProductVariantModel>(
+    _entities[5].properties[26],
+  );
+
+  /// See [ProductVariantModel.isWholeGrain].
+  static final isWholeGrain = obx.QueryBooleanProperty<ProductVariantModel>(
+    _entities[5].properties[27],
+  );
+
+  /// See [ProductVariantModel.hasNoAddedSugar].
+  static final hasNoAddedSugar = obx.QueryBooleanProperty<ProductVariantModel>(
+    _entities[5].properties[28],
+  );
+
+  /// See [ProductVariantModel.hasArtificialSweeteners].
+  static final hasArtificialSweeteners =
+      obx.QueryBooleanProperty<ProductVariantModel>(
+        _entities[5].properties[29],
+      );
+
+  /// See [ProductVariantModel.allergenInfo].
+  static final allergenInfo =
+      obx.QueryStringVectorProperty<ProductVariantModel>(
+        _entities[5].properties[30],
+      );
+
+  /// See [ProductVariantModel.flavor].
+  static final flavor = obx.QueryStringProperty<ProductVariantModel>(
+    _entities[5].properties[31],
+  );
+
+  /// See [ProductVariantModel.scent].
+  static final scent = obx.QueryStringProperty<ProductVariantModel>(
+    _entities[5].properties[32],
+  );
+
+  /// See [ProductVariantModel.color].
+  static final color = obx.QueryStringProperty<ProductVariantModel>(
+    _entities[5].properties[33],
+  );
+
+  /// See [ProductVariantModel.mainIngredient].
+  static final mainIngredient = obx.QueryStringProperty<ProductVariantModel>(
+    _entities[5].properties[34],
+  );
+
+  /// See [ProductVariantModel.secondaryIngredients].
+  static final secondaryIngredients =
+      obx.QueryStringVectorProperty<ProductVariantModel>(
+        _entities[5].properties[35],
+      );
+
+  /// See [ProductVariantModel.spicinessLevel].
+  static final spicinessLevel = obx.QueryStringProperty<ProductVariantModel>(
+    _entities[5].properties[36],
+  );
+
+  /// See [ProductVariantModel.caffeineContent].
+  static final caffeineContent = obx.QueryStringProperty<ProductVariantModel>(
+    _entities[5].properties[37],
+  );
+
+  /// See [ProductVariantModel.alcoholContent].
+  static final alcoholContent = obx.QueryStringProperty<ProductVariantModel>(
+    _entities[5].properties[38],
+  );
+
+  /// See [ProductVariantModel.customAttributes].
+  static final customAttributes =
+      obx.QueryStringVectorProperty<ProductVariantModel>(
+        _entities[5].properties[39],
+      );
+
+  /// See [ProductVariantModel.brand].
+  static final brand = obx.QueryRelationToOne<ProductVariantModel, BrandModel>(
+    _entities[5].properties[40],
+  );
+
+  /// See [ProductVariantModel.subBrand].
+  static final subBrand =
+      obx.QueryRelationToOne<ProductVariantModel, SubBrandModel>(
+        _entities[5].properties[41],
+      );
+
+  /// See [ProductVariantModel.productLine].
+  static final productLine =
+      obx.QueryRelationToOne<ProductVariantModel, ProductLineModel>(
+        _entities[5].properties[42],
+      );
+
+  /// see [ProductVariantModel.priceEntries]
+  static final priceEntries =
+      obx.QueryBacklinkToMany<PriceEntryModel, ProductVariantModel>(
+        PriceEntryModel_.productVariant,
+      );
+}
+
+/// [ShoppingItemModel] entity fields to define ObjectBox queries.
+class ShoppingItemModel_ {
+  /// See [ShoppingItemModel.id].
+  static final id = obx.QueryIntegerProperty<ShoppingItemModel>(
+    _entities[6].properties[0],
+  );
+
+  /// See [ShoppingItemModel.name].
+  static final name = obx.QueryStringProperty<ShoppingItemModel>(
+    _entities[6].properties[1],
+  );
+
+  /// See [ShoppingItemModel.category].
+  static final category = obx.QueryStringProperty<ShoppingItemModel>(
+    _entities[6].properties[2],
+  );
+
+  /// See [ShoppingItemModel.quantity].
+  static final quantity = obx.QueryDoubleProperty<ShoppingItemModel>(
+    _entities[6].properties[3],
+  );
+
+  /// See [ShoppingItemModel.unit].
+  static final unit = obx.QueryStringProperty<ShoppingItemModel>(
+    _entities[6].properties[4],
+  );
+
+  /// See [ShoppingItemModel.isCompleted].
+  static final isCompleted = obx.QueryBooleanProperty<ShoppingItemModel>(
+    _entities[6].properties[5],
+  );
+
+  /// See [ShoppingItemModel.notes].
+  static final notes = obx.QueryStringProperty<ShoppingItemModel>(
+    _entities[6].properties[6],
+  );
+
+  /// See [ShoppingItemModel.desiredAttributes].
+  static final desiredAttributes =
+      obx.QueryStringVectorProperty<ShoppingItemModel>(
+        _entities[6].properties[7],
+      );
+
+  /// See [ShoppingItemModel.preferredVariant].
+  static final preferredVariant =
+      obx.QueryRelationToOne<ShoppingItemModel, ProductVariantModel>(
+        _entities[6].properties[8],
+      );
+
+  /// See [ShoppingItemModel.shoppingList].
+  static final shoppingList =
+      obx.QueryRelationToOne<ShoppingItemModel, ShoppingListModel>(
+        _entities[6].properties[9],
+      );
+
+  /// see [ShoppingItemModel.groceryStores]
+  static final groceryStores =
+      obx.QueryRelationToMany<ShoppingItemModel, GroceryStoreModel>(
+        _entities[6].relations[0],
+      );
+}
+
+/// [ShoppingListModel] entity fields to define ObjectBox queries.
+class ShoppingListModel_ {
+  /// See [ShoppingListModel.id].
+  static final id = obx.QueryIntegerProperty<ShoppingListModel>(
+    _entities[7].properties[0],
+  );
+
+  /// See [ShoppingListModel.name].
+  static final name = obx.QueryStringProperty<ShoppingListModel>(
+    _entities[7].properties[1],
+  );
+
+  /// see [ShoppingListModel.productVariants]
+  static final productVariants =
+      obx.QueryRelationToMany<ShoppingListModel, ProductVariantModel>(
+        _entities[7].relations[0],
+      );
+
+  /// see [ShoppingListModel.items]
+  static final items =
+      obx.QueryBacklinkToMany<ShoppingItemModel, ShoppingListModel>(
+        ShoppingItemModel_.shoppingList,
+      );
 }
