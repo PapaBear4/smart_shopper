@@ -1,7 +1,7 @@
 import 'package:objectbox/objectbox.dart';
 import 'package:smart_shopper/data/models/grocery_store_model.dart';
+import 'package:smart_shopper/data/models/product_variant_model.dart';
 import 'package:smart_shopper/domain/entities/price_entry.dart';
-import 'package:smart_shopper/domain/entities/product_variant.dart';
 
 @Entity()
 class PriceEntryModel {
@@ -10,14 +10,13 @@ class PriceEntryModel {
 
   double unitPrice;
   String unit;
-  @Property(type: PropertyType.date)
   DateTime date;
   bool isPurchase;
   double? quantityPurchased;
   double? totalPricePaid;
 
+  final productVariant = ToOne<ProductVariantModel>();
   final groceryStore = ToOne<GroceryStoreModel>();
-  final productVariant = ToOne<ProductVariant>();
 
   PriceEntryModel({
     this.id = 0,
@@ -29,30 +28,7 @@ class PriceEntryModel {
     this.totalPricePaid,
   });
 
-  PriceEntry toEntity() {
-    // First, ensure that the relations are set.
-    if (groceryStore.target == null) {
-      throw StateError('GroceryStore relation is not set for PriceEntryModel id: $id');
-    }
-    if (productVariant.target == null) {
-      throw StateError('ProductVariant relation is not set for PriceEntryModel id: $id');
-    }
-
-    return PriceEntry(
-      id: id,
-      unitPrice: unitPrice,
-      unit: unit,
-      date: date,
-      isPurchase: isPurchase,
-      quantityPurchased: quantityPurchased,
-      totalPricePaid: totalPricePaid,
-      groceryStore: groceryStore.target!.toEntity(),
-      // Note: ProductVariant is not yet refactored, so we pass it directly.
-      productVariant: productVariant.target!,
-    );
-  }
-
-  static PriceEntryModel fromEntity(PriceEntry entity) {
+  factory PriceEntryModel.fromEntity(PriceEntry entity) {
     final model = PriceEntryModel(
       id: entity.id,
       unitPrice: entity.unitPrice,
@@ -63,11 +39,37 @@ class PriceEntryModel {
       totalPricePaid: entity.totalPricePaid,
     );
 
+    // Relationships must be set separately by the repository
+    model.productVariant.target = ProductVariantModel.fromEntity(entity.productVariant);
     model.groceryStore.target = GroceryStoreModel.fromEntity(entity.groceryStore);
 
-    // Note: ProductVariant is not yet refactored, so we assign it directly.
-    model.productVariant.target = entity.productVariant;
-
     return model;
+  }
+
+  PriceEntry toEntity() {
+    // The entity requires non-nullable relations. If the target is null,
+    // it indicates a data integrity issue, as a price entry should always
+    // be linked to a product and a store.
+    final productVariantEntity = productVariant.target?.toEntity();
+    final groceryStoreEntity = groceryStore.target?.toEntity();
+
+    if (productVariantEntity == null) {
+      throw StateError('ProductVariant relation is not set for PriceEntryModel id: $id');
+    }
+    if (groceryStoreEntity == null) {
+      throw StateError('GroceryStore relation is not set for PriceEntryModel id: $id');
+    }
+
+    return PriceEntry(
+      id: id,
+      unitPrice: unitPrice,
+      unit: unit,
+      date: date,
+      isPurchase: isPurchase,
+      quantityPurchased: quantityPurchased,
+      totalPricePaid: totalPricePaid,
+      productVariant: productVariantEntity,
+      groceryStore: groceryStoreEntity,
+    );
   }
 }

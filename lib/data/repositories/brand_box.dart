@@ -3,22 +3,20 @@ import 'package:smart_shopper/data/models/brand_model.dart';
 import 'package:smart_shopper/domain/entities/brand.dart';
 import 'package:smart_shopper/domain/repositories/brand_repository.dart';
 import 'package:smart_shopper/objectbox.g.dart';
-import 'package:smart_shopper/objectbox_helper.dart';
 
 /// Concrete implementation of [BrandRepository] using ObjectBox.
 ///
 /// This class handles the actual database operations for `Brand` entities.
 class BrandBox implements BrandRepository {
-  final ObjectBoxHelper _objectBoxHelper;
-  late final Box<BrandModel> _brandBox;
+  late final Box<BrandModel> _box;
 
-  BrandBox(this._objectBoxHelper) {
-    _brandBox = _objectBoxHelper.brandBox;
+  BrandBox(Store store) {
+    _box = store.box<BrandModel>();
   }
 
   @override
   Stream<List<Brand>> getBrandsStream() {
-    final query = _brandBox
+    final query = _box
         .query()
         .order(BrandModel_.name)
         .watch(triggerImmediately: true);
@@ -27,31 +25,31 @@ class BrandBox implements BrandRepository {
 
   @override
   Future<List<Brand>> getAllBrands() async {
-    final models = _brandBox.getAll();
+    final models = _box.getAll();
     models.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
     return models.map((model) => model.toEntity()).toList();
   }
 
   @override
   Future<Brand?> getBrandById(int id) async {
-    final model = _brandBox.get(id);
+    final model = _box.get(id);
     return model?.toEntity();
   }
 
   @override
   Future<int> addBrand(Brand brand) async {
     final model = BrandModel.fromEntity(brand);
-    return _brandBox.put(model);
+    return _box.put(model);
   }
 
   @override
   Future<void> updateBrand(Brand brand) async {
     final model = BrandModel.fromEntity(brand);
-    _brandBox.put(model);
+    _box.put(model);
   }
 
   @override
   Future<bool> deleteBrand(int id) async {
-    return _brandBox.remove(id);
+    return _box.remove(id);
   }
 }

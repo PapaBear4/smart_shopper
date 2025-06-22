@@ -4,23 +4,21 @@ import 'package:smart_shopper/data/models/product_line_model.dart';
 import 'package:smart_shopper/domain/entities/product_line.dart';
 import 'package:smart_shopper/domain/repositories/product_line_repository.dart';
 import 'package:smart_shopper/objectbox.g.dart';
-import 'package:smart_shopper/objectbox_helper.dart';
 
 /// Concrete implementation of [IProductLineRepository] using ObjectBox.
 /// This class handles all the CRUD operations for the [ProductLine] entity.
 //MARK: OBJECTBOX
 class ProductLineBox implements ProductLineRepository {
-  final ObjectBoxHelper _objectBoxHelper;
-  late final Box<ProductLineModel> _productLineBox;
+  late final Box<ProductLineModel> _box;
 
-  /// Constructor requires an [ObjectBoxHelper] to initialize the product line box.
-  ProductLineBox(this._objectBoxHelper) {
-    _productLineBox = _objectBoxHelper.productLineBox;
+  /// Constructor requires a [Store] to initialize the product line box.
+  ProductLineBox(Store store) {
+    _box = store.box<ProductLineModel>();
   }
 
   @override
   Stream<List<ProductLine>> getProductLinesStream() {
-    final query = _productLineBox
+    final query = _box
         .query()
         .order(ProductLineModel_.name)
         .watch(triggerImmediately: true);
@@ -29,7 +27,7 @@ class ProductLineBox implements ProductLineRepository {
 
   @override
   Future<List<ProductLine>> getAllProductLines() async {
-    final productLines = _productLineBox.getAll();
+    final productLines = _box.getAll();
     productLines.sort(
         (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
     return productLines.map((e) => e.toEntity()).toList();
@@ -37,28 +35,28 @@ class ProductLineBox implements ProductLineRepository {
 
   @override
   Future<ProductLine?> getProductLineById(int id) async {
-    return _productLineBox.get(id)?.toEntity();
+    return _box.get(id)?.toEntity();
   }
 
   @override
   Future<int> addProductLine(ProductLine productLine) async {
-    return _productLineBox.put(ProductLineModel.fromEntity(productLine));
+    return _box.put(ProductLineModel.fromEntity(productLine));
   }
 
   @override
   Future<void> updateProductLine(ProductLine productLine) async {
-    _productLineBox.put(ProductLineModel.fromEntity(productLine));
+    _box.put(ProductLineModel.fromEntity(productLine));
   }
 
   @override
   Future<bool> deleteProductLine(int id) async {
-    return _productLineBox.remove(id);
+    return _box.remove(id);
   }
 
   @override
   Future<List<ProductLine>> getProductLinesForBrand(int brandId) async {
     final query =
-        _productLineBox.query(ProductLineModel_.brand.equals(brandId)).build();
+        _box.query(ProductLineModel_.brand.equals(brandId)).build();
     final productLines = query.find();
     productLines.sort(
         (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));

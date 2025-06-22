@@ -244,7 +244,7 @@ final _entities = <obx_int.ModelEntity>[
         type: 11,
         flags: 520,
         indexId: const obx_int.IdUid(13, 8698204969543010742),
-        relationTarget: 'ProductVariant',
+        relationTarget: 'ProductVariantModel',
       ),
     ],
     relations: <obx_int.ModelRelation>[],
@@ -1812,7 +1812,7 @@ class PriceEntryModel_ {
 
   /// See [PriceEntryModel.productVariant].
   static final productVariant =
-      obx.QueryRelationToOne<PriceEntryModel, ProductVariant>(
+      obx.QueryRelationToOne<PriceEntryModel, ProductVariantModel>(
         _entities[4].properties[8],
       );
 }

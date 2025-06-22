@@ -4,23 +4,21 @@ import 'package:smart_shopper/data/models/sub_brand_model.dart';
 import 'package:smart_shopper/domain/entities/sub_brand.dart';
 import 'package:smart_shopper/domain/repositories/sub_brand_repository.dart';
 import 'package:smart_shopper/objectbox.g.dart';
-import 'package:smart_shopper/objectbox_helper.dart';
 
 /// Concrete implementation of [ISubBrandRepository] using ObjectBox.
 /// This class manages all CRUD operations for the [SubBrand] entity.
 // MARK: OBJECTBOX
 class SubBrandBox implements SubBrandRepository {
-  final ObjectBoxHelper _objectBoxHelper;
-  late final Box<SubBrandModel> _subBrandBox;
+  late final Box<SubBrandModel> _box;
 
-  /// Constructor requires an [ObjectBoxHelper] to initialize the sub-brand box.
-  SubBrandBox(this._objectBoxHelper) {
-    _subBrandBox = _objectBoxHelper.subBrandBox;
+  /// Constructor requires a [Store] to initialize the sub-brand box.
+  SubBrandBox(Store store) {
+    _box = store.box<SubBrandModel>();
   }
 
   @override
   Stream<List<SubBrand>> getSubBrandsStream() {
-    final query = _subBrandBox
+    final query = _box
         .query()
         .order(SubBrandModel_.name)
         .watch(triggerImmediately: true);
@@ -29,7 +27,7 @@ class SubBrandBox implements SubBrandRepository {
 
   @override
   Future<List<SubBrand>> getAllSubBrands() async {
-    final subBrands = _subBrandBox.getAll();
+    final subBrands = _box.getAll();
     subBrands.sort(
         (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
     return subBrands.map((e) => e.toEntity()).toList();
@@ -37,28 +35,28 @@ class SubBrandBox implements SubBrandRepository {
 
   @override
   Future<SubBrand?> getSubBrandById(int id) async {
-    return _subBrandBox.get(id)?.toEntity();
+    return _box.get(id)?.toEntity();
   }
 
   @override
   Future<int> addSubBrand(SubBrand subBrand) async {
-    return _subBrandBox.put(SubBrandModel.fromEntity(subBrand));
+    return _box.put(SubBrandModel.fromEntity(subBrand));
   }
 
   @override
   Future<void> updateSubBrand(SubBrand subBrand) async {
-    _subBrandBox.put(SubBrandModel.fromEntity(subBrand));
+    _box.put(SubBrandModel.fromEntity(subBrand));
   }
 
   @override
   Future<bool> deleteSubBrand(int id) async {
-    return _subBrandBox.remove(id);
+    return _box.remove(id);
   }
 
   @override
   Future<List<SubBrand>> getSubBrandsForBrand(int brandId) async {
     final query =
-        _subBrandBox.query(SubBrandModel_.brand.equals(brandId)).build();
+        _box.query(SubBrandModel_.brand.equals(brandId)).build();
     final subBrands = query.find();
     subBrands.sort(
         (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));

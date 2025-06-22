@@ -176,7 +176,7 @@
           "type": 11,
           "flags": 520,
           "indexId": "13:8698204969543010742",
-          "relationTarget": "ProductVariant"
+          "relationTarget": "ProductVariantModel"
         }
       ],
       "relations": []

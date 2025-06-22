@@ -10,6 +10,9 @@ class ObjectBoxHelper {
   /// The ObjectBox store instance.
   late final Store _store;
 
+  /// Public getter for the store.
+  Store get store => _store;
+
   // Declare Box instances for each of your entities.
   // These will be initialized in the _create private constructor.
   late final Box<BrandModel> brandBox;
