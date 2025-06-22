@@ -1,11 +1,21 @@
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:smart_shopper/data/repositories/brand_box.dart';
+import 'package:smart_shopper/data/repositories/grocery_store_box.dart';
+import 'package:smart_shopper/data/repositories/price_entry_box.dart';
 import 'package:smart_shopper/data/repositories/product_line_box.dart';
+import 'package:smart_shopper/data/repositories/product_variant_box.dart';
+import 'package:smart_shopper/data/repositories/shopping_item_box.dart';
+import 'package:smart_shopper/data/repositories/shopping_list_box.dart';
 import 'package:smart_shopper/data/repositories/sub_brand_box.dart';
 import 'package:smart_shopper/domain/repositories/brand_repository.dart';
+import 'package:smart_shopper/domain/repositories/grocery_store_repository.dart';
+import 'package:smart_shopper/domain/repositories/price_entry_repository.dart';
 import 'package:smart_shopper/domain/repositories/product_line_repository.dart';
+import 'package:smart_shopper/domain/repositories/product_variant_repository.dart';
 import 'package:smart_shopper/domain/repositories/sub_brand_repository.dart';
+import 'package:smart_shopper/domain/repositories/shopping_item_repository.dart';
+import 'package:smart_shopper/domain/repositories/shopping_list_repository.dart';
 import 'package:smart_shopper/features/brands/cubit/brand_cubit.dart';
 import 'package:smart_shopper/features/price_entries/cubit/price_entry_cubit.dart';
 import 'package:smart_shopper/features/product_variants/cubit/product_variant_cubit.dart';
@@ -39,6 +49,26 @@ void setupLocator(ObjectBoxHelper objectboxHelperInstance) {
 
   getIt.registerSingleton<ProductLineRepository>(
     ProductLineBox(getIt<ObjectBoxHelper>()),
+  );
+
+  getIt.registerSingleton<GroceryStoreRepository>(
+    GroceryStoreBox(getIt<ObjectBoxHelper>().store),
+  );
+
+  getIt.registerSingleton<PriceEntryRepository>(
+    PriceEntryBox(getIt<ObjectBoxHelper>().store),
+  );
+
+  getIt.registerSingleton<ProductVariantRepository>(
+    ProductVariantBox(getIt<ObjectBoxHelper>().store),
+  );
+
+  getIt.registerSingleton<ShoppingListRepository>(
+    ShoppingListBox(getIt<ObjectBoxHelper>().store),
+  );
+
+  getIt.registerSingleton<ShoppingItemRepository>(
+    ShoppingItemBox(getIt<ObjectBoxHelper>().store),
   );
   // TODO: The following repositories need to be migrated to the new architecture
   // getIt.registerSingleton<IShoppingListRepository>(
