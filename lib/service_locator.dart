@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
-import 'package:smart_shopper/data/repositories/boxes.dart';
-import 'package:smart_shopper/domain/repositories/repositories.dart';
+import 'package:smart_shopper/data/repositories/box_barrel.dart';
+import 'package:smart_shopper/domain/repositories/repository_barrel.dart';
 import 'package:smart_shopper/features/brands/cubit/brand_cubit.dart';
 import 'package:smart_shopper/objectbox_helper.dart';
 import 'package:smart_shopper/services/llm_service.dart';
