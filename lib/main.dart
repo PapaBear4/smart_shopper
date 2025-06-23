@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'objectbox_helper.dart'; // Import the ObjectBox helper class
 import 'service_locator.dart'; // Import the GetIt setup file
-import 'routing/app_router.dart'; // Import the router config
+import 'presentation/routing/app_router.dart'; // Import the router config
 
 /// Entry point of the application
 /// Sets up dependencies and initializes the app

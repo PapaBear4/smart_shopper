@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart'; 
 import 'package:smart_shopper/features/stores/view/store_screen.dart';
-import '../features/debug/view/debug_screen.dart'; 
-import '../features/shopping_lists/view/shopping_lists_screen.dart';
-import '../features/shopping_items/view/shopping_items_screen.dart';
-import '../features/items_by_store/view/items_by_store_screen.dart';
-import '../features/product_variants/screens/product_variants_list_screen.dart';
-import '../features/product_variants/screens/product_variant_form_screen.dart';
-import '../domain/entities/product_variant.dart'; // Required for casting arguments
-import '../features/scan_list/presentation/pages/scan_list_page.dart'; // Added for Scan List Page
+import '../../features/debug/view/debug_screen.dart'; 
+import '../../features/shopping_lists/view/shopping_lists_screen.dart';
+import '../../features/shopping_items/view/shopping_items_screen.dart';
+import '../../features/items_by_store/view/items_by_store_screen.dart';
+import '../../features/product_variants/screens/product_variants_list_screen.dart';
+import '../../features/product_variants/screens/product_variant_form_screen.dart';
+import '../../domain/entities/product_variant.dart'; // Required for casting arguments
+import '../../features/scan_list/presentation/pages/scan_list_page.dart'; // Added for Scan List Page
 import 'dart:developer';
 import 'package:flutter/foundation.dart';
 
